@@ -15,6 +15,12 @@ ActiveRecord::Schema.define(version: 2019_02_25_224024) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "comments", force: :cascade do |t|
+    t.bigint "tweets_id"
+    t.text "content"
+    t.index ["tweets_id"], name: "index_comments_on_tweets_id"
+  end
+
   create_table "follows", force: :cascade do |t|
     t.string "follower_id"
     t.string "followed_id"
@@ -29,4 +35,40 @@ ActiveRecord::Schema.define(version: 2019_02_25_224024) do
     t.text "description"
   end
 
+  create_table "likes", id: false, force: :cascade do |t|
+    t.bigint "tweet_id", null: false
+    t.bigint "user_id", null: false
+    t.index ["tweet_id"], name: "index_likes_on_tweet_id"
+    t.index ["user_id"], name: "index_likes_on_user_id"
+  end
+
+  create_table "mentions", id: false, force: :cascade do |t|
+    t.bigint "tweet_id", null: false
+    t.bigint "user_id", null: false
+    t.index ["tweet_id"], name: "index_mentions_on_tweet_id"
+    t.index ["user_id"], name: "index_mentions_on_user_id"
+  end
+
+  create_table "tweets", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "retweet_id"
+    t.text "content"
+    t.string "img_url"
+    t.string "video_url"
+    t.integer "mention_id"
+    t.date "date"
+    t.integer "total_likes"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "user_name"
+    t.string "email"
+    t.string "full_name"
+    t.date "dob"
+    t.string "bio"
+    t.date "api_token"
+    t.string "password"
+  end
+
+  add_foreign_key "comments", "tweets", column: "tweets_id"
 end
