@@ -28,7 +28,7 @@ ActiveRecord::Schema.define(version: 2019_02_25_224024) do
 
   create_table "hash_tag_tweets", force: :cascade do |t|
     t.string "tweet_id"
-    t.string "hashtag_id"
+    t.string "hash_tag_id"
   end
 
   create_table "hash_tags", force: :cascade do |t|
@@ -61,7 +61,7 @@ ActiveRecord::Schema.define(version: 2019_02_25_224024) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "user_name"
+    t.string "username"
     t.string "email"
     t.string "full_name"
     t.date "dob"

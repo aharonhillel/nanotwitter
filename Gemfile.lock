@@ -13,6 +13,7 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
     arel (9.0.0)
+    bcrypt (3.1.12)
     byebug (11.0.0)
     coderay (1.1.2)
     concurrent-ruby (1.1.4)
@@ -52,6 +53,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord
+  bcrypt
   faker
   pg (~> 0.18)
   pry-byebug
