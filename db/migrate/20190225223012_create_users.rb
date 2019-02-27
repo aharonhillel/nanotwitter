@@ -7,7 +7,7 @@ class CreateUsers < ActiveRecord::Migration[5.2]
         t.date :dob
       t.string :bio
       t.date :api_token
-      t.string :password
+      t.string :password_hash
     end
   end
 end

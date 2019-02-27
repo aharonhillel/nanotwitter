@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(version: 2019_02_25_224024) do
     t.date "dob"
     t.string "bio"
     t.date "api_token"
-    t.string "password"
+    t.string "password_hash"
   end
 
   add_foreign_key "comments", "tweets", column: "tweets_id"
