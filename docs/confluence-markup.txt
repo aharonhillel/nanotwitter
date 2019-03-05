@@ -1,0 +1,1271 @@
+h1. nanoTwitter NanoTwitter for Brandeis University’s Scalability taught by Pito Salas 
+
+*Version:* 1.0.0
+
+----
+
+{toc:printable=true|style=square|minLevel=2|maxLevel=3|type=list|outline=false|include=.*}
+
+h2. Endpoints
+
+    h3. commentsTweetIdGet
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /comments/{tweet_id}
+    {code}
+    *Summary:* All comments for a specific tweet
+    *Description:* Return a list of all comments for a specific tweet
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |tweetId |id for a specific tweet |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid tweet_id supplied
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid tweet_id supplied"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     tweet_id not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "tweet_id not found"
+}
+        {code}
+    ----
+
+    h3. commentsTweetIdNewPost
+    {status:colour=Yellow|title=post|subtle=false}
+    {code}
+    post /comments/{tweet_id}/new
+    {code}
+    *Summary:* Create a new comment for a tweet
+    *Description:* 
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |tweetId |ID of tweet to be commented |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid tweet_id
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid tweet_id"
+}
+        {code}
+    ----
+
+    h3. followsUserIdFollowedIdDelete
+    {status:colour=Yellow|title=delete|subtle=false}
+    {code}
+    delete /follows/{user_id}/{followed_id}
+    {code}
+    *Summary:* Delete follow relationship between two users
+    *Description:* Unfollow a user who was followed
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |userId |User id who follows |(/) | |  |
+
+|followedId |User id who is followed |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 400
+        *Message:*     Invalid User supplied
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid User supplied"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     Follow was not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Follow was not found"
+}
+        {code}
+    ----
+
+    h3. followsUserIdFollowedIdPost
+    {status:colour=Yellow|title=post|subtle=false}
+    {code}
+    post /follows/{user_id}/{followed_id}
+    {code}
+    *Summary:* Add new follow relationship between two users
+    *Description:* 
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |userId |User id who follows |(/) | |  |
+
+|followedId |User id who is followed |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 0
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+    ----
+
+    h3. userIdFollowedUsersGet
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /{user_id}/followed/users
+    {code}
+    *Summary:* Users who are following current user
+    *Description:* Return a list of users follow current user
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |userId |id for current user |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid user_id supplied
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid user_id supplied"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     user_id not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "user_id not found"
+}
+        {code}
+    ----
+
+    h3. userIdFollowingUsersGet
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /{user_id}/following/users
+    {code}
+    *Summary:* User being followed by current user
+    *Description:* Return a list of users followed by current user
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |userId |id for current user |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid user_id supplied
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid user_id supplied"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     user_id not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "user_id not found"
+}
+        {code}
+    ----
+
+    h3. hashTagsNewPost
+    {status:colour=Yellow|title=post|subtle=false}
+    {code}
+    post /hash_tags/new
+    {code}
+    *Summary:* Create a new hash_tags
+    *Description:* 
+
+
+    h4. Parameters
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+    ----
+
+    h3. tweetIdLikeDelete
+    {status:colour=Yellow|title=delete|subtle=false}
+    {code}
+    delete /{tweet_id}/like
+    {code}
+    *Summary:* Delete like for a tweet by a user
+    *Description:* Unlike a tweet that a user liked
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |tweetId |Delete like by a user on a tweet |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 400
+        *Message:*     Invalid User supplied or invalid tweet ID
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid User supplied or invalid tweet ID"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     Like was not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Like was not found"
+}
+        {code}
+    ----
+
+    h3. tweetIdLikeGet
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /{tweet_id}/like
+    {code}
+    *Summary:* Number of likes for a specific tweet
+    *Description:* Recieve an integer with the number of likes
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |tweetId |id for a specific tweet |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid tweet_id supplied
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid tweet_id supplied"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     tweet_id not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "tweet_id not found"
+}
+        {code}
+    ----
+
+    h3. tweetIdLikePost
+    {status:colour=Yellow|title=post|subtle=false}
+    {code}
+    post /{tweet_id}/like
+    {code}
+    *Summary:* Add new like for specific tweet by a specific user
+    *Description:* 
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |tweetId |User id and tweet id |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 0
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+    ----
+
+    h3. mentionsTweetIdNewPost
+    {status:colour=Yellow|title=post|subtle=false}
+    {code}
+    post /mentions/{tweet_id}/new
+    {code}
+    *Summary:* Create a tweet mentioning a/many users
+    *Description:* 
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |tweetId |ID of tweet to be commented |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid tweet_id
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid tweet_id"
+}
+        {code}
+    ----
+
+    h3. notificationsGet
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /notifications
+    {code}
+    *Summary:* Show all notifications
+    *Description:* 
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |username |username of the user |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     OK
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "OK"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     User not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "User not found"
+}
+        {code}
+    ----
+
+    h3. searchKeywordGet
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /search/{keyword}
+    {code}
+    *Summary:* Show all search result of keyword
+    *Description:* 
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |keyword |keyword to be searched |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     OK
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "OK"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     no result of such keyword
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "no result of such keyword"
+}
+        {code}
+    ----
+
+    h3. deleteTweet
+    {status:colour=Yellow|title=delete|subtle=false}
+    {code}
+    delete /tweets/{tweetId}
+    {code}
+    *Summary:* Delete tweet by ID
+    *Description:* delete tweet
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |tweetId |ID of the tweet that needs to be deleted |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 400
+        *Message:*     Invalid ID supplied
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid ID supplied"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     Tweet not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Tweet not found"
+}
+        {code}
+    ----
+
+    h3. getInventory
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /tweets/recent
+    {code}
+    *Summary:* Returns the most recent 50 tweets
+    *Description:* Returns a list of most recent updated tweets
+
+
+    h4. Parameters
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+    ----
+
+    h3. getTweetByHashTagId
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /tweets/trending/{hash_tag}
+    {code}
+    *Summary:* Find tweets by hash_tag
+    *Description:* For valid response try integer hash_tag ID.
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |hashTag |ID of hash_tag on tweets that needs to be fetched |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid ID supplied
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid ID supplied"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     Tweet not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Tweet not found"
+}
+        {code}
+    ----
+
+    h3. tweetsFollowingGet
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /tweets/following
+    {code}
+    *Summary:* Returns tweets from users followed by current user
+    *Description:* Returns a list of  tweets from users followed by current user
+
+
+    h4. Parameters
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+    ----
+
+    h3. tweetsNewPost
+    {status:colour=Yellow|title=post|subtle=false}
+    {code}
+    post /tweets/new
+    {code}
+    *Summary:* Create a new tweet
+    *Description:* 
+
+
+    h4. Parameters
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid Tweet
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid Tweet"
+}
+        {code}
+    ----
+
+    h3. tweetsTweetIdGet
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /tweets/{tweetId}
+    {code}
+    *Summary:* Find tweets by ID
+    *Description:* For valid response try integer IDs. Non-existent ID will generate exceptions.
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |tweetId |ID of tweet that needs to be fetched |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid ID supplied
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid ID supplied"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     Tweet not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Tweet not found"
+}
+        {code}
+    ----
+
+    h3. addUser
+    {status:colour=Yellow|title=post|subtle=false}
+    {code}
+    post /users/new
+    {code}
+    *Summary:* Add a new user
+    *Description:* 
+
+
+    h4. Parameters
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     OK
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "OK"
+}
+        {code}
+        *Status Code:* 403
+        *Message:*     Failed to create user
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Failed to create user"
+}
+        {code}
+    ----
+
+    h3. getTweetsByUsername
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /{username}/tweets
+    {code}
+    *Summary:* Display current user’s tweets
+    *Description:* Returns a list of a user’s tweets
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |username |username of a user for their tweets |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation"
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid user supplied
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid user supplied"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     user not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "user not found"
+}
+        {code}
+    ----
+
+    h3. signupGet
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /signup
+    {code}
+    *Summary:* Show the user creation page
+    *Description:* 
+
+
+    h4. Parameters
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     OK
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "OK"
+}
+        {code}
+    ----
+
+    h3. updateUser
+    {status:colour=Yellow|title=put|subtle=false}
+    {code}
+    put /users/{username}
+    {code}
+    *Summary:* Update an existing user information
+    *Description:* 
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |username |username of the user to be found |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     OK
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "OK"
+}
+        {code}
+        *Status Code:* 404
+        *Message:*     User not found
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "User not found"
+}
+        {code}
+        *Status Code:* 405
+        *Message:*     Validation exception
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Validation exception"
+}
+        {code}
+    ----
+
+    h3. usersUsernameGet
+    {status:colour=Yellow|title=get|subtle=false}
+    {code}
+    get /users/{username}
+    {code}
+    *Summary:* Finds user by username
+    *Description:* Finds user by username
+
+
+    h4. Parameters
+        h5. Path Parameters
+        ||Name||Description||Required||Default||Pattern||
+        |username |username of the user to be found |(/) | |  |
+
+
+
+
+
+
+
+
+    h4. Responses
+        *Status Code:* 200
+        *Message:*     successful operation
+        {code:title=Response Type}
+String
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "successful operation",
+  "schema" : {
+    "type" : "string"
+  }
+}
+        {code}
+        *Status Code:* 400
+        *Message:*     Invalid username value
+        {code:title=Response Type}
+
+        {code}
+        See [#models]
+
+
+
+        {code:title=Response Schema |collapse=true}
+{
+  "description" : "Invalid username value"
+}
+        {code}
+    ----
+
+h2. Models
+
