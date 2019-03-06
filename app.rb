@@ -4,6 +4,8 @@ require 'bcrypt'
 require 'byebug'
 require_relative 'models/user'
 
+enable :sessions
+
 get "/signup" do
   erb :"users/signup"
 end
@@ -12,15 +14,17 @@ post "/signup" do
   @user = User.new(:username => params[:username], :email => params[:email])
   @user.password = params[:password]
   if @user.save
-    "success"
+    session[:user_id] = @user.id
+    redirect '/homepage'
     #erb :"users/login-successful"
   else
     redirect_to "/failure"
   end
 end
 
-get "/login-successful" do
-  erb :"users/login-successful"
+get '/homepage' do
+  @user = User.find(session[:user_id])
+  erb :'homepage'
 end
 
 
@@ -32,7 +36,8 @@ post '/login' do
   #byebug
   @user = User.find_by_email(params[:email])
   if @user != nil && @user.password == params[:password]
-    "Loged in"
+    "Logged in"
+    redirect '/homepage'
     #Need to write give_token function
      #give_token
   else
