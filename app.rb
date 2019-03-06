@@ -3,6 +3,7 @@ require 'sinatra/activerecord'
 require 'bcrypt'
 require 'byebug'
 require_relative 'models/user'
+require_relative 'controllers/tweet'
 
 enable :sessions
 
