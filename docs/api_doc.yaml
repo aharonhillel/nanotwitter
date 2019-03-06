@@ -721,10 +721,7 @@ definitions:
       user_id:
         type: number
         example: 12 
-# host: nanotwitter.com
-# basePath: /api/v1
+host: nanotwitter.com
+basePath: /api/v1
 schemes:
  - https
-# Added by API Auto Mocking Plugin
-host: virtserver.swaggerhub.com
-basePath: /nanoTwitter4/nanoTwitterAPI/1.0.0
