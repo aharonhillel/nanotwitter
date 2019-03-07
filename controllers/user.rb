@@ -1,5 +1,14 @@
-require 'byebug'
 enable :sessions
+
+helpers do
+  def current_user
+    User.find_by_username(session[:username])
+  end
+
+  def current_user_id
+    session[:user_id]
+  end
+end
 
 get '/signup' do
   erb :'users/signup'
@@ -18,8 +27,8 @@ post '/signup' do
 end
 
 get '/users/:username' do
-  #@user = User.find_by_username(params[:username])
-  erb :'users/homepage', { :locals => { :name => params[:username] } }
+  @user = User.find_by_username(params[:username])
+  erb :'users/homepage'
 end
 
 
@@ -30,6 +39,7 @@ end
 post '/login' do
   #byebug
   @user = User.find_by_email(params[:email])
+  session[:username] = @user.username
   if @user != nil && @user.password == params[:password]
     "Logged in"
     erb :'users/homepage'
@@ -54,3 +64,10 @@ get '/users/:username/tweets' do
     u.tweets.to_json
   end
 end
+
+get '/users' do
+  @users = User.all
+  erb :'users/all'
+end
+
+

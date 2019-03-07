@@ -1,3 +1,4 @@
-post 'follows/:followed_user' do
-  "Follow works"
+post '/follows/:followed_user' do
+  erb :'follows/following'
 end
+
