@@ -13,3 +13,4 @@ user = User.new(:username => row[1], :email => Faker::Internet.email, :id => row
 user.password = Faker::Lorem.word
 user.save
 end
+# User.import all_users, recursive: true
