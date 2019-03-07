@@ -6,7 +6,7 @@ class CreateTweets < ActiveRecord::Migration[5.2]
       t.text :content
       t.string :img_url
       t.string :video_url
-      t.integer :mention_id
+      # t.integer :mention_id
       t.date :date
       t.integer :total_likes
     end

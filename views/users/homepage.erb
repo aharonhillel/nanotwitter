@@ -1,0 +1,20 @@
+<h4>Homepage</h4>
+<h4>Welcome <%= current_user.username %></h4>
+<ul>
+  <li>Tweets
+<!--    <p><a href="/tweet/<%#= @book.id %>/edit">Edit Book</a></p>-->
+  </li>
+
+  <li>Following</li>
+</ul>
+
+<ul>
+  <form action='/tweet/new' method='get'>
+    <button type='submit' class='btn btn-primary'>Tweet</button>
+  </form>
+  <form action='/follows/<%=@user.username %>' method='post'>
+    <button type='submit' class='btn btn-primary'>Follow</button>
+  </form>
+  <h3>Log out</h3>
+  <h3>Edit Profile</h3>
+</ul>
