@@ -1,5 +1,5 @@
 post '/follows/:followed' do
-  @follower = params[:followed]
+  @followed = params[:followed]
   erb :'follows/following'
 end
 

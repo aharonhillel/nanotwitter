@@ -6,7 +6,9 @@
 </ul>
 
 <ul>
-  <h3>Tweet</h3>
+  <form action='/tweet/new' method='get'>
+    <button type='submit' class='btn btn-primary'>Tweet</button>
+  </form>
   <form action='/follows/<%=@user.username %>' method='post'>
     <button type='submit' class='btn btn-primary'>Follow</button>
   </form>
