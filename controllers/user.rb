@@ -17,8 +17,8 @@ post '/signup' do
 end
 
 get '/users/:username' do
-  @user = User.find_by_username(session[:username])
-  erb :'users/homepage'
+  #@user = User.find_by_username(params[:username])
+  erb :'users/homepage', { :locals => { :name => params[:username] } }
 end
 
 
