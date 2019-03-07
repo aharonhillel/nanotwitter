@@ -1,69 +1,67 @@
-ENV['APP_ENV'] = 'test'
-
+require 'minitest/autorun'
 require 'rack/test'
-require 'test/unit'
-require_relative '../app'
+require 'faker'
+require_relative '../app.rb'
 
-class FollowsTest < Test::Unit::TestCase
-  include Rack::Test::Methods
 
-  def test_user1_follows_user2
+include Rack::Test::Methods
+
+def app
+ Sinatra::Application
+end
+
+
+describe 'POST on /follows/:followed' do
+  before do
+    Follow.delete_all
+    User.delete_all
+  end
+  it 'Follow a user' do
     browser = Rack::Test::Session.new(Rack::MockSession.new(Sinatra::Application))
-    browser.get '/test/reset/all'
 
     user1 = create_dummy_user(1)
     user2 = create_dummy_user(2)
-
-    browser.post '/login',
-                 email: user1.email,
-                 password: 'password'
-
-    browser.post '/follows/user2'
-    assert browser.last_response.body.include? '<h4>Follower: user1 </h4>
-
-<h4>Followed:user2 </h4>'
+    post '/follows/user2',{}, 'rack.session' => { :user =>user1 }
+    assert_equal user1.following.count, 1
+    assert_equal user2.following.count, 0
+    assert_equal user1.followers.count, 0
+    assert_equal user2.followers.count, 1
   end
-
-  def test_user1_follows_user2_follows_user3
+  it 'Cant follow yourself' do
     browser = Rack::Test::Session.new(Rack::MockSession.new(Sinatra::Application))
-    browser.get '/test/reset/all'
 
     user1 = create_dummy_user(1)
     user2 = create_dummy_user(2)
-    user3 = create_dummy_user(3)
-    # user1 follows user2
-    browser.post 'login',
-                 email: user1.email,
-                 password: 'password'
-
-    browser.post '/follows/user2'
-    assert browser.last_response.body.include? '<h4>Follower: user1 </h4>
-
-<h4>Followed:user2 </h4>'
-    # user2 follows user3
-    browser.post 'login',
-                 email: user2.email,
-                 password: 'password'
-
-    browser.post '/follows/user3'
-    assert browser.last_response.body.include? '<h4>Follower: user2 </h4>
-
-<h4>Followed:user3 </h4>'
-    # user3 follows user1
-    browser.post 'login',
-                 email: user3.email,
-                 password: 'password'
-
-    browser.post '/follows/user1'
-    assert browser.last_response.body.include? '<h4>Follower: user3 </h4>
-
-<h4>Followed:user1 </h4>'
+    post '/follows/user1',{}, 'rack.session' => { :user =>user1 }
+    last_response.ok?
+    assert_equal "Cannot follow yourself", last_response.body
   end
+end
 
-  def create_dummy_user(id)
-    user = User.new(username: "user#{id}", email: "user#{id}@gmail.com")
-    user.password = 'password'
-    user.save
-    user
+describe 'POST on /follows/:followed' do
+  before do
+    Follow.delete_all
+    User.delete_all
   end
+  it 'Cant follow yourself' do
+    browser = Rack::Test::Session.new(Rack::MockSession.new(Sinatra::Application))
+
+    user1 = create_dummy_user(1)
+    user2 = create_dummy_user(2)
+    post '/follows/user1',{}, 'rack.session' => { :user =>user1 }
+    last_response.ok?
+    assert_equal "Cannot follow yourself", last_response.body
+    assert_equal user1.following.count, 0
+    assert_equal user2.following.count, 0
+    assert_equal user1.followers.count, 0
+    assert_equal user2.followers.count, 0
+  end
+end
+
+
+def create_dummy_user(id)
+  user = User.new(username: "user#{id}", email: "user#{id}@gmail.com")
+  user.password = 'password'
+  user.save
+  user
 end

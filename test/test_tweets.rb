@@ -22,9 +22,8 @@ describe 'POST on /tweet/new' do
          content: c}
     last_response.ok?
     json = JSON.parse(last_response.body)
-    tweet = json.last
-    assert_equal c, tweet['content']
-    assert_equal 1, tweet['user_id']
+    assert_equal c, json['content']
+    assert_equal 1, json['user_id']
   end
 end
 
@@ -54,14 +53,14 @@ describe 'validations on POST for /tweet/new' do
          content: c}
     last_response.ok?
     json = JSON.parse(last_response.body)
-    assert_equal json.first[1], "unale to create tweet"
+    assert_equal json.first[1], "unable to create tweet"
   end
   it 'Insure content is present' do
     post '/tweet/new',{
          user_id: 5}
     last_response.ok?
     json = JSON.parse(last_response.body)
-    assert_equal json.first[1], "unale to create tweet"
+    assert_equal json.first[1], "unable to create tweet"
   end
 end
 
