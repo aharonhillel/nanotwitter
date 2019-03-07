@@ -19,7 +19,14 @@ post '/signup' do
   @user.password = params[:password]
   if @user.save
     session[:username] = @user.username
-    redirect '/users/' + session[:username]
+    request.accept.each do |type|
+    case type.to_s
+    when 'text/html'
+      halt (redirect '/users/' + session[:username])
+    when 'text/json'
+      halt @user.to_json
+  end
+end
   else
     "Failed"
     #redirect_to "/failure"
