@@ -69,8 +69,10 @@ DEPENDENCIES
   bcrypt
   faker
   irb
+  minitest
   pg (~> 0.18)
   pry-byebug
+  rack
   rake
   sinatra
   sinatra-activerecord
