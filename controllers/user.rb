@@ -1,3 +1,4 @@
+require 'byebug'
 enable :sessions
 
 get '/signup' do
@@ -42,4 +43,13 @@ end
 
 get '/logout' do
 
+end
+
+get '/users/:username/tweets' do
+  u = User.find_by_username(params[:username])
+  if u.nil?
+    "#{params[:username]} has no tweets"
+  else
+    u.tweets.to_json
+  end
 end
