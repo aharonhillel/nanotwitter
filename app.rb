@@ -28,6 +28,6 @@ get '/' do
 end
 
 # loader.io
-get 'loaderio-63161c3e0ab841eb745c53de8a6823f5' do
+get '/loaderio-63161c3e0ab841eb745c53de8a6823f5' do
   'loaderio-63161c3e0ab841eb745c53de8a6823f5'
 end
