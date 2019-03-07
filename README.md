@@ -16,6 +16,7 @@ A baby twitter.
 - Implemented seed data
 - Created tests for users, tweets, and follows
 - Worked on further AWS deployment, docker
+- Implemented EB, codePipeline/codeDeploy, and AWS RDS
 
 
 Tests can be ran by running:
