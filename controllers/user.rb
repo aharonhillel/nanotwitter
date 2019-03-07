@@ -1,3 +1,5 @@
+require_relative '../models/user'
+
 enable :sessions
 
 helpers do

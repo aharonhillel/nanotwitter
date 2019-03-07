@@ -13,7 +13,7 @@ post '/tweet/new' do
     Tweet.all.to_json
   else
     status 404
-      {'error' => 'unale to create tweet'}.to_json
+      {'error' => 'unable to create tweet'}.to_json
   end
 end
 
@@ -21,7 +21,7 @@ post '/tweet/create' do
   tweet = Tweet.new(:user_id => current_user_id, :content => params[:content])
   "Create tweet"
   if tweet.save
-    redirect '/tweet/get_tweets/' + tweet.id
+    redirect '/tweet/get_tweets/' + tweet.id.to_s
   else
     'Failed create tweet'
   end
@@ -31,4 +31,8 @@ get '/tweet/get_tweets/:id' do
   id = params[:id]
   @tweet = Tweet.find(id)
   erb :'/tweets/show'
+end
+
+get '/tweet/following_tweets' do
+
 end
