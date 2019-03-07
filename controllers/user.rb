@@ -64,3 +64,9 @@ get '/users/:username/tweets' do
   end
 end
 
+get '/users' do
+  @users = User.all
+  erb :'users/all'
+end
+
+
