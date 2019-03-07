@@ -4,7 +4,15 @@ require 'bcrypt'
 require 'byebug'
 # require 'date'
 require_relative 'models/user'
+require_relative 'models/tweet'
+require_relative 'models/comment'
+require_relative 'models/follow'
+require_relative 'models/hash_tag'
+require_relative 'models/hash_tag_tweet'
+require_relative 'models/like'
+require_relative 'models/mention'
 require_relative 'controllers/tweet'
+<<<<<<< HEAD
 require_relative 'models/tweet'
 
 enable :sessions
@@ -50,3 +58,7 @@ end
 
 get '/logout' do
 end
+=======
+require_relative 'controllers/user'
+
+>>>>>>> d5cc2889f7a465d10ea94be1705fca0c1a087e68
