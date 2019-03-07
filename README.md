@@ -19,7 +19,7 @@ A baby twitter.
 - Implemented EB, codePipeline/codeDeploy, and AWS RDS
 
 
-### Contributors
+### Steps to run
 
 bundle install
 
