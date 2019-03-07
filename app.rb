@@ -13,6 +13,7 @@ require_relative 'models/like'
 require_relative 'models/mention'
 require_relative 'controllers/tweet'
 require_relative 'controllers/user'
+require_relative 'controllers/test_interface'
 current_dir = Dir.pwd
 
 
