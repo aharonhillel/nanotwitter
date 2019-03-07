@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'faker'
 
 require_relative '../models/comment'
 require_relative '../models/follow'
@@ -9,8 +10,8 @@ require_relative '../models/mention'
 require_relative '../models/user'
 require_relative '../models/tweet'
 
-# Resetting models
-get '/reset/all' do
+# Reset models
+get '/test/reset/all' do
   records_affected = Comment.delete_all
   + Follow.delete_all
   + HashTag.delete_all
@@ -19,6 +20,15 @@ get '/reset/all' do
   + Mention.delete_all
   + User.delete_all
   + Tweet.delete_all
+
+  reset_auto_increment 'comments'
+  reset_auto_increment 'follows'
+  reset_auto_increment 'hash_tags'
+  reset_auto_increment 'hash_tag_tweets'
+  reset_auto_increment 'likes'
+  reset_auto_increment 'mentions'
+  reset_auto_increment 'users'
+  reset_auto_increment 'tweets'
 
   content_type :json
   status 200
@@ -29,7 +39,7 @@ get '/reset/all' do
   }.to_json
 end
 
-get '/reset/comments' do
+get '/test/reset/comments' do
   records_affected = Comment.delete_all
   reset_auto_increment 'comments'
 
@@ -42,7 +52,7 @@ get '/reset/comments' do
   }.to_json
 end
 
-get '/reset/follows' do
+get '/test/reset/follows' do
   records_affected = Follow.delete_all
   reset_auto_increment 'follows'
 
@@ -55,7 +65,7 @@ get '/reset/follows' do
   }.to_json
 end
 
-get '/reset/hash_tags' do
+get '/test/reset/hash_tags' do
   records_affected = HashTag.delete_all
   reset_auto_increment 'hash_tags'
 
@@ -68,7 +78,7 @@ get '/reset/hash_tags' do
   }.to_json
 end
 
-get '/reset/hash_tag_tweets' do
+get '/test/reset/hash_tag_tweets' do
   records_affected = HashTagTweet.delete_all
   reset_auto_increment 'hash_tag_tweets'
 
@@ -81,7 +91,7 @@ get '/reset/hash_tag_tweets' do
   }.to_json
 end
 
-get '/reset/likes' do
+get '/test/reset/likes' do
   records_affected = Like.delete_all
   reset_auto_increment 'likes'
 
@@ -94,7 +104,7 @@ get '/reset/likes' do
   }.to_json
 end
 
-get '/reset/mentions' do
+get '/test/reset/mentions' do
   records_affected = Mention.delete_all
   reset_auto_increment 'mentions'
 
@@ -107,7 +117,7 @@ get '/reset/mentions' do
   }.to_json
 end
 
-get '/reset/users' do
+get '/test/reset/users' do
   records_affected = User.delete_all
   reset_auto_increment 'users'
 
@@ -120,7 +130,7 @@ get '/reset/users' do
   }.to_json
 end
 
-get '/reset/tweets' do
+get '/test/reset/tweets' do
   records_affected = Tweet.delete_all
   reset_auto_increment 'tweets'
 
@@ -138,11 +148,24 @@ get '/status' do
   'healthy'
 end
 
-post '/users/create' do
+# Fill dummy data
+get '/test/users/create/:total' do
+  total = params[:total].to_i
+  total.times do
+    u = User.new(username: Faker::Name.name, email: Faker::Internet.email)
+    u.password = Faker::Cannabis.cannabinoid
+    u.save
+  end
+  status 200
+  {
+    'operation' => 'Created dummy users',
+    'success' => true,
+    'records_affected' => total
+  }.to_json
 end
 
 def reset_auto_increment(table_name)
   ActiveRecord::Base.connection.execute(
-    "ALTER TABLE #{table_name} AUTO_INCREMENT = 1"
+    "TRUNCATE TABLE #{table_name} RESTART IDENTITY CASCADE"
   )
 end
