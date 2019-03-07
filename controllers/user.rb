@@ -46,6 +46,7 @@ get '/logout' do
 end
 
 get '/users/:username/tweets' do
+  #Display all tweets by a user
   u = User.find_by_username(params[:username])
   if u.nil?
     "#{params[:username]} has no tweets"
