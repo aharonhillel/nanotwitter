@@ -22,3 +22,7 @@ require_relative 'controllers/user'
 # require_relative 'models/comment'
 require_relative 'controllers/follow'
 
+
+get '/' do
+  "Try /signup or /login to test our site!"
+end
