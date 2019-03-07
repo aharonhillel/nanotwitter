@@ -1,3 +1,5 @@
+require_relative '../models/user'
+
 enable :sessions
 
 helpers do
@@ -46,8 +48,9 @@ end
 post '/login' do
   #byebug
   @user = User.find_by_email(params[:email])
-  session[:username] = @user.username
+
   if @user != nil && @user.password == params[:password]
+    session[:username] = @user.username
     "Logged in"
     erb :'users/homepage'
     #Need to write give_token function
@@ -82,6 +85,7 @@ get '/users/:username/followers' do
   if @user.nil?
     "#{params[:username]} has no followers"
   else
-    erb :'follows/following'
+    erb :'follows/followers'
   end
 end
+

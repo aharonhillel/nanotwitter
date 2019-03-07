@@ -153,7 +153,7 @@ get '/test/users/create/:total' do
   total = params[:total].to_i
   total.times do
     u = User.new(username: Faker::Name.name, email: Faker::Internet.email)
-    u.password = Faker::Cannabis.cannabinoid
+    u.password = 'password'
     u.save
   end
   status 200
