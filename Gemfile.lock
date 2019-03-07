@@ -39,6 +39,8 @@ GEM
     rack (2.0.6)
     rack-protection (2.0.5)
       rack
+    rack-test (1.1.0)
+      rack (>= 1.0, < 3)
     rake (12.3.2)
     sinatra (2.0.5)
       mustermann (~> 1.0)
@@ -72,7 +74,7 @@ DEPENDENCIES
   minitest
   pg (~> 0.18)
   pry-byebug
-  rack
+  rack-test
   rake
   sinatra
   sinatra-activerecord
