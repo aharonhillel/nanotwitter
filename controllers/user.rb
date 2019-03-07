@@ -36,7 +36,7 @@ post '/login' do
     #give_token
   else
     "Wrong"
-    # redirect_to "/login-successful"
+    # redirect "/login-successful"
   end
 end
 
