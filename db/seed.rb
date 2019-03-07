@@ -1,10 +1,12 @@
 require 'csv'
 require_relative '../app.rb'
-require_relative 'seed_files/users.csv'
+# require_relative 'seed_files/users.csv'
 
-byebug
-CSV.foreach("seed_files/users.csv") do |row|
-  byebug
+file = CSV.read File.join(File.dirname(__FILE__), '/seed_files/users.csv')
+# Parse problem
+data = CSV.parse file, headers: true
+
+data.each do |row|
   puts 'dogs are cool' if row[0] == 'dog'
   puts "your animal is a #{row[0]}"
 end
