@@ -26,3 +26,8 @@ require_relative 'controllers/follow'
 get '/' do
   "Try /signup or /login to test our site!"
 end
+
+# loader.io
+get 'loaderio-63161c3e0ab841eb745c53de8a6823f5' do
+  'loaderio-63161c3e0ab841eb745c53de8a6823f5'
+end
