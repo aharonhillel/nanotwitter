@@ -19,10 +19,14 @@ A baby twitter.
 - Implemented EB, codePipeline/codeDeploy, and AWS RDS
 
 
-Steps to run:
+##Steps to run:
+
 bundle install
+
 rake db:create
+
 rake db:migrate
+
 Optional: rake db:seed
 
 Tests can be ran by running:
