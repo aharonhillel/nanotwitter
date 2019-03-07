@@ -70,4 +70,11 @@ get '/users' do
   erb :'users/all'
 end
 
-
+get '/users/:username/followers' do
+  @user= User.find_by_username(params[:username])
+  if @user.nil?
+    "#{params[:username]} has no followers"
+  else
+    erb :'follows/following'
+  end
+end
