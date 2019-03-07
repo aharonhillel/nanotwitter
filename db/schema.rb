@@ -55,7 +55,6 @@ ActiveRecord::Schema.define(version: 2019_02_25_224024) do
     t.text "content"
     t.string "img_url"
     t.string "video_url"
-    t.integer "mention_id"
     t.date "date"
     t.integer "total_likes"
   end
