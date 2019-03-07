@@ -81,4 +81,5 @@ EXPOSE 4567
 CMD cd /app \
 && gem install bundler \
 && bundle install \
+&& rake db:drop db:create db:migrate \
 && ruby app.rb
