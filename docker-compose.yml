@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  web:
+    container_name: nanotwitter-web
+    build:
+      context: .
+      dockerfile: build/nanotwitter-web/Dockerfile
+    ports:
+      - "4567:80"
+    networks:
+      - backend
+    environment: 
+      - RACK_ENV=test
+      - RDS_HOSTNAME=database
+      - RDS_PORT=5432
+      - RDS_DB_NAME=postgres
+  db:
+    container_name: postgres
+    image: postgres
+    expose:
+      - "5432"
+    networks:
+      backend:
+        aliases:
+          - database
+networks: 
+  backend:
