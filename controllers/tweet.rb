@@ -23,10 +23,11 @@ end
 # end
 
 post '/tweet/create' do
+  byebug
   if current_user.nil?
         "You are not signed in, please sign in to tweet"
   else
-  tweet = Tweet.new(:user_id => current_user, :content => params[:content])
+  tweet = Tweet.new(:user_id => current_user.id, :content => params[:content])
   "Create tweet"
   if tweet.save
     @tweet = tweet
