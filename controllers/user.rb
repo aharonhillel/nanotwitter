@@ -10,6 +10,8 @@ helpers do
   def current_user_id
     session[:user_id]
   end
+
+
 end
 
 get '/signup' do
@@ -37,7 +39,7 @@ end
 
 get '/users/:username' do
   @user = User.find_by_username(params[:username])
-  erb :'users/homepage'
+  erb :'profile/profile.html'
 end
 
 
