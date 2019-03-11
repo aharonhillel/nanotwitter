@@ -74,7 +74,7 @@ post '/login' do
   if !@user.nil? && @user.password == params[:password]
     session[:username] = @user.username
     'Logged in'
-    erb :'users/homepage'
+    erb :'timeline/timeline.html'
     # Need to write give_token function
     # give_token
   else
