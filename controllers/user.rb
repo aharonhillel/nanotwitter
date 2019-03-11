@@ -15,7 +15,7 @@ helpers do
 end
 
 get '/signup' do
-  erb :'users/_signupForm'
+  erb :'users/signup'
 end
 
 post '/signup' do
