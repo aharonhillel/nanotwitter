@@ -11,10 +11,10 @@ services:
     networks:
       - backend
     environment: 
-      - RACK_ENV=test
-      - RDS_HOSTNAME=database
-      - RDS_PORT=5432
-      - RDS_DB_NAME=postgres
+      RACK_ENV: test
+      RDS_HOSTNAME: database
+      RDS_PORT: 5432
+      RDS_DB_NAME: postgres
   db:
     container_name: postgres
     image: postgres
