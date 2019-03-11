@@ -2,6 +2,8 @@
 
 A baby twitter.
 
+http://nanotwitter.us-east-2.elasticbeanstalk.com/
+
 ### Contributors
 - Xiangran Zhao
 - Julian Ho
