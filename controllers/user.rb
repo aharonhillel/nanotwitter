@@ -4,12 +4,35 @@ enable :sessions
 
 helpers do
   def current_user
-    #if session[:username].nil?
-      User.find_by_username(session[:username])
-    #end
-
+    User.find_by_username(session[:username])
   end
 
+  def current_user_id
+    session[:user_id]
+  end
+
+  def current_user_tweets
+    u = User.find_by_username(session[:username])
+    if u.nil?
+      [{ content: 'No tweets' }]
+    else
+      u.tweets
+    end
+  end
+
+  # Mock function for testing profile ui
+  Mock_User = Struct.new(:username, :email, :date, :bio)
+  def mock_user
+    Mock_User.new('Mock User', 'user@mock.com', '1999/9/9', 'Hi, im just a mock user!')
+  end
+
+  Mock_Tweet = Struct.new(:user_id, :retweet_id, :content, :date, :total_likes)
+  def mock_user_tweets
+    [
+      Mock_Tweet.new(99, 199, 'this is a mock tweet from the mock user', '2019/03/09', 10),
+      Mock_Tweet.new(99, 201, 'this is a mock tweet 2 from the mock user', '2019/03/06', 12)
+    ]
+  end
 end
 
 get '/signup' do
@@ -17,60 +40,54 @@ get '/signup' do
 end
 
 post '/signup' do
-  @user = User.new(:username => params[:username], :email => params[:email])
+  @user = User.new(username: params[:username], email: params[:email])
   @user.password = params[:password]
   if @user.save
     session[:username] = @user.username
     request.accept.each do |type|
-    case type.to_s
-    when 'text/html'
-      halt (redirect '/users/' + session[:username])
-    when 'text/json'
-      halt @user.to_json
-  end
-end
+      case type.to_s
+      when 'text/html'
+        halt (redirect '/users/' + session[:username])
+      when 'text/json'
+        halt @user.to_json
+    end
+    end
   else
-    "Failed"
-    #redirect_to "/failure"
+    'Failed'
+    # redirect_to "/failure"
   end
 end
 
 get '/users/:username' do
-  @user = User.find_by_username(params[:username])
-  if @user.nil?
-    "No user named #{params[:username]}"
-  else
-    erb :'users/homepage'
-  end
+  @profile_user = User.find_by_username(params[:username])
+  erb :'profile/profile.html'
 end
-
 
 get '/login' do
   erb :'users/login'
 end
 
 post '/login' do
-  #byebug
+  # byebug
   @user = User.find_by_email(params[:email])
 
-  if @user != nil && @user.password == params[:password]
+  if !@user.nil? && @user.password == params[:password]
     session[:username] = @user.username
-    "Logged in"
+    'Logged in'
     erb :'users/homepage'
-    #Need to write give_token function
-    #give_token
+    # Need to write give_token function
+    # give_token
   else
-    "Wrong"
+    'Wrong'
     # redirect "/login-successful"
   end
 end
 
 get '/logout' do
-
 end
 
 get '/users/:username/tweets' do
-  #Display all tweets by a user
+  # Display all tweets by a user
   u = User.find_by_username(params[:username])
   if u.nil?
     "#{params[:username]} has no tweets"
@@ -85,11 +102,10 @@ get '/users' do
 end
 
 get '/users/:username/followers' do
-  @user= User.find_by_username(params[:username])
+  @user = User.find_by_username(params[:username])
   if @user.nil?
     "#{params[:username]} has no followers"
   else
     erb :'follows/followers'
   end
 end
-
