@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
   before_save {self.email = email.downcase}
 
   validates :username, presence: true, uniqueness: true, length: {maximum: 12}
-  validates :password_hash, presence: true, length: {minimum: 8} #, allow_blank: true
+  validates :password_hash, presence: true, length: {minimum: 8}
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+\.[a-z]+\z/i
   validates :email, presence: true, length: {maximum: 255},
