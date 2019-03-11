@@ -28,9 +28,7 @@ post '/tweet/create' do
   else
   tweet = Tweet.new(:user_id => current_user, :content => params[:content])
   "Create tweet"
-  byebug
   if tweet.save
-    byebug
     @tweet = tweet
     erb :'/tweets/show'
   else
