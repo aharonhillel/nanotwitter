@@ -4,12 +4,12 @@ enable :sessions
 
 helpers do
   def current_user
-    User.find_by_username(session[:username])
+    #if session[:username].nil?
+      User.find_by_username(session[:username])
+    #end
+
   end
 
-  def current_user_id
-    session[:user_id]
-  end
 end
 
 get '/signup' do
@@ -37,7 +37,11 @@ end
 
 get '/users/:username' do
   @user = User.find_by_username(params[:username])
-  erb :'users/homepage'
+  if @user.nil?
+    "No user named #{params[:username]}"
+  else
+    erb :'users/homepage'
+  end
 end
 
 
