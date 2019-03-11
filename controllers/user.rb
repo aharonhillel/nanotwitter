@@ -29,20 +29,8 @@ helpers do
   Mock_Tweet = Struct.new(:user_id, :retweet_id, :content, :date, :total_likes)
   def mock_user_tweets
     [
-      {
-        user_id: 99,
-        retweet_id: 199,
-        content: 'this is a mock tweet from the mock user',
-        date: '2019/03/09',
-        total_likes: 10
-      },
-      {
-        user_id: 99,
-        retweet_id: 201,
-        content: 'this is a mock tweet 2 from the mock user',
-        date: '2019/03/06',
-        total_likes: 12
-      }
+      Mock_Tweet.new(99, 199, 'this is a mock tweet from the mock user', '2019/03/09', 10),
+      Mock_Tweet.new(99, 201, 'this is a mock tweet 2 from the mock user', '2019/03/06', 12)
     ]
   end
 end
@@ -71,7 +59,7 @@ post '/signup' do
 end
 
 get '/users/:username' do
-  @user = User.find_by_username(params[:username])
+  @profile_user = User.find_by_username(params[:username])
   erb :'profile/profile.html'
 end
 
