@@ -35,6 +35,7 @@ helpers do
   end
 end
 
+# Signup routes
 get '/signup' do
   erb :'users/signup'
 end
@@ -58,11 +59,7 @@ post '/signup' do
   end
 end
 
-get '/users/:username' do
-  @profile_user = User.find_by_username(params[:username])
-  erb :'profile/profile.html'
-end
-
+# Login/Logout routes
 get '/login' do
   erb :'users/login'
 end
@@ -86,6 +83,17 @@ end
 get '/logout' do
 end
 
+post '/logout' do
+  session.clear
+  redirect '/login'
+end
+
+# Profile routes
+get '/users/:username' do
+  @profile_user = User.find_by_username(params[:username])
+  erb :'profile/profile.html'
+end
+
 get '/users/:username/tweets' do
   # Display all tweets by a user
   u = User.find_by_username(params[:username])
@@ -96,11 +104,13 @@ get '/users/:username/tweets' do
   end
 end
 
+# Show all users
 get '/users' do
   @users = User.all
   erb :'users/all'
 end
 
+# Show all followers
 get '/users/:username/followers' do
   @user = User.find_by_username(params[:username])
   if @user.nil?
@@ -110,7 +120,4 @@ get '/users/:username/followers' do
   end
 end
 
-post '/logout' do
-  session.clear
-  redirect '/login'
-end
+
