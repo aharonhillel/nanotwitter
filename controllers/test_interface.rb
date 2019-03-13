@@ -153,7 +153,12 @@ end
 
 get '/status' do
   status 200
-  'healthy'
+  status_hash = Hash.new
+  status_hash[:number_of_users] = User.all.count
+  status_hash[:number_of_followers] = Follow.all.count
+  status_hash[:number_of_tweets] = Tweet.all.count
+  status_hash[:test_user] = nil
+  status_hash.to_json
 end
 
 # Fill dummy data
