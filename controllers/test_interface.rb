@@ -32,8 +32,10 @@ get '/test/reset/all' do
   reset_auto_increment 'users'
   reset_auto_increment 'tweets'
 
-  create_test_user
-  session[:username] = 'testuser'
+  a = create_test_user
+
+  session[:username] = a.username
+
 
   content_type :json
   status 200
@@ -153,11 +155,17 @@ end
 
 get '/status' do
   status 200
+  byebug
   status_hash = Hash.new
   status_hash[:number_of_users] = User.all.count
   status_hash[:number_of_followers] = Follow.all.count
   status_hash[:number_of_tweets] = Tweet.all.count
-  status_hash[:test_user] = nil
+  if !session[:username].nil?
+    status_hash[:test_user_id] = User.find_by_username(session[:username]).id
+    status_hash[:test_user_username] = session[:username]
+  else
+      status_hash[:test_user] = nil
+  end
   status_hash.to_json
 end
 
@@ -187,19 +195,6 @@ end
 def create_test_user
   u = User.new(username: 'testuser', email: 'testuser@sample.com')
   u.password = 'password'
-
-  content_type :json
-  if u.save
-    status 200
-    {
-      'operation' => 'Create testUser',
-      'success' => true,
-    }
-  else
-    status 500
-    {
-      'operation' => 'Create testUser',
-      'success' => false,
-    }
-  end
+  u.save
+  u
 end
