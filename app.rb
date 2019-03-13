@@ -29,5 +29,5 @@ end
 
 # loader.io
 get '/loaderio-93aed9e1b9aefcfa85a05edff4f496f3' do
-  'loaderio-93aed9e1b9aefcfa85a05edff4f496f3'
+  send_file('loaderio-93aed9e1b9aefcfa85a05edff4f496f3.txt')
 end
