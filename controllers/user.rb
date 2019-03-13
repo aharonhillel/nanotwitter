@@ -109,3 +109,8 @@ get '/users/:username/followers' do
     erb :'follows/followers'
   end
 end
+
+post '/logout' do
+  session.clear
+  redirect '/login'
+end
