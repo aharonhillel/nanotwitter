@@ -9,9 +9,15 @@ class User < ActiveRecord::Base
   has_many :following_relationships, foreign_key: :user_id, class_name: 'Follow'
   has_many :following, through: :following_relationships, source: :following
 
+  before_save {self.email = email.downcase}
 
-  validates :username, :email, presence: true, uniqueness: true
-  validates :password_hash, presence: true
+  validates :username, presence: true, uniqueness: true, length: {maximum: 12}
+  validates :password_hash, presence: true, length: {minimum: 8}
+
+  VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+\.[a-z]+\z/i
+  validates :email, presence: true, length: {maximum: 255},
+            format: {with: VALID_EMAIL_REGEX},
+            uniqueness: {case_sensitive: false}
 
   include BCrypt
 
@@ -23,4 +29,6 @@ class User < ActiveRecord::Base
     @password = Password.create(new_password)
     self.password_hash = @password
   end
+
+
 end

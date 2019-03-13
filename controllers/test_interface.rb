@@ -10,16 +10,18 @@ require_relative '../models/mention'
 require_relative '../models/user'
 require_relative '../models/tweet'
 
+enable :sessions
+
 # Reset models
 get '/test/reset/all' do
   records_affected = Comment.delete_all
-  + Follow.delete_all
-  + HashTag.delete_all
-  + HashTagTweet.delete_all
-  + Like.delete_all
-  + Mention.delete_all
-  + User.delete_all
-  + Tweet.delete_all
+  records_affected += Follow.delete_all
+  records_affected += HashTag.delete_all
+  records_affected += HashTagTweet.delete_all
+  records_affected += Like.delete_all
+  records_affected += Mention.delete_all
+  records_affected += User.delete_all
+  records_affected += Tweet.delete_all
 
   reset_auto_increment 'comments'
   reset_auto_increment 'follows'
@@ -30,12 +32,17 @@ get '/test/reset/all' do
   reset_auto_increment 'users'
   reset_auto_increment 'tweets'
 
+  a = create_test_user
+
+  session[:username] = a.username
+
+
   content_type :json
   status 200
   {
     'operation' => 'Reset all models',
     'success' => true,
-    'records_affected' => records_affected
+    'records_removed' => records_affected
   }.to_json
 end
 
@@ -48,7 +55,7 @@ get '/test/reset/comments' do
   {
     'operation' => 'Reset comment model',
     'success' => true,
-    'records_affected' => records_affected
+    'records_removed' => records_affected
   }.to_json
 end
 
@@ -61,7 +68,7 @@ get '/test/reset/follows' do
   {
     'operation' => 'Reset follow model',
     'success' => true,
-    'records_affected' => records_affected
+    'records_removed' => records_affected
   }.to_json
 end
 
@@ -74,7 +81,7 @@ get '/test/reset/hash_tags' do
   {
     'operation' => 'Reset hash_tag model',
     'success' => true,
-    'records_affected' => records_affected
+    'records_removed' => records_affected
   }.to_json
 end
 
@@ -87,7 +94,7 @@ get '/test/reset/hash_tag_tweets' do
   {
     'operation' => 'Reset hash_tag_tweet model',
     'success' => true,
-    'records_affected' => records_affected
+    'records_removed' => records_affected
   }.to_json
 end
 
@@ -100,7 +107,7 @@ get '/test/reset/likes' do
   {
     'operation' => 'Reset like model',
     'success' => true,
-    'records_affected' => records_affected
+    'records_removed' => records_affected
   }.to_json
 end
 
@@ -113,12 +120,14 @@ get '/test/reset/mentions' do
   {
     'operation' => 'Reset mention model',
     'success' => true,
-    'records_affected' => records_affected
+    'records_removed' => records_affected
   }.to_json
 end
 
-get '/test/reset/users' do
-  records_affected = User.delete_all
+get '/test/reset?' do
+  u = params[:users]
+  records_added = u.to_i
+  records_removed = User.delete_all
   reset_auto_increment 'users'
 
   content_type :json
@@ -126,7 +135,8 @@ get '/test/reset/users' do
   {
     'operation' => 'Reset user model',
     'success' => true,
-    'records_affected' => records_affected
+    'records_removed' => records_removed,
+    'records_added' => records_added
   }.to_json
 end
 
@@ -145,7 +155,18 @@ end
 
 get '/status' do
   status 200
-  'healthy'
+  byebug
+  status_hash = Hash.new
+  status_hash[:number_of_users] = User.all.count
+  status_hash[:number_of_followers] = Follow.all.count
+  status_hash[:number_of_tweets] = Tweet.all.count
+  if !session[:username].nil?
+    status_hash[:test_user_id] = User.find_by_username(session[:username]).id
+    status_hash[:test_user_username] = session[:username]
+  else
+      status_hash[:test_user] = nil
+  end
+  status_hash.to_json
 end
 
 # Fill dummy data
@@ -168,4 +189,12 @@ def reset_auto_increment(table_name)
   ActiveRecord::Base.connection.execute(
     "TRUNCATE TABLE #{table_name} RESTART IDENTITY CASCADE"
   )
+end
+
+# Create testUser
+def create_test_user
+  u = User.new(username: 'testuser', email: 'testuser@sample.com')
+  u.password = 'password'
+  u.save
+  u
 end
