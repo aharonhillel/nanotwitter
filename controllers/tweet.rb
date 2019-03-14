@@ -21,7 +21,7 @@ post '/tweet/create' do
   tweet = Tweet.new(:user_id => current_user.id, :content => params[:text])
   "Create tweet"
   if tweet.save
-    redirect '/tweet/get_tweets/' + tweet.id.to_s
+    redirect "/users/#{current_user.username}"
   else
     'Failed create tweet'
   end
