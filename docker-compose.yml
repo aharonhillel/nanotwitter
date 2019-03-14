@@ -1,28 +1,25 @@
-version: '3'
-
+version: "3.2"
 services:
-  web:
-    container_name: nanotwitter-web
-    build:
-      context: .
-      dockerfile: build/nanotwitter-web/Dockerfile
+  zero:
+    image: dgraph/dgraph:latest
+    volumes:
+      - /data:/dgraph
     ports:
-      - "4567:80"
-    networks:
-      - backend
-    environment: 
-      RACK_ENV: test
-      RDS_HOSTNAME: database
-      RDS_PORT: 5432
-      RDS_DB_NAME: postgres
-  db:
-    container_name: postgres
-    image: postgres
-    expose:
-      - "5432"
-    networks:
-      backend:
-        aliases:
-          - database
-networks: 
-  backend:
+      - 5080:5080
+      - 6080:6080
+    restart: on-failure
+    command: dgraph zero --my=zero:5080
+  server:
+    image: dgraph/dgraph:latest
+    volumes:
+      - /data:/dgraph
+    ports:
+      - 8080:8080
+      - 9080:9080
+    restart: on-failure
+    command: dgraph alpha --my=server:7080 --lru_mb=2048 --zero=zero:5080
+  ratel:
+    image: dgraph/dgraph:latest
+    ports:
+      - 8000:8000
+    command: dgraph-ratel
