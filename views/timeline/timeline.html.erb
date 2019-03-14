@@ -12,10 +12,10 @@
   <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
-        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="/users/<%= current_user.username %>/timeline">Home <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Profile</a>
+        <a class="nav-link" href="/users/<%= current_user.username %>" >Profile</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#">Notifications</a>
@@ -25,9 +25,15 @@
       <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>
-    <form class="form-inline my-2 my-lg-0">
+    <form class="form-inline my-2 my-lg-0" action='/tweet/new' method='get'>
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tweet</button>
     </form>
+    <form class="form-inline my-2 my-lg-0" action='/logout' method='post'>
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Log out</button>
+    </form>
+
+
+
   </div>
 </nav>
 
@@ -56,11 +62,11 @@
   </div>
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
-    <h6 class="border-bottom border-gray pb-2 mb-0">Recent tweets</h6>
-    <% @profile_user.tweets.each do |t| %>
+    <h6 class="border-bottom border-gray pb-2 mb-0">Following tweets</h6>
+    <% @following_tweets.each do |t| %>
     <div class="media text-muted pt-3">
       <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-        <strong class="d-block text-gray-dark">@<%= @profile_user.username %></strong>
+        <strong class="d-block text-gray-dark">@<%= t.user_id %></strong>
         <%= t.content.to_s %>
       </p>
     </div>
