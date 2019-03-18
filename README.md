@@ -11,7 +11,7 @@ http://nanotwitter.us-east-2.elasticbeanstalk.com/
 
 ## Changes
 
-### 0.4 (3/13/19)
+### 0.5 (3/18/19)
 
 - Finalized all routes and models and insured that functionality is accurate
 - Reworked follows and built routes for users, tweets, follows
