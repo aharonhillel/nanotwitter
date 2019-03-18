@@ -169,6 +169,10 @@ get '/status' do
   status_hash.to_json
 end
 
+get '/test/seed/all' do
+  load './db/seed.rb'
+end
+
 # Fill dummy data
 get '/test/users/create/:total' do
   total = params[:total].to_i

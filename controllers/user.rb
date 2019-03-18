@@ -81,6 +81,8 @@ post '/login' do
 end
 
 get '/logout' do
+  session.clear
+  redirect '/login'
 end
 
 post '/logout' do
@@ -119,5 +121,3 @@ get '/users/:username/followers' do
     erb :'follows/followers'
   end
 end
-
-
