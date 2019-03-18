@@ -30,10 +30,16 @@ class User < ActiveRecord::Base
     self.password_hash = @password
   end
 
+  def following_ids
+    res = []
+    self.following.each do |f|
+      res.push(f)
+    end
+    res
+  end
+
   def followingTweets
-
-    Tweet.joins(user: :following_relationships).order(date: :desc)
-
+    Tweet.where("user_id IN (?)", following_ids)
   end
 
 end
