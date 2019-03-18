@@ -21,5 +21,5 @@ end
 get '/tweet/:username/following_tweets' do
   @following_tweets = current_user.followingTweets
 
-  erb :'timeline/timeline.html'
+  erb :'timeline/timeline.html', :layout => :'users/homepage'
 end
