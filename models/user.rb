@@ -30,5 +30,10 @@ class User < ActiveRecord::Base
     self.password_hash = @password
   end
 
+  def followingTweets
+
+    Tweet.joins(user: :following_relationships).order(date: :desc)
+
+  end
 
 end

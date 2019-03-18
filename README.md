@@ -11,10 +11,10 @@ http://nanotwitter.us-east-2.elasticbeanstalk.com/
 
 ## Changes
 
-### 0.3 (3/7/19)
+### 0.4 (3/13/19)
 
 - Finalized all routes and models and insured that functionality is accurate
-  -Reworked follows and built routes for users, tweets, follows
+- Reworked follows and built routes for users, tweets, follows
 - Implemented seed data using activerecord import
 - Created tests for users, tweets, and follows
 - Worked on further AWS deployment, docker

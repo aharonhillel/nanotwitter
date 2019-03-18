@@ -71,7 +71,7 @@ post '/login' do
   if !@user.nil? && @user.password == params[:password]
     session[:username] = @user.username
     'Logged in'
-    erb :'timeline/timeline.html'
+    redirect '/users/'+ session[:username] + '/timeline'
     # Need to write give_token function
     # give_token
   else
@@ -120,4 +120,12 @@ get '/users/:username/followers' do
   else
     erb :'follows/followers'
   end
+end
+
+
+get '/users/:username/timeline' do
+  @following_tweets = current_user.followingTweets
+  puts "**************"
+  puts current_user.followingTweets.count
+  erb :'timeline/timeline.html'
 end
