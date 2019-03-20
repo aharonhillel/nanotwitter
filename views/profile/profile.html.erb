@@ -8,15 +8,11 @@
   <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-<<<<<<< HEAD
         <% if !current_user.nil?%>
         <a class="nav-link" href="/users/<%= current_user.username %>/timeline">Home</a>
         <%else%>
       <a class="nav-link" href="/">Home</a>
         <%end%>
-=======
-        <a class="nav-link" href="/tweet/<%= current_user.username %>/following_tweets">Home</a>
->>>>>>> aa084e4d39cb399ef0422da2b63fff96b0950f43
       </li>
       <li class="nav-item active">
         <a class="nav-link" href="/users/<%= current_user.username %>"><span class="sr-only">(current)</span>Profile</a>

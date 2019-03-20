@@ -9,6 +9,7 @@ class CreateTweets < ActiveRecord::Migration[5.2]
       # t.integer :mention_id
       t.date :date
       t.integer :total_likes
+      t.timestamps
     end
   end
 end

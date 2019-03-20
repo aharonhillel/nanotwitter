@@ -121,11 +121,7 @@ get '/users/:username/followers' do
   end
 end
 
-<<<<<<< HEAD
 get '/users/:username/timeline' do
   @following_tweets = current_user.followingTweets
   erb :'timeline/timeline.html'
 end
-=======
-
->>>>>>> aa084e4d39cb399ef0422da2b63fff96b0950f43
