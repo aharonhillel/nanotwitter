@@ -8,10 +8,10 @@
   <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" href="/users/<%= current_user.username %>/timeline">Home</a>
+        <a class="nav-link" href="/tweet/<%= current_user.username %>/following_tweets">Home</a>
       </li>
       <li class="nav-item active">
-        <a class="nav-link" href="#"><span class="sr-only">(current)</span>Profile</a>
+        <a class="nav-link" href="/users/<%= current_user.username %>"><span class="sr-only">(current)</span>Profile</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#">Notifications</a>
