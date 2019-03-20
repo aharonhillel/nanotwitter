@@ -29,24 +29,17 @@ class User < ActiveRecord::Base
     @password = Password.create(new_password)
     self.password_hash = @password
   end
-  #
-  # def following_ids
-  #   res = []
-  #
-  #   self.following.each do |f|
-  #     res.push(f.tweets)
-  #   end
-  #   res
-  # end
 
-  def followingTweets
+  def following_ids
     res = []
     self.following.each do |f|
-      f.tweets.each do |tweet|
-        res.push(tweet)
+      res.push(f)
     end
-    end
-    byebug
     res
   end
+
+  def followingTweets
+    Tweet.where("user_id IN (?)", following_ids).includes(:user)
+  end
+
 end
