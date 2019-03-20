@@ -65,13 +65,12 @@ get '/login' do
 end
 
 post '/login' do
-  # byebug
-  @user = User.find_by_email(params[:email])
+  user = User.find_by_email(params[:email])
 
-  if !@user.nil? && @user.password == params[:password]
-    session[:username] = @user.username
+  if !user.nil? && user.password == params[:password]
+    session[:username] = user.username
     'Logged in'
-    redirect '/users/'+ session[:username] + '/timeline'
+    redirect '/tweet/'+ session[:username] + '/following_tweets'
     # Need to write give_token function
     # give_token
   else
@@ -96,8 +95,8 @@ get '/users/:username' do
   erb :'profile/profile.html'
 end
 
+# Display all tweets by a user
 get '/users/:username/tweets' do
-  # Display all tweets by a user
   u = User.find_by_username(params[:username])
   if u.nil?
     "#{params[:username]} has no tweets"
@@ -122,10 +121,7 @@ get '/users/:username/followers' do
   end
 end
 
-
 get '/users/:username/timeline' do
   @following_tweets = current_user.followingTweets
-  puts "**************"
-  puts current_user.followingTweets.count
   erb :'timeline/timeline.html'
 end
