@@ -65,7 +65,6 @@ get '/login' do
 end
 
 post '/login' do
-  # byebug
   user = User.find_by_email(params[:email])
 
   if !user.nil? && user.password == params[:password]
@@ -122,9 +121,7 @@ get '/users/:username/followers' do
   end
 end
 
-
 get '/users/:username/timeline' do
   @following_tweets = current_user.followingTweets
-
   erb :'timeline/timeline.html'
 end
