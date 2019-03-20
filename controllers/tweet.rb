@@ -1,21 +1,6 @@
 get '/tweet/new' do
-  erb :'tweets/tweet_form'
+   erb :'tweets/tweet_form'
 end
-
-# post '/tweet/new' do
-#   if !current_user_id.nil?
-#     user_id = session[:user_id]
-#   else
-#     user_id = params["user_id"]
-#   end
-#   tweet = Tweet.new(:user_id => user_id, :retweet_id => params[:retweet_id], :content => params[:content], :img_url => params[:img_url], :video_url => params[:video_url], :date =>Time.new)
-#   if tweet.save
-#     tweet.to_json
-#   else
-#     status 404
-#       {'error' => 'unable to create tweet'}.to_json
-#   end
-# end
 
 post '/tweet/create' do
   tweet = Tweet.new(:user_id => current_user.id, :content => params[:text])
@@ -33,6 +18,8 @@ get '/tweet/get_tweets/:id' do
   erb :'/tweets/show'
 end
 
-get '/tweet/following_tweets' do
+get '/tweet/:username/following_tweets' do
+  @following_tweets = current_user.followingTweets
 
+  erb :'timeline/timeline.html', :layout => :'users/homepage'
 end
