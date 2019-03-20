@@ -14,4 +14,4 @@ user.password = Faker::Lorem.word
 all_users.push(user)
 # user.save
 end
-User.import all_users, recursive: true
+User.import all_users
