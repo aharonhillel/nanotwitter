@@ -7,11 +7,10 @@ require_relative '../app.rb'
 file = CSV.read File.join(File.dirname(__FILE__), '/seed_files/users.csv')
 User.delete_all
 puts "seeding users......hold tight"
-all_users= []
+# all_users= []
 file.each do |row|
 user = User.new(:username => row[1], :email => Faker::Internet.email, :id => row[0].to_i)
 user.password = Faker::Lorem.word
-all_users.push(user)
-# user.save
+user.save
 end
-User.import all_users
+# User.import all_users, recursive: true
