@@ -155,7 +155,6 @@ end
 
 get '/status' do
   status 200
-  byebug
   status_hash = Hash.new
   status_hash[:number_of_users] = User.all.count
   status_hash[:number_of_followers] = Follow.all.count
@@ -167,6 +166,10 @@ get '/status' do
       status_hash[:test_user] = nil
   end
   status_hash.to_json
+end
+
+get '/test/seed/all' do
+  load './db/seed.rb'
 end
 
 # Fill dummy data
@@ -189,6 +192,12 @@ def reset_auto_increment(table_name)
   ActiveRecord::Base.connection.execute(
     "TRUNCATE TABLE #{table_name} RESTART IDENTITY CASCADE"
   )
+end
+
+get '/test/login/user/:username' do
+  session[:username] = params[:username]
+  'Logged in'
+  redirect '/users/'+ session[:username] + '/timeline'
 end
 
 # Create testUser

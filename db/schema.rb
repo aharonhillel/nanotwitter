@@ -18,6 +18,8 @@ ActiveRecord::Schema.define(version: 2019_02_25_224024) do
   create_table "comments", force: :cascade do |t|
     t.bigint "tweets_id"
     t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["tweets_id"], name: "index_comments_on_tweets_id"
   end
 
@@ -39,6 +41,8 @@ ActiveRecord::Schema.define(version: 2019_02_25_224024) do
   create_table "likes", id: false, force: :cascade do |t|
     t.bigint "tweet_id", null: false
     t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["tweet_id"], name: "index_likes_on_tweet_id"
     t.index ["user_id"], name: "index_likes_on_user_id"
   end
@@ -46,6 +50,8 @@ ActiveRecord::Schema.define(version: 2019_02_25_224024) do
   create_table "mentions", id: false, force: :cascade do |t|
     t.bigint "tweet_id", null: false
     t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["tweet_id"], name: "index_mentions_on_tweet_id"
     t.index ["user_id"], name: "index_mentions_on_user_id"
   end
@@ -58,6 +64,8 @@ ActiveRecord::Schema.define(version: 2019_02_25_224024) do
     t.string "video_url"
     t.date "date"
     t.integer "total_likes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|

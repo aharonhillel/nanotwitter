@@ -22,6 +22,8 @@ require_relative 'controllers/user'
 # require_relative 'models/comment'
 require_relative 'controllers/follow'
 
+require_relative 'boot'
+
 
 get '/' do
   erb :index

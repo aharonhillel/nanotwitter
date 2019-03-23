@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
   has_many :following_relationships, foreign_key: :user_id, class_name: 'Follow'
   has_many :following, through: :following_relationships, source: :following
 
-  before_save {self.email = email.downcase}
+  before_save {self.email = email.downcase, self.username = username.downcase}
 
   validates :username, presence: true, uniqueness: true, length: {maximum: 12}
   validates :password_hash, presence: true, length: {minimum: 8}
@@ -30,10 +30,16 @@ class User < ActiveRecord::Base
     self.password_hash = @password
   end
 
+  def following_ids
+    res = []
+    self.following.each do |f|
+      res.push(f)
+    end
+    res
+  end
+
   def followingTweets
-
-    Tweet.joins(user: :following_relationships).order(date: :desc)
-
+    Tweet.where("user_id IN (?)", following_ids).includes(:user)
   end
 
 end

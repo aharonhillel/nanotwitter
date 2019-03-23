@@ -10,7 +10,8 @@ Tweet.delete_all
 tweets= []
 puts "seeding tweets......hold tight"
 file.each do |row|
-tweets<< Tweet.new(:user_id => row[0].to_i, :content => row[1])
+# tweets<< Tweet.new(:user_id => row[0].to_i, :content => row[1])
+Tweet.create(:user_id => row[0].to_i, :content => row[1])
 end
 
-Tweet.import tweets, recursive: true
+# Tweet.import tweets, recursive: true

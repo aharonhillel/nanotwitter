@@ -1,0 +1,3 @@
+[submodule "vendor/dgraphy"]
+	path = vendor/dgraphy
+	url = https://github.com/xumr0x/dgraphy.git
