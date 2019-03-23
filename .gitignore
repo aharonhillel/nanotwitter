@@ -34,4 +34,7 @@
 .env
 
 # Ignore AWS configs
-nanotwitter-deploy-prod-pipeline.json
+nanotwitter-deploy-prod-pipeline.json.ufo/current
+.ufo/data
+.ufo/log
+.ufo/output

@@ -7,6 +7,8 @@ development:
 test:
   adapter: postgresql
   encoding: unicode
+  host: <%= ENV['RDS_HOSTNAME'] %>
+  port: <%= ENV['RDS_PORT'] %>
   database: nt_test_db
   pool: 2
 
