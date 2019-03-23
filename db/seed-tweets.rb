@@ -7,7 +7,7 @@ require_relative '../app.rb'
 
 file = CSV.read File.join(File.dirname(__FILE__), '/seed_files/tweets.csv')
 Tweet.delete_all
-tweets= []
+# tweets= []
 puts "seeding tweets......hold tight"
 file.each do |row|
 # tweets<< Tweet.new(:user_id => row[0].to_i, :content => row[1])
