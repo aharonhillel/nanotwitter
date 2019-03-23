@@ -1,2 +1,2 @@
 #!/bin/bash
-bundle exec rake db:create db:migrate RACK_ENV=production
+DATABASE_URL=postgres://ntuser:ntpassword@nt-maindb.c30ypiqjubc1.us-east-1.rds.amazonaws.com:5432/nt_prod_db bundle exec rake db:drop db:create db:migrate RACK_ENV=production
