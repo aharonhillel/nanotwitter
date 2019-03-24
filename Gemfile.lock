@@ -67,6 +67,7 @@ GEM
     pry-byebug (3.7.0)
       byebug (~> 11.0)
       pry (~> 0.10)
+    puma (3.12.1)
     rack (2.0.6)
     rack-protection (2.0.5)
       rack
@@ -126,6 +127,7 @@ DEPENDENCIES
   minitest
   pg (~> 0.18)
   pry-byebug
+  puma
   rack-test
   rake
   sinatra
