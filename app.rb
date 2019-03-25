@@ -30,6 +30,6 @@ get '/' do
 end
 
 # loader.io
-get '/loaderio-93aed9e1b9aefcfa85a05edff4f496f3' do
-  send_file('loaderio-93aed9e1b9aefcfa85a05edff4f496f3.txt')
+get '/loaderio-08e9f67e3891ab1cfd8b3be422621a7c' do
+  send_file('loaderio-08e9f67e3891ab1cfd8b3be422621a7c.txt')
 end
