@@ -12,8 +12,15 @@ http://product-Elb-VQ59Q2YO4G9G-1381768724.us-east-1.elb.amazonaws.com
 
 ## Changes
 
-### 0.6 (3/23/19)
+### 0.5 (3/18/19)
 
+- Fixed multiple UI bugs involving current_user
+- Updated schema to includes timestamps
+- Implemented personal timeline
+- Set up Loader.io for load testing
+- Added monitoring capability via AWS CloudWatch
+- Set up auto-scaling on AWS for multi-AZ load balancing
+- Switched to use SSD storage for Postgres instead of default Magnetic drive
 - New service architecure (ELB + Fargate + RDS)
 - 2 fargate instances are always on
 - Deployed using `ufo ship --cluster=production`
@@ -29,7 +36,7 @@ rake db:create
 rake db:migrate
 ```
 
-Optional: 
+Optional:
 
 ```rake db:seed```
 
