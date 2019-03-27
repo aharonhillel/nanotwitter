@@ -11,13 +11,15 @@ test:
   port: <%= ENV['RDS_PORT'] %>
   database: nt_test_db
   pool: 2
+  username: <%= ENV['RDS_USERNAME'] %>
+  password: <%= ENV['RDS_PASSWORD'] %>
 
 production:
   adapter: postgresql
   encoding: unicode
   host: <%= ENV['RDS_HOSTNAME'] %>
   port: <%= ENV['RDS_PORT'] %>
-  database: <%= ENV['RDS_DB_NAME'] %>
+  database: nt_prod_db
   pool: 20
   username: <%= ENV['RDS_USERNAME'] %>
   password: <%= ENV['RDS_PASSWORD'] %>
