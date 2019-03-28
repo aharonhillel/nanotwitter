@@ -3,6 +3,11 @@ require_relative '../models/user'
 enable :sessions
 
 helpers do
+
+  # def redis
+  # redis = Redis.new
+  # end
+
   def current_user
     User.find_by_username(session[:username])
   end
@@ -97,11 +102,19 @@ end
 
 # Display all tweets by a user
 get '/users/:username/tweets' do
-  u = User.find_by_username(params[:username])
-  if u.nil?
-    "#{params[:username]} has no tweets"
+  if $redis.get("#{params[:username]}:tweets")
+    byebug
+  u = $redis.get("#{params[:username]}:tweets")
+  u
   else
-    u.tweets.to_json
+  u = User.find_by_username(params[:username])
+    if u.nil?
+      "#{params[:username]} has no tweets"
+    else
+      u = u.tweets.to_json
+      $redis.set("#{params[:username]}:tweets", u)
+      u
+    end
   end
 end
 
@@ -122,6 +135,14 @@ get '/users/:username/followers' do
 end
 
 get '/users/:username/timeline' do
-  @following_tweets = current_user.followingTweets
+  byebug
+  if $redis.get("#{params[:username]}:timeline")
+    @following_tweets = JSON.parse($redis.get("#{params[:username]}:timeline"), object_class: OpenStruct)
+    byebug
+  else
+    byebug
+    @following_tweets = current_user.followingTweets
+    $redis.set("#{params[:username]}:timeline", @following_tweets.to_json)
+  end
   erb :'timeline/timeline.html'
 end

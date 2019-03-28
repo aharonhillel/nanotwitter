@@ -75,6 +75,7 @@ GEM
       rack (>= 1.0, < 3)
     rainbow (3.0.0)
     rake (12.3.2)
+    redis (4.1.0)
     render_me_pretty (0.8.2)
       activesupport
       rainbow
@@ -130,6 +131,7 @@ DEPENDENCIES
   puma
   rack-test
   rake
+  redis
   sinatra
   sinatra-activerecord
   sinatra-contrib

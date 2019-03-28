@@ -13,6 +13,7 @@ gem 'sinatra'
 gem 'sinatra-activerecord'
 gem 'sinatra-contrib'
 gem 'ufo'
+gem 'redis'
 
 group :development do
   gem 'irb'
