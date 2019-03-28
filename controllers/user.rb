@@ -75,7 +75,7 @@ post '/login' do
   if !user.nil? && user.password == params[:password]
     session[:username] = user.username
     'Logged in'
-    redirect '/users/'+ session[:username] + '/timeline'
+    redirect '/tweet/'+ session[:username] + '/following_tweets'
     # Need to write give_token function
     # give_token
   else
@@ -96,18 +96,13 @@ end
 
 # Profile routes
 get '/users/:username' do
-  if current_user != nil
-    @profile_user = User.find_by_username(params[:username])
-    erb :'profile/profile.html'
-  else
-    redirect '/'
-  end
+  @profile_user = User.find_by_username(params[:username])
+  erb :'profile/profile.html'
 end
 
 # Display all tweets by a user
 get '/users/:username/tweets' do
   if $redis.get("#{params[:username]}:tweets")
-    byebug
   u = $redis.get("#{params[:username]}:tweets")
   u
   else
@@ -139,14 +134,13 @@ get '/users/:username/followers' do
 end
 
 get '/users/:username/timeline' do
-  byebug
   if $redis.get("#{params[:username]}:timeline")
-    @following_tweets = JSON.parse($redis.get("#{params[:username]}:timeline"), object_class: OpenStruct)
-    byebug
+    template_output = $redis.get("#{params[:username]}:timeline")
+    template_output
   else
-    byebug
     @following_tweets = current_user.followingTweets
-    $redis.set("#{params[:username]}:timeline", @following_tweets.to_json)
+    template_output = erb :'timeline/timeline.html'
+    $redis.set("#{params[:username]}:timeline", template_output)
+    template_output
   end
-  erb :'timeline/timeline.html'
 end
