@@ -1,12 +1,21 @@
-<div class="my-3 p-3 bg-white rounded shadow-sm">
-  <h6 class="border-bottom border-gray pb-2 mb-0">Following tweets</h6>
-  <% @following_tweets.each do |t| %>
+<main role="main" class="container">
+  <div class="d-flex align-items-center p-3 my-3 text-black-50 bg-purple rounded shadow-sm">
+    <div class="lh-100">
+      <h4 class="mb-0 lh-100">@<%=current_user.username %></h4>
+    </div>
+  </div>
+
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Following tweets</h6>
+    <% @following_tweets.each do |t| %>
     <%# byebug %>
     <div class="card" style="width: 18rem;">
       <div class="card-body">
         <strong class="d-block text-gray-dark"><a href="/users/<%= t.user.username %>"><%= t.user.username %></a></strong><h5 class="card-title">@<%= t.user.username %></h5>
         <p class="card-text"><%= t.content.to_s %></p>
-        <button href="#" class="btn btn-primary">links of like, comment, retweet</button>
+        <button href="#" class="btn btn-primary">Like, comment, retweet</button>
+        <button href="#" class="btn btn-primary">Comment, retweet</button>
+        <button href="#" class="btn btn-primary">Retweet</button>
       </div>
     </div>
     <% end %>

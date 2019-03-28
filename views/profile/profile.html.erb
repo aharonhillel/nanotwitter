@@ -1,67 +1,15 @@
 
-<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
-  <a class="navbar-brand mr-auto mr-lg-0" href="#">Nanotwitter</a>
-  <button class="navbar-toggler p-0 border-0" type="button" data-toggle="offcanvas">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <% if !current_user.nil?%>
-        <a class="nav-link" href="/users/<%= current_user.username %>/timeline">Home</a>
-        <%else%>
-      <a class="nav-link" href="/">Home</a>
-        <%end%>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="/users/<%= current_user.username %>"><span class="sr-only">(current)</span>Profile</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Notifications</a>
-      </li>
-    </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
-    <% if @profile_user == current_user %>
-      <form class="form-inline my-2 my-lg-0" action='/tweet/new' method='get'>
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tweet</button>
-      </form>
-      <form class="form-inline my-2 my-lg-0" action='/logout' method='post'>
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Log out</button>
-      </form>
-      <% else %>
-      <form class="form-inline my-2 my-lg-0" action='/follows/<%= @profile_user.username %>' method='post'>
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Follow</button>
-      </form>
-      <% end %>
-  </div>
-</nav>
-
-<div class="nav-scroller bg-white shadow-sm">
-  <nav class="nav nav-underline">
-    <a class="nav-link active" href="#">Dashboard</a>
-    <a class="nav-link" href="#">
-      Friends
-      <span class="badge badge-pill bg-light align-text-bottom">27</span>
-    </a>
-    <a class="nav-link" href="#">Explore</a>
-    <a class="nav-link" href="#">Suggestions</a>
-    <a class="nav-link" href="#">Link</a>
-    <a class="nav-link" href="#">Link</a>
-    <a class="nav-link" href="#">Link</a>
-    <a class="nav-link" href="#">Link</a>
-    <a class="nav-link" href="#">Link</a>
-  </nav>
-</div>
-
 <main role="main" class="container">
   <div class="d-flex align-items-center p-3 my-3 text-black-50 bg-purple rounded shadow-sm">
     <div class="lh-100">
       <h4 class="mb-0 lh-100">@<%= @profile_user.username %></h4>
+      <% if @profile_user != current_user %>
+        <form class="form-inline my-2 my-lg-0" action='/follows/<%= @profile_user.username %>' method='post'>
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Follow</button>
+        </form>
+      <% end %>
     </div>
+
   </div>
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
