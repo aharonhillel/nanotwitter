@@ -75,7 +75,7 @@ post '/login' do
   if !user.nil? && user.password == params[:password]
     session[:username] = user.username
     'Logged in'
-    redirect '/tweet/'+ session[:username] + '/following_tweets'
+    redirect '/users/'+ session[:username] + '/timeline'
     # Need to write give_token function
     # give_token
   else
@@ -96,8 +96,12 @@ end
 
 # Profile routes
 get '/users/:username' do
-  @profile_user = User.find_by_username(params[:username])
-  erb :'profile/profile.html'
+  if current_user != nil
+    @profile_user = User.find_by_username(params[:username])
+    erb :'profile/profile.html'
+  else
+    redirect '/'
+  end
 end
 
 # Display all tweets by a user

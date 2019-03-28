@@ -25,11 +25,6 @@ require_relative 'controllers/user'
 # require_relative 'models/comment'
 require_relative 'controllers/follow'
 
-# require_relative 'boot'
-
-# redis = Redis.new(host: "10.0.1.1", port: 4567, db: 15)
-
-
 
 get '/' do
   erb :index

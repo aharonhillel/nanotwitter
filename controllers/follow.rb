@@ -17,3 +17,4 @@ post '/follows/:followed' do
       "Follow not work"
     end
 end
+
