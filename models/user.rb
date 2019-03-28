@@ -9,8 +9,6 @@ class User < ActiveRecord::Base
   has_many :following_relationships, foreign_key: :user_id, class_name: 'Follow'
   has_many :following, through: :following_relationships, source: :following
 
-  before_save {self.email = email.downcase, self.username = username.downcase}
-
   validates :username, presence: true, uniqueness: true, length: {maximum: 12}
   validates :password_hash, presence: true, length: {minimum: 8}
 

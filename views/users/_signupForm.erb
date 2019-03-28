@@ -1,37 +1,4 @@
-<%= form_with(model: user) do |form| %>
-  <div class="form-group">
-    <%= form.label :username %>
-    <%= form.text_field :username, class: "form-control", placeholder: 'A good name help others remember you..' %>
-    <div class="invalid-feedback">
-      <%= user.errors.full_messages_for(:username).first %>
-    </div>
-  </div>
 
-  <div class="form-group">
-    <%= form.label :email %>
-    <%= form.text_field :email, class: "form-control", placeholder: 'Your email address..' %>
-    <div class="invalid-feedback">
-      <%= user.errors.full_messages_for(:email).first %>
-    </div>
-  </div>
 
-  <div class="form-group">
-    <%= form.label :password_hash %>
-    <%= form.password_field :password_hash, class: "form-control", placeholder: 'Password..' %>
-    <div class="invalid-feedback">
-      <%= user.errors.full_messages_for(:password_hash).first %>
-    </div>
-  </div>
 
-  <div class="form-group">
-    <%= form.label :password_confirmation, "Confirmation" %>
-    <%= form.password_field :password_confirmation, class: "form-control", placeholder: 'Enter you password again..' %>
-    <div class="invalid-feedback">
-      <%= user.errors.full_messages_for(:password_confirmation).first %>
-    </div>
-  </div>
 
-  <div class="actions float-right">
-    <%= form.submit "Confirm", class: "btn btn-primary" %>
-  </div>
-<% end %>

@@ -21,7 +21,8 @@ current_dir = Dir.pwd
 
 
 require_relative 'controllers/user'
-#require_relative 'controller/tweet'
+require_relative 'controllers/tweet'
+require_relative 'controllers/like'
 # require_relative 'models/comment'
 require_relative 'controllers/follow'
 

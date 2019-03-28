@@ -70,12 +70,12 @@ get '/login' do
 end
 
 post '/login' do
+  #byebug
   user = User.find_by_email(params[:email])
-
   if !user.nil? && user.password == params[:password]
     session[:username] = user.username
     'Logged in'
-    redirect '/tweet/'+ session[:username] + '/following_tweets'
+    redirect '/users/'+ session[:username] + '/timeline'
     # Need to write give_token function
     # give_token
   else
@@ -134,13 +134,12 @@ get '/users/:username/followers' do
 end
 
 get '/users/:username/timeline' do
-  if $redis.get("#{params[:username]}:timeline")
-    template_output = $redis.get("#{params[:username]}:timeline")
-    template_output
-  else
+
+  template_output = $redis.get("#{params[:username]}:timeline")
+  if template_output == nil
     @following_tweets = current_user.followingTweets
     template_output = erb :'timeline/timeline.html'
     $redis.set("#{params[:username]}:timeline", template_output)
-    template_output
   end
+  template_output
 end

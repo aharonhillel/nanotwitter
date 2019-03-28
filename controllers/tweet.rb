@@ -18,8 +18,8 @@ get '/tweet/get_tweets/:id' do
   erb :'/tweets/show'
 end
 
-get '/tweet/:username/following_tweets' do
-  @following_tweets = current_user.followingTweets
-
-  erb :'timeline/timeline.html', :layout => :'users/homepage'
-end
+# get '/tweet/:username/following_tweets' do
+#   @following_tweets = current_user.followingTweets
+#
+#   erb :'timeline/timeline.html', :layout => :'users/homepage'
+# end
