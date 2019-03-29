@@ -96,24 +96,20 @@ end
 
 # Profile routes
 get '/users/:username' do
-  @profile_user = User.find_by_username(params[:username])
-  erb :'profile/profile.html'
+   u = userExistence(params[:username])
+  if u != nil
+    @profile_user = u
+    @userTweets = JSON.parse(userTweetInRedis(u), object_class: OpenStruct)
+    erb :'profile/profile.html'
+  end
+
 end
 
 # Display all tweets by a user
 get '/users/:username/tweets' do
-  if $redis.get("#{params[:username]}:tweets")
-  u = $redis.get("#{params[:username]}:tweets")
-  u
-  else
-  u = User.find_by_username(params[:username])
-    if u.nil?
-      "#{params[:username]} has no tweets"
-    else
-      u = u.tweets.to_json
-      $redis.set("#{params[:username]}:tweets", u)
-      u
-    end
+  u = userExistence(params[:username])
+  if u != nil
+    userTweetInRedis(u)
   end
 end
 
@@ -134,7 +130,6 @@ get '/users/:username/followers' do
 end
 
 get '/users/:username/timeline' do
-
   template_output = $redis.get("#{params[:username]}:timeline")
   if template_output == nil
     @following_tweets = current_user.followingTweets
@@ -142,4 +137,21 @@ get '/users/:username/timeline' do
     $redis.set("#{params[:username]}:timeline", template_output)
   end
   template_output
+end
+
+def userTweetInRedis(user)
+  tweets = $redis.get("#{user.username}:tweets")
+  if tweets == nil || tweets.size == 0
+    tweets = user.tweets.to_json
+    $redis.set("#{user.username}:tweets", tweets)
+  end
+  tweets
+end
+
+def userExistence(username)
+  u = User.find_by_username(username)
+  if u.nil?
+    "No such user"
+  end
+  u
 end

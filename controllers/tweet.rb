@@ -23,3 +23,8 @@ end
 #
 #   erb :'timeline/timeline.html', :layout => :'users/homepage'
 # end
+
+get '/tweets/all' do
+  @tweets = Tweet.all
+  erb :'/tweets/tweetsAll'
+end
