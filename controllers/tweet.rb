@@ -6,6 +6,8 @@ post '/tweet/create' do
   tweet = Tweet.new(:user_id => current_user.id, :content => params[:text])
   "Create tweet"
   if tweet.save
+    #t = Tweet.find_by_user_id(current_user.id)
+    $redis.set("#{current_user.username}:tweets", current_user.tweets.to_json)
     redirect "/users/#{current_user.username}"
   else
     'Failed create tweet'
