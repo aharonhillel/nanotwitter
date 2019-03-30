@@ -28,14 +28,12 @@
 
 <!--        </div>-->
 
-        <form method="POST" action="/like/<%= t.id %>/new">
-          <button class="btn btn-info my-2" type="submit" value="Tweet">Like</button><%= t.likes.count %>
-        </form>
-        <button href="#" class="btn btn-primary">Comment</button>
-        <button href="#" class="btn btn-primary">Retweet</button>
-        <button href="#" class="btn btn-primary btn-sm">Like</button>
-        <button href="#" class="btn btn-primary btn-sm">Comment</button>
-        <button href="#" class="btn btn-primary btn-sm">Retweet</button>
+        <button href="/like/<%= t.id %>/new" class="btn btn-primary btn-sm" type="submit" value="like">Like</button>
+        <% if !t.total_likes.nil? %>
+          <%= t.total_likes.count %>
+        <% end %>
+        <button href="#" class="btn btn-primary btn-sm" type="submit">Comment</button>
+        <button href="#" class="btn btn-primary btn-sm" type="submit">Retweet</button>
       </div>
     </div>
     <% end %>
