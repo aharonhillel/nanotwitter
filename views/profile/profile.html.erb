@@ -1,4 +1,3 @@
-
 <main role="main" class="container">
   <div class="d-flex align-items-center p-3 my-3 text-black-50 bg-purple rounded shadow-sm">
     <div class="lh-100">
@@ -22,13 +21,12 @@
 
           <form method="POST" action="/like/<%= t.id %>/new">
             <button class="btn btn-primary btn-sm" type="submit" value="like-btn">Like</button>
+            <% if  t.total_likes != nil %>
+              <%= t.total_likes %>
+            <% end %>
+            <button href="#" class="btn btn-primary btn-sm" type="submit">Comment</button>
+            <button href="#" class="btn btn-primary btn-sm" type="submit">Retweet</button>
           </form>
-          <% if  t.total_likes != nil %>
-            <%= t.total_likes %>
-          <% end %>
-
-          <button href="#" class="btn btn-primary btn-sm" type="submit">Comment</button>
-          <button href="#" class="btn btn-primary btn-sm" type="submit">Retweet</button>
         </div>
       </div>
     <% end %>

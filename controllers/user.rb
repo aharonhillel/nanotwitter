@@ -100,7 +100,7 @@ get '/users/:username' do
   if u != nil
     @profile_user = u
     @userTweets = JSON.parse(userTweetInRedis(u), object_class: OpenStruct)
-    erb :'profile/profile.html'
+    erb :'profile/profile.html', layout: :'layout_profile'
   end
 
 end
