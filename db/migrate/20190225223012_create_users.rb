@@ -8,6 +8,9 @@ class CreateUsers < ActiveRecord::Migration[5.2]
       t.string :bio
       t.date :api_token
       t.string :password_hash
+      t.string :avatar_url
     end
+
+    add_index :users, [:username, :email], unique: true
   end
 end
