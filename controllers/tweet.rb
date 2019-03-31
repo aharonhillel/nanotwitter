@@ -30,3 +30,7 @@ get '/tweets/all' do
   @tweets = Tweet.all
   erb :'/tweets/tweetsAll'
 end
+
+post '/tweet/like' do
+byebug
+end

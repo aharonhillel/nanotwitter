@@ -9,7 +9,7 @@ User.delete_all
 puts "seeding users......hold tight"
 # all_users= []
 file.each do |row|
-user = User.new(:username => row[1], :email => Faker::Internet.email, :id => row[0].to_i)
+user = User.new(:username => row[1], :email => Faker::Internet.email)
 user.password = Faker::Lorem.word
 user.save
 end

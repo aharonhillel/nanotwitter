@@ -1,3 +1,9 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
 <main role="main" class="container">
   <div class="d-flex align-items-center p-3 my-3 text-black-50 bg-purple rounded shadow-sm">
     <div class="lh-100">
@@ -18,6 +24,21 @@
         <div class="card-body">
           <strong class="d-block text-gray-dark"><a href="/users/<%= @profile_user.username %>"><h5 class="card-title">@<%= @profile_user.username %></h5></a></strong>
           <p class="card-text"><%= t.content.to_s %></p>
+
+
+          <div class="search">
+              <form method="POST" action="/like/new" id="new-like">
+                  <input type="hidden" id="tweet_id" name="tweet_id" value="<%= t.id %>" />
+                  <button class="submit" class="btn btn-primary btn-sm" type="submit">Like New</button>
+              </form>
+
+
+          <!-- <button id ="like_button" class="btn btn-primary btn-sm" value="like" onClick="reply_click(<%= t.id %>)">New Like Button</button> -->
+
+          <!-- <form>
+            <button id ="like_button" class="btn btn-primary btn-sm" value="like">button 1</button>
+            <input id="access_token" type="hidden" name="access_token" value="<%= t.id %>" />
+          </form> -->
 
           <form method="POST" action="/like/<%= t.id %>/new">
             <button class="btn btn-primary btn-sm" type="submit" value="like-btn">Like</button>
@@ -66,3 +87,70 @@
     </small>
   </div>
 </main>
+<script type="text/javascript">
+  // $(document).ready(function() {
+  //   $("#like_button").click(function(e) {
+  //     console.log("button clicked")
+  //     e.preventDefault();
+  //     $.ajax({
+  //       type: "POST",
+  //       url: "/like/new",
+  //       data: {
+  //         id: $("#like_button").val(),
+  //         access_token: $("#access_token").val()
+  //       },
+  //       success: function(result) {
+  //         alert('ok');
+  //       },
+  //       error: function(result) {
+  //         alert('error');
+  //       }
+  //     });
+  //   });
+
+
+    function reply_click(clicked_id)
+    {
+        // whatever code here...
+        // clicked_id will refer to the ID that was clicked
+        console.log(clicked_id); // try this
+        $.ajax({
+              type: "POST",
+              url: "/like/new",
+              data: {
+                id: clicked_id,
+              },
+              success: function(result) {
+                alert('ok');
+              },
+              error: function(result) {
+                alert('error');
+              }
+            });
+    }
+
+    $(document).ready(function(){
+
+    $("#new-like").submit(function(){
+            var  form = $("#new-like"),
+         term = form.find( "input[name='tweet_id']" ).val(),
+         url  = form.attr("action");
+         $.ajax({
+            type: "POST",
+            url: url,
+            data: term,
+            success: function(result) {
+              alert('ok');
+            },
+            error: function(result) {
+              alert('error');
+            }
+        });
+
+    });
+
+//   $(document).on('click', '#like_button', function(e){
+//     console.log("button clicked")
+// //your code goes here
+// });
+</script>
