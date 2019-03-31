@@ -9,7 +9,7 @@ require 'redis'
 
 require_relative 'models/user'
 require_relative 'models/tweet'
-# require_relative 'models/comment'
+require_relative 'models/comment'
 require_relative 'models/follow'
 require_relative 'models/hash_tag'
 require_relative 'models/hash_tag_tweet'
