@@ -47,7 +47,6 @@ end
 
 post '/signup' do
   @user = User.new(username: params[:username], email: params[:email])
-  byebug
   @user.password = params[:password]
   if @user.save
     session[:username] = @user.username
