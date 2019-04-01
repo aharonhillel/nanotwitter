@@ -27,6 +27,9 @@ require_relative 'controllers/follow'
 require_relative 'controllers/user'
 require_relative 'controllers/tweet'
 require_relative 'controllers/like'
+require_relative 'controllers/comment'
+require_relative 'controllers/mention'
+require_relative 'controllers/hash_tag'
 
 require_relative 'config/config'
 

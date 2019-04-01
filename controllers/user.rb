@@ -1,6 +1,6 @@
 require_relative '../models/user'
 
-enable :sessions
+enable :sessions unless test?
 
 helpers do
 
@@ -73,13 +73,13 @@ post '/login' do
   #byebug
   user = User.find_by_email(params[:email])
   if !user.nil? && user.password == params[:password]
+    user.to_json
     session[:username] = user.username
-    'Logged in'
-    redirect '/users/'+ session[:username] + '/timeline'
+    #redirect '/users/'+ session[:username] + '/timeline'
     # Need to write give_token function
     # give_token
   else
-    'Wrong'
+    'Failed'
     # redirect "/login-successful"
   end
 end
@@ -98,6 +98,7 @@ end
 get '/users/:username' do
    u = userExistence(params[:username])
   if u != nil
+
     @profile_user = u
     @userTweets = JSON.parse(userTweetInRedis(u), object_class: OpenStruct)
     erb :'profile/profile.html', layout: :'layout_profile'
@@ -155,3 +156,22 @@ def userExistence(username)
   end
   u
 end
+
+post '/test/login' do
+  user = User.find_by_email(params[:email])
+  if !user.nil? && user.password == params[:password]
+    user.to_json
+  else
+    error 404, {error: "user not validated"}.to_json
+  end
+end
+
+get '/test/users/:username' do
+  user = User.find_by_username(params[:username])
+  if user
+    user.to_json
+  else
+    error 404, {error: "user not found"}.to_json
+  end
+end
+
