@@ -1,3 +1,6 @@
+
+enable :sessions
+
 get '/tweet/new' do
    erb :'tweets/tweet_form'
 end

@@ -14,6 +14,7 @@ end
 describe 'POST on /follows/:followed' do
   before do
     Follow.delete_all
+    Tweet.delete_all
     User.delete_all
   end
   it 'Follow a user' do
