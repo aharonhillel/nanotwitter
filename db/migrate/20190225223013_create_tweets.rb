@@ -1,7 +1,7 @@
 class CreateTweets < ActiveRecord::Migration[5.2]
   def change
     create_table :tweets do |t|
-      t.references :users, foreign_key: true
+      t.references :user, foreign_key: true
       t.integer :retweet_id
       t.text :content
       t.string :img_url

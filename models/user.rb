@@ -1,13 +1,16 @@
 class User < ActiveRecord::Base
-  has_many :tweets
-  has_many :follows
-  has_many :likes
+  has_many :tweets, dependent: :nullify
+  has_many :follows, dependent: :nullify
+  has_many :likes, dependent: :nullify
 
   has_many :follower_relationships, foreign_key: :following_id, class_name: 'Follow'
   has_many :followers, through: :follower_relationships, source: :follower
 
   has_many :following_relationships, foreign_key: :user_id, class_name: 'Follow'
   has_many :following, through: :following_relationships, source: :following
+
+  has_many :mentions, dependent: :nullify
+  has_many :mentioned_in_tweets, through: :mentions
 
   validates :username, presence: true, uniqueness: true, length: {maximum: 12}
   validates :password_hash, presence: true, length: {minimum: 8}
