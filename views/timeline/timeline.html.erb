@@ -28,8 +28,14 @@
 
 <!--        </div>-->
 
-        <button href="/like/<%= t.id %>/new" class="btn btn-primary btn-sm" type="submit" value="like">Like</button>
-        <% if !t.total_likes.nil? %>
+
+
+<form method="post">
+  <button id ="like_button" class="btn btn-primary btn-sm" type="submit" value="like">button 1</button>
+  <input id="access_token" type="hidden" name="access_token" value="<?php echo $_SESSION['access_token']; ?>" />
+</form>
+
+          <% if !t.total_likes.nil? %>
           <%= t.total_likes.count %>
         <% end %>
         <button href="#" class="btn btn-primary btn-sm" type="submit">Comment</button>
@@ -57,3 +63,24 @@
     </small>
   </div>
 </main>
+
+<script type="text/javascript">
+  $("like_button").click(function(e) {
+    e.preventDefault();
+    $.ajax({
+        type: "POST",
+        url: "/like",
+        data: {
+            id: $(this).val(), // < note use of 'this' here
+            access_token: $("#access_token").val()
+        },
+        success: function(result) {
+            alert('ok');
+        },
+        error: function(result) {
+            alert('error');
+        }
+    });
+});
+
+</script>

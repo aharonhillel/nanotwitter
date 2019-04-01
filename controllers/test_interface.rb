@@ -12,6 +12,21 @@ require_relative '../models/tweet'
 
 enable :sessions
 
+
+get '/status' do
+  status 200
+  status_hash = Hash.new
+  status_hash[:number_of_users] = User.all.count
+  status_hash[:number_of_followers] = Follow.all.count
+  status_hash[:number_of_tweets] = Tweet.all.count
+  if current_user
+    status_hash[:test_user_id] = User.find_by_username(session[:username]).id
+    status_hash[:test_user_username] = session[:username]
+  else
+      status_hash[:test_user] = nil
+  end
+  status_hash.to_json
+end
 # Reset models
 get '/test/reset/all' do
   records_affected = Comment.delete_all
@@ -151,21 +166,6 @@ get '/test/reset/tweets' do
     'success' => true,
     'records_affected' => records_affected
   }.to_json
-end
-
-get '/status' do
-  status 200
-  status_hash = Hash.new
-  status_hash[:number_of_users] = User.all.count
-  status_hash[:number_of_followers] = Follow.all.count
-  status_hash[:number_of_tweets] = Tweet.all.count
-  if !session[:username].nil?
-    status_hash[:test_user_id] = User.find_by_username(session[:username]).id
-    status_hash[:test_user_username] = session[:username]
-  else
-      status_hash[:test_user] = nil
-  end
-  status_hash.to_json
 end
 
 get '/test/seed/all' do

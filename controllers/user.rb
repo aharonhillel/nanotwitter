@@ -9,7 +9,12 @@ helpers do
   # end
 
   def current_user
+    if session[:username]
     User.find_by_username(session[:username])
+
+  elsif session["test_user"][:id]
+      User.find(session["test_user"][:id])
+    end
   end
 
   def current_user_id

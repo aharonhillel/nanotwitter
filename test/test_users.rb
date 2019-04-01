@@ -13,6 +13,7 @@ end
 
 describe 'POST on /signup' do
   before do
+    Tweet.delete_all
     User.delete_all
   end
   it 'create new user' do

@@ -16,6 +16,9 @@ gem 'sinatra-activerecord'
 gem 'sinatra-contrib'
 gem 'ufo'
 gem 'redis'
+gem 'railties', '~> 5.2'
+gem 'minitest-reporters'
+
 
 group :development do
   gem 'irb'
