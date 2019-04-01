@@ -1,20 +1,14 @@
 post '/follows/:followed' do
-  #current_user = session[:user]
+  if session["user"][:id]
+    #for testing since current user won't exsist
+    current_user = User.find(session["user"][:id])
+  end
   @followed_user = User.find_by_username(params[:followed])
   f = Follow.new(following: @followed_user, follower: current_user)
-  #if !f.valid?
-    #"Cannot follow yourself"
-  #else
     if f.save
-    # when 'text/html'
-    #   halt
       @id = f.id
       erb :'follows/following'
-    # when 'text/json'
-    #   halt current_user.followers.to_json
-    # end
     else
       "Follow not work"
     end
 end
-
