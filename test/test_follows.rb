@@ -14,6 +14,7 @@ end
 describe 'POST on /follows/:followed' do
   before do
     Follow.delete_all
+    Tweet.delete_all
     User.delete_all
   end
   it 'Follow a user' do
@@ -36,7 +37,7 @@ describe 'POST on /follows/:followed' do
     user2 = create_dummy_user(2)
     post '/follows/user1',{}, 'rack.session' => { :user =>user1 }
     last_response.ok?
-    assert_equal "Cannot follow yourself", last_response.body
+    assert_equal "Follow not work", last_response.body
     assert_equal user1.following.count, 0
     assert_equal user2.following.count, 0
     assert_equal user1.followers.count, 0

@@ -9,8 +9,13 @@ helpers do
   # end
 
   def current_user
-    User.find_by_username(session[:username])
-  end
+     if session[:username]
+      a = User.find_by_username(session[:username])
+   elsif session["test_user"]
+      a =  User.find(session["test_user"][:id])
+     end
+     a
+   end
 
   def current_user_id
     session[:user_id]
@@ -70,17 +75,12 @@ get '/login' do
 end
 
 post '/login' do
-  #byebug
   user = User.find_by_email(params[:email])
   if !user.nil? && user.password == params[:password]
     user.to_json
     session[:username] = user.username
-    #redirect '/users/'+ session[:username] + '/timeline'
-    # Need to write give_token function
-    # give_token
   else
     'Failed'
-    # redirect "/login-successful"
   end
 end
 
@@ -98,12 +98,10 @@ end
 get '/users/:username' do
    u = userExistence(params[:username])
   if u != nil
-
     @profile_user = u
     @userTweets = JSON.parse(userTweetInRedis(u), object_class: OpenStruct)
     erb :'profile/profile.html', layout: :'layout_profile'
   end
-
 end
 
 # Display all tweets by a user
@@ -174,4 +172,3 @@ get '/test/users/:username' do
     error 404, {error: "user not found"}.to_json
   end
 end
-
