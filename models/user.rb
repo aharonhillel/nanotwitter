@@ -42,13 +42,14 @@ class User < ActiveRecord::Base
   def followingTweets
     # Tweet.where("user_id IN (?)", following_ids).includes(:user)
     query = "
-    SELECT tweets.users_id, tweets.retweet_id, tweets.content, tweets.img_url, tweets.video_url,
-       tweets.date, tweets.total_likes, tweets.created_at, tweets.updated_at
-    FROM tweets, (
+    SELECT users.username, tweets.user_id, tweets.retweet_id, tweets.content, tweets.img_url,
+       tweets.video_url, tweets.date, tweets.total_likes, tweets.created_at, tweets.updated_at
+    FROM tweets, users
+    WHERE tweets.user_id IN (
       SELECT following_id
       FROM users, follows
-      WHERE follows.user_id = #{self.id}) AS F
-    WHERE tweets.user_id IN F;
+      WHERE follows.user_id = #{self.id})
+    AND tweets.user_id = users.id;
     "
     ActiveRecord::Base.connection.execute(query)
   end
