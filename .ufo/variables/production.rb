@@ -6,7 +6,8 @@
   RACK_ENV=production
   RDS_HOSTNAME=nt-maindb.c30ypiqjubc1.us-east-1.rds.amazonaws.com
   RDS_PORT=5432
-  RDS_DB_NAME=nt_prod_db
   RDS_USERNAME=ntuser
   RDS_PASSWORD=ntpassword
+  REDIS_HOSTNAME=nt-redis.rryc2c.0001.use1.cache.amazonaws.com
+  REDIS_PORT=6379
 ])
