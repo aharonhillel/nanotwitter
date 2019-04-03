@@ -1,4 +1,4 @@
 #Full Seed (broken down for individual bug testing)
-require_relative 'seed-users'
-require_relative 'seed-tweets'
-require_relative 'seed-follows'
+require_relative 'seed_users'
+require_relative 'seed_tweets'
+require_relative 'seed_follows'

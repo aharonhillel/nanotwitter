@@ -77,8 +77,8 @@ end
 post '/login' do
   user = User.find_by_email(params[:email])
   if !user.nil? && user.password == params[:password]
-    user.to_json
     session[:username] = user.username
+    redirect '/users/' + session[:username] + '/timeline'
   else
     'Failed'
   end
