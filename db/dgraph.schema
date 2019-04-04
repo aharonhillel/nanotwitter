@@ -1,6 +1,6 @@
 <Comment>: uid @count @reverse .
 <Email>: string @index(exact) .
-<Follow>: uid @count @reverse .
+<Follow>: uid @count .
 <Like>: uid @count @reverse .
 <Password>: password .
 <Text>: string @index(fulltext) .
