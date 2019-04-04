@@ -40,3 +40,4 @@ nanotwitter-deploy-prod-pipeline.json.ufo/current
 .ufo/output
 
 *.rdb
+*.gz

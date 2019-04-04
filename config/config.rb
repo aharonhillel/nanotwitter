@@ -1,4 +1,8 @@
 configure :development do
+  # dgraph
+  set :dgraph_host, '127.0.0.1'
+  set :dgraph_port, 8080
+
   # redis
   set :redis_host, '127.0.0.1'
   set :redis_port, 6379
@@ -10,6 +14,10 @@ configure :development do
 end
 
 configure :test do
+  # dgraph
+  set :dgraph_host, '127.0.0.1'
+  set :dgraph_port, 8080
+
   # redis
   set :redis_host, '127.0.0.1'
   set :redis_port, 6379

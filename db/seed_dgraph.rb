@@ -1,21 +1,8 @@
-# seed_dgraph seeds the dgraph database with the seed file
-require 'csv'
-require 'faker'
-require_relative '../boot'
-require_relative 'models/user'
+# This file acts as a temporary seeding tool for dgraph
 
-# do
-$dg.drop_all
+require_relative 'generate_dgraph'
+require_relative 'setup_dgraph'
 
-
-
-
-def seed_users
-  seed = CSV.read(File.join(File.dirname(__FILE__ ), '/seed_file/users.csv'))
-  seed.each do |row|
-    user = User.new(:username => row[1], :email => Faker::Internet.unique.email,
-                    :password => 'password')
-
-    $dg.mutate()
-  end
-end
+drop_all
+setup_schema
+generate_seed
