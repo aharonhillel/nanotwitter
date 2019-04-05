@@ -87,6 +87,6 @@ def generate_seed
 end
 
 # generate
-if app_file == $PROGRAM_NAME
+if __FILE__ == $0
   generate_seed
 end
