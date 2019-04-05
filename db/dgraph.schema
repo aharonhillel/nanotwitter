@@ -1,7 +1,9 @@
 <Comment>: uid @count @reverse .
 <Email>: string @index(exact) .
 <Follow>: uid @count .
+<Hashtag>: uid @reverse .
 <Like>: uid @count @reverse .
+<Mention>: uid .
 <Password>: password .
 <Text>: string @index(fulltext) .
 <Timestamp>: datetime @index(hour) .
