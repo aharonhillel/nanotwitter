@@ -4,7 +4,7 @@ require 'bcrypt'
 require 'byebug'
 require 'date'
 require 'redis'
-#require 'dgraphy'
+require_relative 'vendor/dgraph/dgraph'
 #require 'acorn_cache'
 
 require_relative 'models/user'

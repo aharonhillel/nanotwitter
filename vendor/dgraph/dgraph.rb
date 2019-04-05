@@ -46,7 +46,7 @@ class Dgraph
       if options[:show_uids]
         body.dig(:data, :uids)
       else
-        body.dig(:data, :code).equal? 'Success'
+        body.dig(:data, :code).to_s.equal? 'Success'
       end
     end
 

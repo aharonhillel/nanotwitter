@@ -1,47 +1,34 @@
-require_relative '../models/user'
+require 'json'
 
 enable :sessions unless test?
 
 helpers do
-
-  # def redis
-  # redis = Redis.new
-  # end
-
   def current_user
-     if session[:username]
-      a = User.find_by_username(session[:username])
-   elsif session["test_user"]
-      a =  User.find(session["test_user"][:id])
-     end
-     a
-   end
-
-  def current_user_id
-    session[:user_id]
+    session[:username]
   end
 
-  def current_user_tweets
-    u = User.find_by_username(session[:username])
-    if u.nil?
-      [{ content: 'No tweets' }]
+  def current_user_uid
+    query = "{
+      uid(func: eq(Username, \"#{session[:username]}\")) {
+        uid
+      }
+    }"
+
+    res = from_dgraph_or_redis(query)
+    uid = res.dig(:uid).first.dig(:uid)
+    uid
+  end
+
+  def from_dgraph_or_redis(query)
+    res = $redis.get(query)
+    # query dgraph if redis cache miss
+    if res.nil?
+      res = $dg.query(query: query)
+      $redis.set(query, res.to_json, ex: 30)
+      res
     else
-      u.tweets
+      JSON.parse(res, symbolize_names: true)
     end
-  end
-
-  # Mock function for testing profile ui
-  Mock_User = Struct.new(:username, :email, :date, :bio)
-  def mock_user
-    Mock_User.new('Mock User', 'user@mock.com', '1999/9/9', 'Hi, im just a mock user!')
-  end
-
-  Mock_Tweet = Struct.new(:user_id, :retweet_id, :content, :date, :total_likes)
-  def mock_user_tweets
-    [
-      Mock_Tweet.new(99, 199, 'this is a mock tweet from the mock user', '2019/03/09', 10),
-      Mock_Tweet.new(99, 201, 'this is a mock tweet 2 from the mock user', '2019/03/06', 12)
-    ]
   end
 end
 
@@ -51,22 +38,17 @@ get '/signup' do
 end
 
 post '/signup' do
-  @user = User.new(username: params[:username], email: params[:email])
-  @user.password = params[:password]
-  if @user.save
-    session[:username] = @user.username
-    request.accept.each do |type|
-      case type.to_s
-      when 'text/html'
-        halt (redirect '/users/' + session[:username])
-      when 'text/json'
-        halt @user.to_json
-    end
-    end
-  else
-    'Failed'
-    # redirect_to "/failure"
-  end
+  query = "{set{
+    _:user <Username> \"#{params[:username]}\" .
+    _:user <Email> \"#{params[:email]}\" .
+    _:user <Password> \"#{params[:password]}\" .
+    _:user <Type> \"User\" .
+  }}"
+
+  $dg.mutate(query: query)
+
+  session[:username] = params[:username]
+  redirect "/users/#{params[:username]}"
 end
 
 # Login/Logout routes
@@ -75,12 +57,22 @@ get '/login' do
 end
 
 post '/login' do
-  user = User.find_by_email(params[:email])
-  if !user.nil? && user.password == params[:password]
-    session[:username] = user.username
-    redirect '/users/' + session[:username] + '/timeline'
+  query = "{
+    login(func: eq(Email, \"#{params[:email]}\")) {
+      Username
+      Email
+      Success: checkpwd(Password, \"#{params[:password]}\")
+    }
+  }"
+  res = $dg.query(query: query)
+  success = res.dig(:login).first.dig(:Success)
+  username = res.dig(:login).first.dig(:Username)
+
+  if success
+    session[:username] = username
+    redirect "/users/#{username}/timeline"
   else
-    'Failed'
+    'Login failed'
   end
 end
 
@@ -94,28 +86,95 @@ post '/logout' do
   redirect '/login'
 end
 
-# Profile routes
+# Profile route
 get '/users/:username' do
-   u = userExistence(params[:username])
-  if u != nil
-    @profile_user = u
-    @userTweets = JSON.parse(userTweetInRedis(u), object_class: OpenStruct)
+  query = "{
+    profile(func: eq(Username, \"#{params[:username]}\")){
+      uid
+      tweets: Tweet(orderdesc: Timestamp, first: 20) {
+        uid
+        tweetedBy: ~Tweet { Username }
+        tweet: Text
+        totalLikes: count(Like)
+        totalComments: count(Comment)
+        comments: Comment {
+          commentedBy: ~Comment { User { Username } }
+          comment: Text
+          totalLikes: count(Like)
+          totalComments: count(Comment)
+        }
+        Timestamp
+      }
+      totalFollowing: count(Follow)
+      Follow {
+        Username
+      }
+    }
+  }"
+
+  res = from_dgraph_or_redis(query)
+  profile = res.dig(:profile).first
+
+  if profile.nil?
+    status_code 404
+    'User not found'
+  else
+    status_code 200
+    @user_tweets = profile[:tweets]
+    @user_followings = profile[:Follow]
+    @trending_tweets = trending_tweets
+    @info = {
+      profile_user: params[:username],
+      current_user: session[:username],
+      total_following: profile[:totalFollowing],
+    }
     erb :'profile/profile.html', layout: :'layout_profile'
   end
 end
 
-# Display all tweets by a user
+# Display all tweets by a user as JSON
 get '/users/:username/tweets' do
-  u = userExistence(params[:username])
-  if u != nil
-    userTweetInRedis(u)
+  query = "{
+    tweets(func: eq(Username, \"#{params[:username]}\")) {
+      Tweet {
+        uid
+        expand(_all_)
+      }
+    }
+  }"
+
+  res = from_dgraph_or_redis(query)
+  tweets = res.dig(:tweets)
+
+  if tweets.nil?
+    status_code 404
+    'User not found'
+  else
+    status_code 200
+    tweets.first.dig(:Tweet).to_json
   end
 end
 
 # Show all users
 get '/users' do
-  @users = User.all
-  erb :'users/all'
+  query = "{
+    users(func: eq(Type, \"User\")) {
+      Username
+      Email
+    }
+  }"
+
+  res = from_dgraph_or_redis(query)
+  users = res.dig(:users)
+
+  if users.nil?
+    status_code 404
+    'No users'
+  else
+    status_code 200
+    @users = users
+    erb :'users/all'
+  end
 end
 
 # Show all followers
@@ -129,46 +188,64 @@ get '/users/:username/followers' do
 end
 
 get '/users/:username/timeline' do
-  template_output = $redis.get("#{params[:username]}:timeline")
-  if template_output == nil
-    @following_tweets = current_user.followingTweets
-    template_output = erb :'timeline/timeline.html'
-    $redis.set("#{params[:username]}:timeline", template_output)
-  end
-  template_output
-end
+  query = "{
+    var(func: eq(Username, \"#{params[:username]}\")) {
+      Follow {
+        f as Tweet
+      }
+    }
+    timeline(func: uid(f), orderdesc: Timestamp, first: 20){
+      uid
+      tweetedBy: ~Tweet { Username }
+      tweet: Text
+      totalLikes: count(Like)
+      totalComments: count(Comment)
+      comments: Comment {
+        uid
+        commentedBy: ~Comment { User { Username } }
+        comment: Text
+        totalLikes: count(Like)
+        totalComments: count(Comment)
+      }
+    }
+  }"
 
-def userTweetInRedis(user)
-  tweets = $redis.get("#{user.username}:tweets")
-  if tweets == nil || tweets.size == 0
-    tweets = user.tweets.to_json
-    $redis.set("#{user.username}:tweets", tweets)
-  end
-  tweets
-end
+  res = from_dgraph_or_redis(query)
+  timeline = res.dig(:timeline)
 
-def userExistence(username)
-  u = User.find_by_username(username)
-  if u.nil?
-    "No such user"
-  end
-  u
-end
-
-post '/test/login' do
-  user = User.find_by_email(params[:email])
-  if !user.nil? && user.password == params[:password]
-    user.to_json
+  if timeline.nil?
+    status_code 404
+    'User not found'
   else
-    error 404, {error: "user not validated"}.to_json
+    status_code 200
+    @following_tweets = timeline
+    @current_user = session[:username]
+    @trending_tweets = trending_tweets
+    erb :'timeline/timeline.html'
   end
 end
 
-get '/test/users/:username' do
-  user = User.find_by_username(params[:username])
-  if user
-    user.to_json
+def trending_tweets
+  query = "{
+    tweet as var(func: eq(Type, \"Tweet\")) {
+      l as count(Like)
+    }
+    trending(func: uid(tweet), orderdesc: val(l), first: 10) {
+      uid
+      tweetedBy: ~Tweet { Username }
+      tweet: Text
+      totalLikes: count(Like)
+      totalComments: count(Comment)
+      Timestamp
+    }
+  }"
+
+  res = from_dgraph_or_redis(query)
+  tweets = res.dig(:trending)
+
+  if tweets.nil?
+    []
   else
-    error 404, {error: "user not found"}.to_json
+    tweets
   end
 end

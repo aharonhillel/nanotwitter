@@ -1,11 +1,11 @@
 <h4>All Users </h4>
 <ol>
-  <%@users.each do |u|%>
+  <% @users.each do |u|%>
     <li>
-      Name: <%= u.username%>
-      Email: <%= u.email %>
-      Username: <%= u.username %>
-      <form action='/follows/<%= u.username %>' method='post'>
+      Name: <%= u[:Username]%>
+      Email: <%= u[:Email] %>
+      Username: <%= u[:Username] %>
+      <form action='/follows/<%= u[:Username] %>' method='post'>
         <button type='submit' class='btn btn-primary'>Follow</button>
       </form>
     </li>

@@ -21,7 +21,7 @@
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
           <% if current_user != nil %>
-            <a class="nav-link" href="/users/<%= current_user.username %>/timeline">Home <span class="sr-only"></span></a>
+            <a class="nav-link" href="/users/<%= current_user %>/timeline">Home <span class="sr-only"></span></a>
           <% else %>
             <a class="nav-link" href="#">Home <span class="sr-only"></span></a>
           <% end %>
@@ -29,7 +29,7 @@
 
         <li class="nav-item">
           <% if current_user != nil %>
-           <a class="nav-link" href="/users/<%= current_user.username %>" >Profile</a>
+           <a class="nav-link" href="/users/<%= current_user %>" >Profile</a>
           <% else %>
             <a class="nav-link" href="#" >Profile</a>
           <% end %>

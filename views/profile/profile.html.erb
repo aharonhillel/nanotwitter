@@ -1,9 +1,9 @@
 <main role="main" class="container">
   <div class="d-flex align-items-center p-3 my-3 text-black-50 bg-purple rounded shadow-sm">
     <div class="lh-100">
-      <h4 class="mb-0 lh-100">@<%= @profile_user.username %></h4>
-      <% if @profile_user != current_user %>
-        <form class="form-inline my-2 my-lg-0" action='/follows/<%= @profile_user.username %>' method='post'>
+      <h4 class="mb-0 lh-100">@<%= @info[:profile_user] %></h4>
+      <% if @info[:profile_user] != @info[:current_user] %>
+        <form class="form-inline my-2 my-lg-0" action='/follows/<%= @info[:profile_user] %>' method='post'>
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Follow</button>
         </form>
       <% end %>
@@ -13,17 +13,19 @@
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Recent tweets</h6>
-    <% @userTweets.each do |t| %>
+    <% @user_tweets.each do |t| %>
       <div class="card my-2">
         <div class="card-body">
-          <strong class="d-block text-gray-dark"><a href="/users/<%= @profile_user.username %>"><h5 class="card-title">@<%= @profile_user.username %></h5></a></strong>
-          <p class="card-text"><%= t.content.to_s %></p>
+          <strong class="d-block text-gray-dark"><a href="/users/<%= @info[:profile_user] %>"><h5 class="card-title">@<%= @info[:profile_user] %></h5></a></strong>
+          <p class="card-text">
+            <%= t.dig(:tweet) %>
+          </p>
+          <p>
+            <%= t.dig(:totalLikes) %> Likes <%= t.dig(:totalComments) %> Comments
+          </p>
 
-          <form method="POST" action="/like/<%= t.id %>/new">
+          <form method="POST" action="/like/<%= t.dig(:uid) %>/new">
             <button class="btn btn-primary btn-sm" type="submit" value="like-btn">Like</button>
-            <% if  t.total_likes != nil %>
-              <%= t.total_likes %>
-            <% end %>
             <button href="#" class="btn btn-primary btn-sm" type="submit">Comment</button>
             <button href="#" class="btn btn-primary btn-sm" type="submit">Retweet</button>
           </form>
@@ -37,11 +39,11 @@
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Followed</h6>
-    Following size: <%= @profile_user.following.count %>
-    <% @profile_user.following.each do |f| %>
+    Following size: <%= @info[:total_following] %>
+    <% @user_followings.each do |f| %>
       <div class="media text-muted pt-3">
         <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-          <strong class="d-block text-gray-dark"><%= f.username %></strong>
+          <strong class="d-block text-gray-dark"><%= f.dig(:Username) %></strong>
           <!--link to the followed user profile page -->
         </p>
       </div>
@@ -53,11 +55,11 @@
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Trending</h6>
-    <% mock_user_tweets.each do |t| %>
+    <% @trending_tweets.each do |t| %>
       <div class="media text-muted pt-3">
         <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-          <strong class="d-block text-gray-dark">@<%= mock_user.username %></strong>
-          <%= t.content.to_s %>
+          <strong class="d-block text-gray-dark">@<%= t.dig(:tweetedBy).first.dig(:Username) %></strong>
+          <%= t.dig(:tweet) %>
         </p>
       </div>
     <% end %>
