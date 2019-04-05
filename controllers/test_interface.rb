@@ -200,7 +200,8 @@ get '/test/login/user/:username' do
   redirect '/users/'+ session[:username] + '/timeline'
 end
 
-# Create testUser
+
+# Create testUsere
 def create_test_user
   u = User.new(username: 'testuser', email: 'testuser@sample.com')
   u.password = 'password'

@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  #self.primary_key = "username"
+
   has_many :tweets, dependent: :nullify
   has_many :follows, dependent: :nullify
   has_many :likes, dependent: :nullify
@@ -34,24 +36,40 @@ class User < ActiveRecord::Base
   def following_ids
     res = []
     self.following.each do |f|
-      res.push(f)
+      res.push(f.id)
     end
     res
   end
 
   def followingTweets
-    # Tweet.where("user_id IN (?)", following_ids).includes(:user)
-    query = "
-    SELECT users.username, tweets.user_id, tweets.retweet_id, tweets.content, tweets.img_url,
-       tweets.video_url, tweets.date, tweets.total_likes, tweets.created_at, tweets.updated_at
-    FROM tweets, users
-    WHERE tweets.user_id IN (
-      SELECT following_id
-      FROM users, follows
-      WHERE follows.user_id = #{self.id})
-    AND tweets.user_id = users.id;
-    "
-    ActiveRecord::Base.connection.execute(query)
+    Tweet.where("user_id IN (?)", following_ids).includes(:user)
+
+    # query = "
+    # # SELECT users.username, tweets.user_id, tweets.retweet_id, tweets.content, tweets.img_url,
+    # #    tweets.video_url, tweets.date, tweets.total_likes, tweets.created_at, tweets.updated_at
+    # # FROM tweets, users
+    # # WHERE tweets.user_id IN (
+    # #   SELECT following_id
+    # #   FROM users, follows
+    # #   WHERE follows.user_id = #{self.id})
+    # # AND tweets.user_id = users.id;
+    # # "
+    # # ActiveRecord::Base.connection.execute(query)
+
+    # User.select(
+    #     [
+    #         User.arel_table[:username], Tweet.arel_table[:user_id], Tweet.arel_table[:retweet_id], Tweet.arel_table[:content], Tweet.arel_table[:img_url], Tweet.arel_table[:video_url], Tweet.arel_table[:date], Tweet.arel_table[:total_likes], Tweet.arel_table[:created_at], Tweet.arel_table[:updated_at]
+    #     ]
+    # ).where(
+    #     Tweet.arel_table[:user_id].in(
+    #         Follow.select(:following_id).where(
+    #             Follow.arel_table[:user_id].eq(self.arel_table[:id])
+    #         ).ast
+    #     ).and(
+    #         Tweet.arel_table[:user_id].eq(User.arel_table[:id])
+    #     )
+    # )
+
   end
 
 end

@@ -6,7 +6,7 @@ post '/tweet/create' do
   tweet = Tweet.new(:user_id => current_user.id, :content => params[:text])
   "Create tweet"
   if tweet.save
-    $redis.set("#{current_user.username}:tweets", current_user.tweets.to_json)
+    #$redis.set("#{current_user.username}:tweets", current_user.tweets.to_json)
     redirect "/users/#{current_user.username}"
   else
     'Failed create tweet'
@@ -30,6 +30,7 @@ get '/tweets/all' do
   erb :'/tweets/tweetsAll'
 end
 
+# Only for test purpose
 post '/test/tweets/new' do
   tweet = Tweet.new(:user_id => params[:user_id], :content => params[:content])
   if tweet.save

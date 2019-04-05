@@ -12,5 +12,6 @@ class CreateUsers < ActiveRecord::Migration[5.2]
     end
 
     add_index :users, [:username, :email], unique: true
+    #execute "ALTER TABLE users ADD PRIMARY KEY (username);"
   end
 end

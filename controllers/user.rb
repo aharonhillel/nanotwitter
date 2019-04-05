@@ -99,7 +99,8 @@ get '/users/:username' do
    u = userExistence(params[:username])
   if u != nil
     @profile_user = u
-    @userTweets = JSON.parse(userTweetInRedis(u), object_class: OpenStruct)
+    @userTweets = @profile_user.tweets
+    #@userTweets = JSON.parse(userTweetInRedis(u), object_class: OpenStruct)
     erb :'profile/profile.html', layout: :'layout_profile'
   end
 end
@@ -129,12 +130,12 @@ get '/users/:username/followers' do
 end
 
 get '/users/:username/timeline' do
-  template_output = $redis.get("#{params[:username]}:timeline")
-  if template_output == nil
+  #template_output = $redis.get("#{params[:username]}:timeline")
+  #if template_output == nil
     @following_tweets = current_user.followingTweets
     template_output = erb :'timeline/timeline.html'
-    $redis.set("#{params[:username]}:timeline", template_output)
-  end
+    #$redis.set("#{params[:username]}:timeline", template_output)
+  #end
   template_output
 end
 

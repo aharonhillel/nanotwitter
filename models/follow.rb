@@ -14,5 +14,4 @@ class Follow < ActiveRecord::Base
   validates :user_id, uniqueness: { scope: :following_id }
   validates_with MyValidator
 
-
 end

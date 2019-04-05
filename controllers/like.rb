@@ -1,10 +1,9 @@
-
 post '/like/:tweet_id/new' do
   like = Like.new(:user_id => current_user.id, :tweet_id => params[:tweet_id])
   if like.save
     # Need to update redis
-    #redirect '/users/' + current_user.username + '/timeline'
-    like.to_json
+    redirect '/users/' + current_user.username
+    #like.to_json
   else
     'Failed to like a tweet'
   end
@@ -16,6 +15,7 @@ post '/like/:tweet_id/unlike' do
   like.to_json
 end
 
+# Only for test purpose
 post '/test/like/:tweet_id/new' do
   like = Like.new(:user_id => params[:user_id], :tweet_id => params[:tweet_id])
   if like.save
