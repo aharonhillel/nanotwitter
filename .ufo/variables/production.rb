@@ -10,4 +10,6 @@
   RDS_PASSWORD=ntpassword
   REDIS_HOSTNAME=nt-redis.rryc2c.0001.use1.cache.amazonaws.com
   REDIS_PORT=6379
+  DGRAPH_HOST=ec2-54-236-60-236.compute-1.amazonaws.com
+  DGRAPH_PORT=8080
 ])
