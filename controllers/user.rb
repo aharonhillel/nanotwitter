@@ -34,7 +34,6 @@ post '/signup' do
   }}"
 
   $dg.mutate(query: query)
-
   session[:username] = params[:username]
   redirect "/users/#{params[:username]}"
 end

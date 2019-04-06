@@ -13,6 +13,7 @@
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Recent tweets</h6>
+    <% if  @user_tweets != nil%>
     <% @user_tweets.each do |t| %>
       <div class="card my-2">
         <div class="card-body">
@@ -34,14 +35,17 @@
         </div>
       </div>
     <% end %>
+
     <small class="d-block text-right mt-3">
       <a href="#">Show more tweets</a>
     </small>
+    <%end %>
   </div>
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Followed</h6>
     Following size: <%= @info[:total_following] %>
+    <% if  @user_followings != nil%>
     <% @user_followings.each do |f| %>
       <div class="media text-muted pt-3">
         <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
@@ -53,10 +57,12 @@
     <small class="d-block text-right mt-3">
       <a href="#">Show more tweets</a>
     </small>
+      <%end %>
   </div>
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Trending</h6>
+    <% if @trending_tweets != nil %>
     <% @trending_tweets.each do |t| %>
       <div class="card my-2">
         <div class="card-body">
@@ -75,5 +81,6 @@
     <small class="d-block text-right mt-3">
       <a href="#">Show more trending tweets</a>
     </small>
+      <% end %>
   </div>
 </main>
