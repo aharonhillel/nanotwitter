@@ -1,36 +1,38 @@
-post '/test/hashtags/new' do
-  h = HashTag.new(:description => params[:description])
-  if h.save
-    h.to_json
-  else
-    "Failed"
-  end
+helpers do
+
 end
 
-get '/test/hashtags/hashtag/:hashtag' do
-  h = HashTag.find_by_description(params[:hashtag])
-  if h != nil
-    h.to_json
-  else
-    error 404, {error: "Hashtag not find"}.to_json
-  end
+post '/hashtag/new' do
+  hashtag = params[:hashtag]
+  tweet = params[:tweet]
+
+  query = "{set{
+    <#{tweet}> <Hashtag> _:hashtag .
+    _:hashtag <Text> \"#{hashtag}\" .
+    _:hashtag <Type> \"Hashtag\" .
+  }}"
+
+  $dg.mutuate(query: query)
+  status_code 200
 end
 
-post '/test/hashtagTweets/new' do
-  h = HashTagTweet.new(:tweet_id => params[:tweet_id], :hash_tag_id => params[:hash_tag_id])
-  if h.save
-    h.to_json
+get '/hashtags/:hashtag' do
+  hashtag = params[:hashtag]
+  query = "{
+    hashtag(func: eq(Text, \"#{'#' + hashtag}\")) {
+      taggedIn: ~Hashtag {
+        expand(_all_)
+      }
+    }
+  }"
+
+  res = from_dgraph_or_redis(query)
+
+  if res != nil
+    status_code 200
+    res.dig(:hashtag).first.to_json
   else
-    "Failed"
+    status_code 404
+    'hashtag not found'
   end
 end
-
-get '/test/hashtags/tweets/:hashtag' do
-  h = HashTag.find_by_description(params[:hashtag])
-  if h != nil
-    h.tweets.to_json
-  else
-    error 404, {error: "Hashtag not find"}.to_json
-  end
-end
-

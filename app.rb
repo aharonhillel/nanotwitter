@@ -32,6 +32,7 @@ require_relative 'controllers/mention'
 require_relative 'controllers/hash_tag'
 
 require_relative 'config/config'
+require_relative 'helpers/helpers'
 
 # cache
 # Rack::AcornCache.configure do |config|

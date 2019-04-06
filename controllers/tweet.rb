@@ -5,31 +5,38 @@ get '/tweet/new' do
 end
 
 post '/tweet/create' do
+  text = params[:text].to_s
   tweet = "{set{
-    _:tweet <Text> \"#{params[:text]}\" .
+    _:tweet <Text> \"#{text}\" .
     _:tweet <Type> \"Tweet\" .
     _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
-    <#{current_user_uid}> <Tweet> _:tweet .
-  }}"
+    <#{current_user_uid}> <Tweet> _:tweet ."
+
+  if text.include? '#'
+    hashtag = text[/#(\w+)/]
+    tweet << "
+    _:tweet <Hashtag> _:hashtag .
+    _:hashtag <Text> \"#{hashtag}\" .
+    _:hashtag <Type> \"Hashtag\" ."
+  end
+  tweet << "}}"
 
   $dg.mutate(query: tweet)
   redirect "/users/#{current_user}"
 end
 
-# get '/tweet/get_tweets/:id' do
-#   id = params[:id]
-#   @tweet = Tweet.find(id)
-#   erb :'/tweets/show'
-# end
-
-# get '/tweet/:username/following_tweets' do
-#   @following_tweets = current_user.followingTweets
-#
-#   erb :'timeline/timeline.html', :layout => :'users/homepage'
-# end
-
 get '/tweets/all' do
-  @tweets = Tweet.all
+  query = "{
+    tweets(func: eq(Type, \"Tweet\"), first: 100) {
+      tweetedBy: ~Tweet {
+        Username
+      }
+      Text
+      Timestamp
+    }
+  }"
+  res = from_dgraph_or_redis(query, ex: 600)
+  @tweets = res.dig(:tweets)
   erb :'/tweets/tweetsAll'
 end
 

@@ -18,18 +18,6 @@ helpers do
     uid = res.dig(:uid).first.dig(:uid)
     uid
   end
-
-  def from_dgraph_or_redis(query)
-    res = $redis.get(query)
-    # query dgraph if redis cache miss
-    if res.nil?
-      res = $dg.query(query: query)
-      $redis.set(query, res.to_json, ex: 30)
-      res
-    else
-      JSON.parse(res, symbolize_names: true)
-    end
-  end
 end
 
 # Signup routes
@@ -97,7 +85,7 @@ get '/users/:username' do
         tweet: Text
         totalLikes: count(Like)
         totalComments: count(Comment)
-        comments: Comment {
+        comments: Comment(orderdesc: Timestamp, first: 3) {
           commentedBy: ~Comment { User { Username } }
           comment: Text
           totalLikes: count(Like)
@@ -207,6 +195,7 @@ get '/users/:username/timeline' do
         totalLikes: count(Like)
         totalComments: count(Comment)
       }
+      Timestamp
     }
   }"
 

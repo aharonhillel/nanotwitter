@@ -10,15 +10,21 @@
     <% @following_tweets.each do |t| %>
     <div class="card my-2">
       <div class="card-body">
-        <strong class="d-block text-gray-dark"><a href="/users/<%= t.dig(:tweetedBy).first.dig(:Username) %>"><h5 class="card-title">@<%= t.dig(:tweetedBy).first.dig(:Username) %></h5></a></strong>
+        <strong class="d-block text-gray-dark"><h5 class="card-title">
+          <a href="/users/<%= t.dig(:tweetedBy).first.dig(:Username) %>">@<%= t.dig(:tweetedBy).first.dig(:Username) %></a>
+          <small class="text-muted"><%= time_since(t.dig(:Timestamp)) %></small></h5>
+        </strong>
         <p class="card-text"><%= t.dig(:tweet) %></p>
-        <p>
-          <%= t.dig(:totalLikes) %> Likes <%= t.dig(:totalComments) %> Comments
-        </p>
 
-        <button href="/like/<%= t.dig(:uid) %>/new" class="btn btn-primary btn-sm" type="submit" value="like">Like</button>
-        <button href="#" class="btn btn-primary btn-sm" type="submit">Comment</button>
-        <button href="#" class="btn btn-primary btn-sm" type="submit">Retweet</button>
+        <div class="d-flex flex-row">
+          <form method="POST" action="/like/<%= t.dig(:uid) %>/new">
+            <button class="btn btn-primary btn-sm mx-1" type="submit" value="like-btn"><%= t.dig(:totalLikes) %> Likes</button>
+          </form>
+          <form method="POST" action="/comment/<%= t.dig(:uid) %>/new">
+            <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %> Comments</button>
+          </form>
+          <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
+        </div>
       </div>
     </div>
     <% end %>
@@ -30,11 +36,18 @@
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Trending</h6>
     <% @trending_tweets.each do |t| %>
-      <div class="media text-muted pt-3">
-        <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-          <strong class="d-block text-gray-dark">@<%= t.dig(:tweetedBy).first.dig(:Username) %></strong>
-          <%= t.dig(:tweet) %>
-        </p>
+      <div class="card my-2">
+        <div class="card-body">
+          <strong class="d-block text-gray-dark"><a href="/users/<%= t.dig(:tweetedBy).first.dig(:Username) %>"><h5 class="card-title">@<%= t.dig(:tweetedBy).first.dig(:Username) %></h5></a></strong>
+          <p class="card-text"><%= t.dig(:tweet) %></p>
+          <p>
+            <%= t.dig(:totalLikes) %> Likes <%= t.dig(:totalComments) %> Comments
+          </p>
+
+          <button href="/like/<%= t.dig(:uid) %>/new" class="btn btn-primary btn-sm" type="submit" value="like">Like</button>
+          <button href="#" class="btn btn-primary btn-sm" type="submit">Comment</button>
+          <button href="#" class="btn btn-primary btn-sm" type="submit">Retweet</button>
+        </div>
       </div>
     <% end %>
     <small class="d-block text-right mt-3">
