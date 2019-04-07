@@ -99,7 +99,7 @@ get '/users/:username' do
     }
   }"
 
-  res = from_dgraph_or_redis(query)
+  res = from_dgraph_or_redis(query, ex: 120)
   profile = res.dig(:profile).first
 
   if profile.nil?
@@ -130,7 +130,7 @@ get '/users/:username/tweets' do
     }
   }"
 
-  res = from_dgraph_or_redis(query)
+  res = from_dgraph_or_redis(query, ex: 120)
   tweets = res.dig(:tweets)
 
   if tweets.nil?
@@ -198,7 +198,7 @@ get '/users/:username/timeline' do
     }
   }"
 
-  res = from_dgraph_or_redis(query)
+  res = from_dgraph_or_redis(query, ex: 120)
   timeline = res.dig(:timeline)
 
   if timeline.nil?
@@ -228,7 +228,7 @@ def trending_tweets
     }
   }"
 
-  res = from_dgraph_or_redis(query)
+  res = from_dgraph_or_redis(query, ex: 360)
   tweets = res.dig(:trending)
 
   if tweets.nil?

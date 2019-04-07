@@ -30,6 +30,7 @@ require_relative 'controllers/like'
 require_relative 'controllers/comment'
 require_relative 'controllers/mention'
 require_relative 'controllers/hash_tag'
+require_relative 'controllers/search'
 
 require_relative 'config/config'
 require_relative 'helpers/helpers'
