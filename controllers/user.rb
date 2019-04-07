@@ -22,7 +22,7 @@ end
 
 # Signup routes
 get '/signup' do
-  erb :'users/signup'
+  send_file File.expand_path('signup.html', settings.public_folder)
 end
 
 post '/signup' do
@@ -40,7 +40,7 @@ end
 
 # Login/Logout routes
 get '/login' do
-  erb :'users/login'
+  send_file File.expand_path('login.html', settings.public_folder)
 end
 
 post '/login' do

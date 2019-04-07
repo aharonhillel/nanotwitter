@@ -1,1 +1,1 @@
-#nanoTwitter version 0.6 - 2019/3/30
+#nanoTwitter version 0.7 - 2019/4/7
