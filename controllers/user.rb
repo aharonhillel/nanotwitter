@@ -1,4 +1,5 @@
 require 'json'
+require 'date'
 
 enable :sessions unless test?
 
@@ -214,8 +215,11 @@ get '/users/:username/timeline' do
 end
 
 def trending_tweets
+  # trending of last 7 days
+  date = Date.today - 7
   query = "{
-    tweet as var(func: eq(Type, \"Tweet\")) {
+    tweet as var(func: eq(Type, \"Tweet\"))
+    @filter(ge(Timestamp, \"#{date.rfc3339}\")){
       l as count(Like)
     }
     trending(func: uid(tweet), orderdesc: val(l), first: 10) {
