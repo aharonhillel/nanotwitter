@@ -1,6 +1,6 @@
 <Comment>: uid @count @reverse .
 <Email>: string @index(exact) .
-<Follow>: uid @count .
+<Follow>: uid @count @reverse .
 <Hashtag>: uid @reverse .
 <Like>: uid @count @reverse .
 <Mention>: uid .

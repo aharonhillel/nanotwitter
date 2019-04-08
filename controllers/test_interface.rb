@@ -155,23 +155,58 @@ end
 
 get '/status' do
   status 200
-  status_hash = Hash.new
-  status_hash[:number_of_users] = User.all.count
-  status_hash[:number_of_followers] = Follow.all.count
-  status_hash[:number_of_tweets] = Tweet.all.count
-  if !session[:username].nil?
-    status_hash[:test_user_id] = User.find_by_username(session[:username]).id
-    status_hash[:test_user_username] = session[:username]
-  else
-      status_hash[:test_user] = nil
+  query = "{
+    uids(func: eq(Type, \"User\")) {
+      u as uid
+    }
+    result(func: uid(u)) {
+      count(uid)
+    }
+  }"
+  res = from_dgraph_or_redis(query, ex: 10)
+  num_of_users = res.dig(:result).first.dig(:count)
+  
+  query = "{
+    uids(func: eq(Type, \"Tweet\")) {
+      u as uid
+    }
+    result(func: uid(u)) {
+      count(uid)
+    }
+  }"
+  res = from_dgraph_or_redis(query, ex: 10)
+  num_of_tweets = res.dig(:result).first.dig(:count)
+
+  query = "{
+    uids(func: has(Follow)) {
+      u as uid
+    }
+
+    result(func: uid(u)) {
+      count(uid)
+    }
+  }"
+  res = from_dgraph_or_redis(query, ex: 10)
+  num_of_follows = res.dig(:result).first.dig(:count)
+
+  query = "{
+    testuser(func: eq(Username, \"testuser\")) {
+      expand(_all_)
+    }
+  }"
+  res = from_dgraph_or_redis(query, ex: 10)
+  if res.nil?
+    create_test_user
   end
-  status_hash.to_json
+  {
+    numOfUsers: num_of_users,
+    numOfFollows: num_of_follows,
+    numOfTweets: numOfTweets,
+    testUsername: 'testuser'
+  }.to_json
 end
 
-get '/test/seed/all' do
-  load './db/seed.rb'
-end
-
+# required paths
 # Fill dummy data
 get '/test/users/create/:total' do
   total = params[:total].to_i
@@ -188,6 +223,29 @@ get '/test/users/create/:total' do
   }.to_json
 end
 
+post '/test/user/:username/tweets?:count' do
+  username = params[:username]
+  uid = username_to_uid(username)
+  count = params[:count].to_i
+
+  if uid.nil?
+    status 404
+    'No such user'
+  end
+
+  count.times do
+    tweet = "{set{
+    _:tweet <Text> \"#{Faker::Lorem.sentence(6)}\" .
+    _:tweet <Type> \"Tweet\" .
+    _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
+    <#{uid}> <Tweet> _:tweet .
+    }}"
+
+    $dg.mutate(query: tweet)
+  end
+  redirect "/users/#{username}"
+end
+
 def reset_auto_increment(table_name)
   ActiveRecord::Base.connection.execute(
     "TRUNCATE TABLE #{table_name} RESTART IDENTITY CASCADE"
@@ -202,8 +260,12 @@ end
 
 # Create testUser
 def create_test_user
-  u = User.new(username: 'testuser', email: 'testuser@sample.com')
-  u.password = 'password'
-  u.save
-  u
+  query = "{set{
+    _:user <Username> \"testuser\" .
+    _:user <Email> \"testuser@sample.com\" .
+    _:user <Password> \"password\" .
+    _:user <Type> \"User\" .
+  }}"
+
+  $dg.mutate(query: query)
 end

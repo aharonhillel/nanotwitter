@@ -19,6 +19,18 @@ helpers do
     uid = res.dig(:uid).first.dig(:uid)
     uid
   end
+
+  def username_to_uid(username)
+    query = "{
+      uid(func: eq(Username, \"#{username}\")) {
+        uid
+      }
+    }"
+
+    res = from_dgraph_or_redis(query)
+    uid = res.dig(:uid).first.dig(:uid)
+    uid
+  end
 end
 
 # Signup routes

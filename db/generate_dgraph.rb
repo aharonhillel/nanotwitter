@@ -7,12 +7,16 @@ require 'date'
 @usersNum = {}
 
 
-def generate_users
+def generate_users(n)
   seed = CSV.read(File.join(File.dirname(__FILE__), '/seed_files/users.csv'))
 
   p "generating users..."
   i = 0
   seed.each do |row|
+    if i == n
+      break
+    end
+
     name = "name00#{i}"
 
     @generated_seed.puts(
@@ -40,14 +44,19 @@ def generate_tweets
   p "generating tweets..."
   i = 0
   seed.each do |row|
+    user = @usersNum[row[0]]
     date = DateTime.parse(row[2]).rfc3339(5)
     tweet_id = "tweet00#{i}"
+
+    if user.nil?
+      next
+    end
 
     @generated_seed.puts(
       "_:#{tweet_id} <Text> \"#{row[1]}\" .",
       "_:#{tweet_id} <Type> \"Tweet\" .",
       "_:#{tweet_id} <Timestamp> \"#{date}\" .",
-      "_:#{@usersNum[row[0]]} <Tweet> _:#{tweet_id} ."
+      "_:#{user} <Tweet> _:#{tweet_id} ."
     )
 
     if i % 1000 == 0
@@ -68,6 +77,10 @@ def generate_follows
     f1 = @usersNum[row[0]]
     f2 = @usersNum[row[1]]
 
+    if f1.nil? || f1.nil?
+      next
+    end
+
     @generated_seed.puts(
       "_:#{f1} <Follow> _:#{f2} ."
     )
@@ -80,8 +93,8 @@ def generate_follows
   p "done generating follows"
 end
 
-def generate_seed
-  generate_users
+def generate_seed(num_of_users)
+  generate_users(num_of_users)
   generate_tweets
   generate_follows
 end
