@@ -18,3 +18,8 @@ services:
       - 9080:9080
     restart: on-failure
     command: dgraph alpha --my=server:7080 --lru_mb=4096 --zero=zero:5080
+  ratel:
+    image: dgraph/dgraph:latest
+    ports:
+      - 8000:8000
+    command: dgraph-ratel

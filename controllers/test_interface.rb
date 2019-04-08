@@ -197,7 +197,7 @@ end
 get '/test/login/user/:username' do
   session[:username] = params[:username]
   'Logged in'
-  redirect '/users/'+ session[:username] + '/timeline'
+  redirect "/users/#{session[:username]}/timeline"
 end
 
 # Create testUser

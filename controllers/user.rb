@@ -208,7 +208,7 @@ get '/users/:username/timeline' do
   else
     status_code 200
     @following_tweets = timeline
-    @current_user = session[:username]
+    @current_user = params[:username]
     @trending_tweets = trending_tweets
     erb :'timeline/timeline.html'
   end

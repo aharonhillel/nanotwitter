@@ -14,10 +14,8 @@ http://product-Elb-VQ59Q2YO4G9G-1381768724.us-east-1.elb.amazonaws.com
 
 ### 0.7 (4/3/19)
 
-- Added index for database tables
-- Achieved like functionality
-- Added model tests
-- Modified caching logic
+- Switched to use dgraph
+- Added trending/search features
 
 ### 0.6 (3/23/19)
 
