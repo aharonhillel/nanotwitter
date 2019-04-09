@@ -3,7 +3,7 @@
     <div class="lh-100">
       <h4 class="mb-0 lh-100">@<%= @info[:profile_user] %></h4>
       <% if @info[:profile_user] != @info[:current_user] %>
-        <form class="form-inline my-2 my-lg-0" action='/follows/<%= @info[:profile_user] %>' method='post'>
+        <form class="form-inline my-2 my-lg-0" action='/follows/follow/<%= @info[:profile_user] %>' method='post'>
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Follow</button>
         </form>
       <% end %>
@@ -62,6 +62,11 @@
       <a href="#">Show more tweets</a>
     </small>
       <%end %>
+  </div>
+
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Follower</h6>
+    Following size: <%= @info[:total_follower] %>
   </div>
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">

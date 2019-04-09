@@ -5,4 +5,4 @@ require_relative 'setup_dgraph'
 
 drop_all
 setup_schema
-generate_seed
+generate_seed(1000)

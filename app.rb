@@ -35,6 +35,9 @@ require_relative 'controllers/search'
 require_relative 'config/config'
 require_relative 'helpers/helpers'
 
+require 'json'
+require 'date'
+
 # cache
 # Rack::AcornCache.configure do |config|
 #   config.cache_everything = true

@@ -8,17 +8,17 @@ helpers do
     session[:username]
   end
 
-  def current_user_uid
-    query = "{
-      uid(func: eq(Username, \"#{session[:username]}\")) {
-        uid
-      }
-    }"
-
-    res = from_dgraph_or_redis(query)
-    uid = res.dig(:uid).first.dig(:uid)
-    uid
-  end
+  # def current_user_uid
+  #   query = "{
+  #     uid(func: eq(Username, \"#{session[:username]}\")) {
+  #       uid
+  #     }
+  #   }"
+  #
+  #   res = from_dgraph_or_redis(query)
+  #   uid = res.dig(:uid).first.dig(:uid)
+  #   uid
+  # end
 
   def username_to_uid(username)
     query = "{
@@ -39,16 +39,36 @@ get '/signup' do
 end
 
 post '/signup' do
-  query = "{set{
+  qname = "{
+  uid(func: eq(Username, \"#{params[:username]}\")){
+   uid
+  }
+}"
+  name = from_dgraph_or_redis(qname)
+
+  qemail = "{
+  uid(func: eq(Email, \"#{params[:email]}\")){
+   uid
+  }
+}"
+  email = $dg.query(query: qemail)
+
+  if name != nil
+    "Username already in use"
+  elsif email != nil
+    "Email already in use"
+  else
+    query = "{set{
     _:user <Username> \"#{params[:username]}\" .
     _:user <Email> \"#{params[:email]}\" .
     _:user <Password> \"#{params[:password]}\" .
     _:user <Type> \"User\" .
   }}"
 
-  $dg.mutate(query: query)
-  session[:username] = params[:username]
-  redirect "/users/#{params[:username]}"
+    $dg.mutate(query: query)
+    session[:username] = params[:username]
+    redirect "/users/#{params[:username]}"
+  end
 end
 
 # Login/Logout routes
@@ -109,6 +129,7 @@ get '/users/:username' do
       Follow {
         Username
       }
+      totalFollower: count(~Follow)
     }
   }"
 
@@ -127,6 +148,7 @@ get '/users/:username' do
       profile_user: params[:username],
       current_user: session[:username],
       total_following: profile[:totalFollowing],
+      total_follower: profile[:totalFollower]
     }
     erb :'profile/profile.html', layout: :'layout_profile'
   end
@@ -177,15 +199,15 @@ get '/users' do
   end
 end
 
-# Show all followers
-get '/users/:username/followers' do
-  @user = User.find_by_username(params[:username])
-  if @user.nil?
-    "#{params[:username]} has no followers"
-  else
-    erb :'follows/followers'
-  end
-end
+# # Show all followers
+# get '/users/:username/followers' do
+#   @user = User.find_by_username(params[:username])
+#   if @user.nil?
+#     "#{params[:username]} has no followers"
+#   else
+#     erb :'follows/followers'
+#   end
+# end
 
 get '/users/:username/timeline' do
   query = "{
@@ -220,7 +242,7 @@ get '/users/:username/timeline' do
   else
     status_code 200
     @following_tweets = timeline
-    @current_user = params[:username]
+    @current_user = session[:username]
     @trending_tweets = trending_tweets
     erb :'timeline/timeline.html'
   end

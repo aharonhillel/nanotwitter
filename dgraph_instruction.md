@@ -19,9 +19,9 @@ docker exec -it dgraph dgraph alpha --lru_mb 2048 --zero localhost:5080
 ```
 ruby db/seed_dgraph.rb
 
-gzip -y seed.rdf
+gzip db/seed.rdf
 
-cp seed.rdf.gz ~/dgraph
+cp db/seed.rdf.gz ~/dgraph
 
 docker exec -it dgraph dgraph live -r seed.rdf.gz --zero localhost:5080 -c 1
 ```
