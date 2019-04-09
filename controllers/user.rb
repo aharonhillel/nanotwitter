@@ -31,6 +31,36 @@ helpers do
     uid = res.dig(:uid).first.dig(:uid)
     uid
   end
+
+  def create_user(email, username, password)
+    qname = "{
+      uid(func: eq(Username, \"#{username}\")){
+       uid
+      }
+    }"
+    name_check = $dg.query(query: qname)
+
+    qemail = "{
+      uid(func: eq(Email, \"#{email}\")){
+       uid
+      }
+    }"
+    email_check = $dg.query(query: qemail)
+
+    if email_check.dig(:uid).empty? && name_check.dig(:uid).empty?
+      query = "{set{
+        _:user <Username> \"#{username}\" .
+        _:user <Email> \"#{email}\" .
+        _:user <Password> \"#{password}\" .
+        _:user <Type> \"User\" .
+      }}"
+
+      $dg.mutate(query: query)
+      true
+    else
+      false
+    end
+  end
 end
 
 # Signup routes
@@ -39,35 +69,11 @@ get '/signup' do
 end
 
 post '/signup' do
-  qname = "{
-  q(func: eq(Username, \"#{params[:username]}\")){
-   uid
-  }
-}"
-  name = from_dgraph_or_redis(qname).dig(:q).first
-
-  qemail = "{
-  uid(func: eq(Email, \"#{params[:email]}\")){
-   uid
-  }
-}"
-  email = $dg.query(query: qemail).dig(:uid).first
-
-  if name != nil
-    "Username already in use"
-  elsif email != nil
-    "Email already in use"
-  else
-    query = "{set{
-    _:user <Username> \"#{params[:username]}\" .
-    _:user <Email> \"#{params[:email]}\" .
-    _:user <Password> \"#{params[:password]}\" .
-    _:user <Type> \"User\" .
-  }}"
-
-    $dg.mutate(query: query)
+  if create_user(params[:email], params[:username], params[:password])
     session[:username] = params[:username]
     redirect "/users/#{params[:username]}"
+  else
+    "Failed to create user"
   end
 end
 
@@ -247,7 +253,7 @@ def trending_tweets
       uid
       tweetedBy: ~Tweet { Username }
       tweet: Text
-      totalLikes: count(Like)
+      totalLikes: count(~Like)
       totalComments: count(Comment)
       Timestamp
     }

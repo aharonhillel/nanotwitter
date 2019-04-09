@@ -201,7 +201,7 @@ get '/status' do
   {
     numOfUsers: num_of_users,
     numOfFollows: num_of_follows,
-    numOfTweets: numOfTweets,
+    numOfTweets: num_of_tweets,
     testUsername: 'testuser'
   }.to_json
 end
@@ -211,9 +211,7 @@ end
 get '/test/users/create/:total' do
   total = params[:total].to_i
   total.times do
-    u = User.new(username: Faker::Name.name, email: Faker::Internet.email)
-    u.password = 'password'
-    u.save
+    create_user(Faker::Internet.unique.email, Faker::Lorem.unique.words(1), 'password')
   end
   status 200
   {
@@ -259,13 +257,26 @@ get '/test/login/user/:username' do
 end
 
 # Create testUser
-def create_test_user
-  query = "{set{
-    _:user <Username> \"testuser\" .
-    _:user <Email> \"testuser@sample.com\" .
-    _:user <Password> \"password\" .
-    _:user <Type> \"User\" .
-  }}"
+get '/test/user/testuser' do
+  create_test_user
+  redirect '/users/testuser/timeline'
+end
 
-  $dg.mutate(query: query)
+def create_test_user
+  query = "{
+    q(func: eq(Username, \"testuser\")) {
+      uid
+    }
+  }"
+
+  res = $dg.query(query: query)
+  if res.nil?
+    query = "{set{
+      _:user <Username> \"testuser\" .
+      _:user <Email> \"testuser@sample.com\" .
+      _:user <Password> \"password\" .
+      _:user <Type> \"User\" .
+    }}"
+    $dg.mutate(query: query)
+  end
 end

@@ -18,9 +18,7 @@
         <p class="card-text"><%= t.dig(:tweet) %></p>
 
         <div class="d-flex flex-row">
-          <form method="POST" action="/like/<%= t.dig(:uid) %>/new">
-            <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn"><%= t.dig(:totalLikes) %> Likes</button>
-          </form>
+          <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %> Likes</button>
           <form method="POST" action="/comment/<%= t.dig(:uid) %>/new">
             <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %> Comments</button>
           </form>
@@ -45,9 +43,7 @@
           <p class="card-text"><%= t.dig(:tweet) %></p>
 
           <div class="d-flex flex-row">
-            <form method="POST" action="/like/<%= t.dig(:uid) %>/new">
-              <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn"><%= t.dig(:totalLikes) %> Likes</button>
-            </form>
+            <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %> Likes</button>
             <form method="POST" action="/comment/<%= t.dig(:uid) %>/new">
               <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %> Comments</button>
             </form>
@@ -61,4 +57,13 @@
     </small>
     <% end %>
   </div>
+
+  <script>
+    function like(tweet) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/like/" + tweet + "/new", true);
+      xhttp.send();
+      alert("Liked " + tweet)
+    }
+  </script>
 </main>
