@@ -1,7 +1,7 @@
 
 post '/follows/follow/:followed' do
   cur = username_to_uid(current_user)
-  following = username_to_uid(params[:username])
+  following = username_to_uid(params[:followed])
   query = "{
     following(func: uid(#{cur})){
       Follow @filter(uid(#{following})){
@@ -10,7 +10,7 @@ post '/follows/follow/:followed' do
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = $dg.query(query: query).dig(:following).first
   if res.nil?
     follow = "{set{
     <#{cur}> <Follow> <#{following}> .}}"
@@ -18,6 +18,8 @@ post '/follows/follow/:followed' do
     $dg.mutate(query: follow)
     " #{current_user} followed #{params[:followed]}"
     #erb :'follows/followings'
+  else
+    "Already followed"
   end
 end
 

@@ -10,7 +10,7 @@ post '/tweet/create' do
     _:tweet <Text> \"#{text}\" .
     _:tweet <Type> \"Tweet\" .
     _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
-    <#{current_user_uid}> <Tweet> _:tweet ."
+    <#{username_to_uid(current_user)}> <Tweet> _:tweet ."
 
   if text.include? '#'
     hashtag = text[/#(\w+)/]

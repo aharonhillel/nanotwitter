@@ -40,18 +40,18 @@ end
 
 post '/signup' do
   qname = "{
-  uid(func: eq(Username, \"#{params[:username]}\")){
+  q(func: eq(Username, \"#{params[:username]}\")){
    uid
   }
 }"
-  name = from_dgraph_or_redis(qname)
+  name = from_dgraph_or_redis(qname).dig(:q).first
 
   qemail = "{
   uid(func: eq(Email, \"#{params[:email]}\")){
    uid
   }
 }"
-  email = $dg.query(query: qemail)
+  email = $dg.query(query: qemail).dig(:uid).first
 
   if name != nil
     "Username already in use"
