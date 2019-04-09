@@ -9,12 +9,12 @@ helpers do
         uid
         tweetedBy: ~Tweet { Username }
         tweet: Text
-        totalLikes: count(Like)
+        totalLikes: count(~Like)
         totalComments: count(Comment)
         comments: Comment(orderdesc: Timestamp, first: 3) {
           commentedBy: ~Comment { User { Username } }
           comment: Text
-          totalLikes: count(Like)
+          totalLikes: count(~Like)
           totalComments: count(Comment)
         }
         Timestamp

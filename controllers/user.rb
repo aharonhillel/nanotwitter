@@ -121,12 +121,12 @@ get '/users/:username' do
         uid
         tweetedBy: ~Tweet { Username }
         tweet: Text
-        totalLikes: count(Like)
+        totalLikes: count(~Like)
         totalComments: count(Comment)
         comments: Comment(orderdesc: Timestamp, first: 3) {
           commentedBy: ~Comment { User { Username } }
           comment: Text
-          totalLikes: count(Like)
+          totalLikes: count(~Like)
           totalComments: count(Comment)
         }
         Timestamp
@@ -226,7 +226,7 @@ get '/users/:username/timeline' do
       uid
       tweetedBy: ~Tweet { Username }
       tweet: Text
-      totalLikes: count(Like)
+      totalLikes: count(~Like)
       totalComments: count(Comment)
       comments: Comment {
         uid
@@ -266,7 +266,7 @@ def trending_tweets
       uid
       tweetedBy: ~Tweet { Username }
       tweet: Text
-      totalLikes: count(Like)
+      totalLikes: count(~Like)
       totalComments: count(Comment)
       Timestamp
     }
