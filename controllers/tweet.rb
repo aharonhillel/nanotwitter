@@ -1,5 +1,35 @@
 require 'date'
 
+helpers do
+  def expire_user_profile(username)
+    key = "{
+    profile(func: eq(Username, \"#{username}\")){
+      uid
+      tweets: Tweet(orderdesc: Timestamp, first: 20) {
+        uid
+        tweetedBy: ~Tweet { Username }
+        tweet: Text
+        totalLikes: count(Like)
+        totalComments: count(Comment)
+        comments: Comment(orderdesc: Timestamp, first: 3) {
+          commentedBy: ~Comment { User { Username } }
+          comment: Text
+          totalLikes: count(Like)
+          totalComments: count(Comment)
+        }
+        Timestamp
+      }
+      totalFollowing: count(Follow)
+      Follow {
+        Username
+      }
+      totalFollower: count(~Follow)
+    }
+  }"
+    $redis.del(key)
+  end
+end
+
 get '/tweet/new' do
    erb :'tweets/tweet_form'
 end
@@ -22,6 +52,7 @@ post '/tweet/create' do
   tweet << "}}"
 
   $dg.mutate(query: tweet)
+  expire_user_profile(current_user)
   redirect "/users/#{current_user}"
 end
 

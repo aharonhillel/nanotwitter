@@ -1,4 +1,3 @@
-
 post '/like/:tweet_id/new' do
   cur = username_to_uid(current_user)
   tweet = params[:tweet_id]
@@ -18,6 +17,7 @@ post '/like/:tweet_id/new' do
     " #{current_user} liked tweet #{tweet}"
   end
 end
+
 
 post '/like/:tweet_id/unlike' do
   unlike = "{delete{
