@@ -116,13 +116,7 @@ get '/users/:username' do
         tweetedBy: ~Tweet { Username }
         tweet: Text
         totalLikes: count(Like)
-        totalComments: count(Comment)
-        comments: Comment(orderdesc: Timestamp, first: 3) {
-          commentedBy: ~Comment { User { Username } }
-          comment: Text
-          totalLikes: count(Like)
-          totalComments: count(Comment)
-        }
+        totalComments: count(~Comment_on)
         Timestamp
       }
       totalFollowing: count(Follow)
@@ -221,14 +215,7 @@ get '/users/:username/timeline' do
       tweetedBy: ~Tweet { Username }
       tweet: Text
       totalLikes: count(Like)
-      totalComments: count(Comment)
-      comments: Comment {
-        uid
-        commentedBy: ~Comment { User { Username } }
-        comment: Text
-        totalLikes: count(Like)
-        totalComments: count(Comment)
-      }
+      totalComments: count(~Comment_on)
       Timestamp
     }
   }"

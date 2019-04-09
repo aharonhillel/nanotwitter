@@ -1,10 +1,10 @@
 
-post '/like/:tweet_id/new' do
+post '/like/:context_id/new' do
   cur = username_to_uid(current_user)
-  tweet = params[:tweet_id]
+  context = params[:context_id]
   query = "{
     like(func: uid(#{cur})){
-      Like @filter(uid(#{tweet})){
+      Like @filter(uid(#{context})){
         uid
       }
     }
@@ -13,19 +13,19 @@ post '/like/:tweet_id/new' do
   res = $dg.query(query: query).dig(:like).first
   if res.nil?
     like = "{set{
-    <#{cur}> <Like> <#{tweet}> .}}"
+    <#{cur}> <Like> <#{context}> .}}"
     $dg.mutate(query: like)
-    " #{current_user} liked tweet #{tweet}"
+    " #{current_user} liked tweet/comment #{context}"
   else
     "Already liked"
   end
 end
 
-post '/like/:tweet_id/unlike' do
+post '/like/:context_id/unlike' do
   unlike = "{delete{
-    <#{username_to_uid(current_user)}> <Like> <#{params[:tweet_id]}> .}}"
+    <#{username_to_uid(current_user)}> <Like> <#{params[:context_id]}> .}}"
   $dg.mutate(query: unlike)
-  " #{current_user} unliked #{params[:tweet_id]}"
+  " #{current_user} unliked #{params[:context_id]}"
 end
   # like = Like.where(:user_id => current_user.id, :tweet_id => params[:tweet_id])
   # Like.find(like.id).destroy
