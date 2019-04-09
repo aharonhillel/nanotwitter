@@ -9,20 +9,21 @@ post '/like/:tweet_id/new' do
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = $dg.query(query: query).dig(:like).first
   if res.nil?
     like = "{set{
     <#{cur}> <Like> <#{tweet}> .}}"
     $dg.mutate(query: like)
     " #{current_user} liked tweet #{tweet}"
+  else
+    "Already liked"
   end
 end
 
 
 post '/like/:tweet_id/unlike' do
   unlike = "{delete{
-    <#{current_user_uid}> <Like> <#{params[:tweet_id]}> .}}"
-
+    <#{username_to_uid(current_user)}> <Like> <#{params[:tweet_id]}> .}}"
   $dg.mutate(query: unlike)
   " #{current_user} unliked #{params[:tweet_id]}"
 end
