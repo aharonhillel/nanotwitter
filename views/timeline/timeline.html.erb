@@ -1,3 +1,4 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <main role="main" class="container">
   <div class="d-flex align-items-center p-3 my-3 text-black-50 bg-purple rounded shadow-sm">
     <div class="lh-100">
@@ -79,40 +80,66 @@
       xhttp.send();
       alert("Liked " + tweet)
     }
-
   </script>
 
   <script>
+    var tweet_id;
     function getComments(id) {
+      tweet_id = id
       var url_to_search = '/comments/all/' + id
       console.log(url_to_search);
       $.ajax({
         url: url_to_search,
         type: 'get',
         dataType: 'json',
-        success: function(res) {
-            console.log(res);
-            // get the ajax response data
+        success: function (res) {
 
-            // update modal content here
-            // you may want to format data or
-            // update other modal elements here too
+var string_return ="";
+for( var i = 0; i < res["~Comment_on"].length; i++) {
+  sr = "<br>" + "\ User: " + res["~Comment_on"][i]["author"][0]["Username"] + " says: " +  res["~Comment_on"][i]["Text"] + "\n"
+  string_return = string_return + sr
+}
+          $('.modal-body').html(string_return);
 
-            $('.modal-body').html(res);
-
-            // show modal
-            $('#commentModel').modal('show');
-
-            $('#new-comment').attr('action', "/comments/" +id + "/new");
+          // show modal
+          $('#commentModel').modal('show');
         },
-        error:function(request, status, error) {
-           console.log("ajax call went wrong:" + request.responseText);
-       }
+        error: function (request, status, error) {
+          console.log("ajax call went wrong:" + request.responseText);
+        }
       });
       return false;
     }
 
+
+    function your_ajax_function(){
+      console.log("second ajax");
+      console.log("Tweet ID is:" + tweet_id)
+      var mydata = $("#new-comment").serialize();
+      $.ajax({
+        url: "/comments/" + tweet_id + "/new",
+        type: 'post',
+        dataType: 'json',
+        data: mydata,
+        success: function (res) {
+          console.log(res);
+          // get the ajax response data update modal content here you may want to format data or update other modal elements here too
+          string_return = "<br>" + "\ User: You says: " + + mydata.split("=")[1] + "<br />"+ string_return
+          $('.modal-body').html(string_return);
+
+          // show modal
+        },
+        error: function (request, status, error) {
+          $('.modal-body').html("Failed to post your comment. Try again");
+          console.log("ajax call went wrong:" + request.responseText);
+        }
+      });
+      return false;
+
+      }
   </script>
+
+  <script></script>
 
   <div class="modal fade" id="commentModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -127,12 +154,11 @@
           ...
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <form method="POST" id="new-comment" action="test">
+          <form id="new-comment">
             <textarea class="form-control my-2" id="text" name="text" placeholder="Type in your Comment" rows="5"></textarea>
-            <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Add Comment
-              Comments</button>
+            <button  type="button" class="btn btn-primary btn-sm mx-1" onclick="your_ajax_function();">Add Comment Comments</button>
           </form>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
