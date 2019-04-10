@@ -10,39 +10,20 @@ require_relative '../models/mention'
 require_relative '../models/user'
 require_relative '../models/tweet'
 
+require_relative '../db/setup_dgraph'
+
 enable :sessions
 
 # Reset models
 get '/test/reset/all' do
-  records_affected = Comment.delete_all
-  records_affected += Follow.delete_all
-  records_affected += HashTag.delete_all
-  records_affected += HashTagTweet.delete_all
-  records_affected += Like.delete_all
-  records_affected += Mention.delete_all
-  records_affected += User.delete_all
-  records_affected += Tweet.delete_all
-
-  reset_auto_increment 'comments'
-  reset_auto_increment 'follows'
-  reset_auto_increment 'hash_tags'
-  reset_auto_increment 'hash_tag_tweets'
-  reset_auto_increment 'likes'
-  reset_auto_increment 'mentions'
-  reset_auto_increment 'users'
-  reset_auto_increment 'tweets'
-
-  a = create_test_user
-
-  session[:username] = a.username
-
+  drop_all
+  setup_schema
 
   content_type :json
   status 200
   {
     'operation' => 'Reset all models',
     'success' => true,
-    'records_removed' => records_affected
   }.to_json
 end
 
@@ -163,7 +144,7 @@ get '/status' do
       count(uid)
     }
   }"
-  res = from_dgraph_or_redis(query, ex: 10)
+  res = from_dgraph_or_redis(query, ex: 120)
   num_of_users = res.dig(:result).first.dig(:count)
   
   query = "{
@@ -174,7 +155,7 @@ get '/status' do
       count(uid)
     }
   }"
-  res = from_dgraph_or_redis(query, ex: 10)
+  res = from_dgraph_or_redis(query, ex: 120)
   num_of_tweets = res.dig(:result).first.dig(:count)
 
   query = "{
@@ -186,7 +167,7 @@ get '/status' do
       count(uid)
     }
   }"
-  res = from_dgraph_or_redis(query, ex: 10)
+  res = from_dgraph_or_redis(query, ex: 120)
   num_of_follows = res.dig(:result).first.dig(:count)
 
   query = "{
@@ -194,7 +175,7 @@ get '/status' do
       expand(_all_)
     }
   }"
-  res = from_dgraph_or_redis(query, ex: 10)
+  res = from_dgraph_or_redis(query, ex: 120)
   if res.nil?
     create_test_user
   end

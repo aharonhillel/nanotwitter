@@ -101,5 +101,5 @@ end
 
 # generate
 if __FILE__ == $0
-  generate_seed
+  generate_seed(1000)
 end

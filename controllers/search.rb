@@ -1,15 +1,29 @@
 post '/search' do
-  text = params[:text]
+  text = params[:text].to_s
+
+  type = "Tweet"
+  if text.include? '#'
+    type = "Hashtag"
+  end
 
   query = "{
-    search(func: alloftext(Text, \"#{text}\"), first: 20) {
+    search(func: alloftext(Text, \"#{text}\"), first: 20) @filter(eq(Type, \"#{type}\")) {
       Type
       Text
-      Timestamp
     }
   }"
 
+  if text.include? '@'
+    query = "{
+      search(func: eq(Username, \"#{text[1..-1]}\")) 	{
+        Username
+        Email
+      }
+    }"
+  end
+
   res = from_dgraph_or_redis(query, ex: 120)
+
   if res.nil?
     status_code 404
     {
