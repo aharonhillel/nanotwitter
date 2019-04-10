@@ -26,7 +26,6 @@ helpers do
         uid
       }
     }"
-
     res = from_dgraph_or_redis(query)
     uid = res.dig(:uid).first.dig(:uid)
     uid
@@ -220,7 +219,7 @@ get '/users/:username/timeline' do
       uid
       tweetedBy: ~Tweet { Username }
       tweet: Text
-      totalLikes: count(Like)
+      totalLikes: count(~Like)
       totalComments: count(~Comment_on)
       Timestamp
     }

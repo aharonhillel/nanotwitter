@@ -23,13 +23,9 @@
             <div class="d-flex flex-row">
               <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %>
                 Likes</button>
-              <form method="POST" action="/comment/all/<%= t.dig(:uid)%>">
-                <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %>
-                  Comments</button>
-              </form>
 
               <form class="form-inline my-2 my-lg-0">
-                <button class="btn btn-primary" type="button" data-toggle="modal" onclick="getComments(<%= t.dig(:uid)%>)">Comment Test</button>
+                <button class="btn btn-primary" type="button" data-toggle="modal" onclick="getComments(<%= t.dig(:uid)%>)"><%= t.dig(:totalComments) %> Comments</button>
               </form>
               <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
             </div>
@@ -119,23 +115,26 @@ for( var i = 0; i < res["~Comment_on"].length; i++) {
       $.ajax({
         url: "/comments/" + tweet_id + "/new",
         type: 'post',
-        dataType: 'json',
         data: mydata,
         success: function (res) {
           console.log(res);
+          debugger;
+          var x = document.getElementsByClassName('modal-body')[0].innerHTML
           // get the ajax response data update modal content here you may want to format data or update other modal elements here too
-          string_return = "<br>" + "\ User: You says: " + + mydata.split("=")[1] + "<br />"+ string_return
-          $('.modal-body').html(string_return);
+          x = "<br>" + "\ User: You says: " + mydata.split("=")[1] + x
+          $('.modal-body').html(x);
+
+          document.getElementsByClassName('comment-form').value = "";
 
           // show modal
         },
         error: function (request, status, error) {
-          $('.modal-body').html("Failed to post your comment. Try again");
+            $('.modal-body').html("Something went wrong. Most likely you're not signed in. Please try to comment again");
+            document.getElementsByClassName('comment-form').value = "";
           console.log("ajax call went wrong:" + request.responseText);
         }
       });
       return false;
-
       }
   </script>
 
@@ -145,7 +144,7 @@ for( var i = 0; i < res["~Comment_on"].length; i++) {
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Comment</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Comments</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -155,7 +154,7 @@ for( var i = 0; i < res["~Comment_on"].length; i++) {
         </div>
         <div class="modal-footer">
           <form id="new-comment">
-            <textarea class="form-control my-2" id="text" name="text" placeholder="Type in your Comment" rows="5"></textarea>
+            <textarea class="form-control comment-form" id="text" name="text" placeholder="Type in your Comment" rows="5"></textarea>
             <button  type="button" class="btn btn-primary btn-sm mx-1" onclick="your_ajax_function();">Add Comment Comments</button>
           </form>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
