@@ -20,7 +20,7 @@ def generate_users(n)
     name = "name00#{i}"
 
     @generated_seed.puts(
-      "_:#{name} <Username> \"#{row[1]}\" .",
+      "_:#{name} <Username> \"#{row[1].downcase}\" .",
       "_:#{name} <Email> \"#{Faker::Internet.unique.email}\" .",
       "_:#{name} <Password> \"password\" .",
       "_:#{name} <Type> \"User\" ."

@@ -8,53 +8,67 @@
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Following tweets</h6>
     <% if @following_tweets != nil %>
-    <% @following_tweets.each do |t| %>
-    <div class="card my-2">
-      <div class="card-body">
-        <strong class="d-block text-gray-dark"><h5 class="card-title">
-          <a href="/users/<%= t.dig(:tweetedBy).first.dig(:Username) %>">@<%= t.dig(:tweetedBy).first.dig(:Username) %></a>
-          <small class="text-muted"><%= time_since(t.dig(:Timestamp)) %></small></h5>
-        </strong>
-        <p class="card-text"><%= t.dig(:tweet) %></p>
+      <% @following_tweets.each do |t| %>
+        <div class="card my-2">
+          <div class="card-body">
+            <strong class="d-block text-gray-dark">
+              <h5 class="card-title">
+                <a href="/users/<%= t.dig(:tweetedBy).first.dig(:Username) %>">@<%= t.dig(:tweetedBy).first.dig(:Username) %></a>
+                <small class="text-muted"><%= time_since(t.dig(:Timestamp)) %></small>
+              </h5>
+            </strong>
+            <p class="card-text"><%= t.dig(:tweet) %></p>
 
-        <div class="d-flex flex-row">
-          <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %> Likes</button>
-          <form method="POST" action="/comment/<%= t.dig(:uid) %>/new">
-            <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %> Comments</button>
-          </form>
-          <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
+            <div class="d-flex flex-row">
+              <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %>
+                Likes</button>
+              <form method="POST" action="/comment/all/<%= t.dig(:uid)%>">
+                <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %>
+                  Comments</button>
+              </form>
+
+              <form class="form-inline my-2 my-lg-0">
+                <button class="btn btn-primary" type="button" data-toggle="modal" onclick="getComments(<%= t.dig(:uid)%>)">Comment Test</button>
+              </form>
+              <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    <% end %>
-    <small class="d-block text-right mt-3">
-      <a href="#">Show more tweets</a>
-    </small>
       <% end %>
+      <small class="d-block text-right mt-3">
+        <a href="#">Show more tweets</a>
+      </small>
+    <% end %>
   </div>
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Trending</h6>
     <% if @trending_tweets != nil %>
-    <% @trending_tweets.each do |t| %>
-      <div class="card my-2">
-        <div class="card-body">
-          <strong class="d-block text-gray-dark"><a href="/users/<%= t.dig(:tweetedBy).first.dig(:Username) %>"><h5 class="card-title">@<%= t.dig(:tweetedBy).first.dig(:Username) %></h5></a></strong>
-          <p class="card-text"><%= t.dig(:tweet) %></p>
+      <% @trending_tweets.each do |t| %>
+        <div class="card my-2">
+          <div class="card-body">
+            <strong class="d-block text-gray-dark">
+              <a href="/users/<%= t.dig(:tweetedBy).first.dig(:Username) %>">
+                <h5 class="card-title">@<%= t.dig(:tweetedBy).first.dig(:Username) %></h5>
+              </a>
+            </strong>
+            <p class="card-text"><%= t.dig(:tweet) %></p>
 
-          <div class="d-flex flex-row">
-            <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %> Likes</button>
-            <form method="POST" action="/comment/<%= t.dig(:uid) %>/new">
-              <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %> Comments</button>
-            </form>
-            <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
+            <div class="d-flex flex-row">
+              <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %>
+                Likes</button>
+              <form method="POST" action="/comment/<%= t.dig(:uid) %>/new">
+                <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %>
+                  Comments</button>
+              </form>
+              <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
+            </div>
           </div>
         </div>
-      </div>
-    <% end %>
-    <small class="d-block text-right mt-3">
-      <a href="#">Show more trending tweets</a>
-    </small>
+      <% end %>
+      <small class="d-block text-right mt-3">
+        <a href="#">Show more trending tweets</a>
+      </small>
     <% end %>
   </div>
 
@@ -65,5 +79,63 @@
       xhttp.send();
       alert("Liked " + tweet)
     }
+
   </script>
+
+  <script>
+    function getComments(id) {
+      var url_to_search = '/comments/all/' + id
+      console.log(url_to_search);
+      $.ajax({
+        url: url_to_search,
+        type: 'get',
+        dataType: 'json',
+        success: function(res) {
+            console.log(res);
+            // get the ajax response data
+
+            // update modal content here
+            // you may want to format data or
+            // update other modal elements here too
+
+            $('.modal-body').html(res);
+
+            // show modal
+            $('#commentModel').modal('show');
+
+            $('#new-comment').attr('action', "/comments/" +id + "/new");
+        },
+        error:function(request, status, error) {
+           console.log("ajax call went wrong:" + request.responseText);
+       }
+      });
+      return false;
+    }
+
+  </script>
+
+  <div class="modal fade" id="commentModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Comment</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <form method="POST" id="new-comment" action="test">
+            <textarea class="form-control my-2" id="text" name="text" placeholder="Type in your Comment" rows="5"></textarea>
+            <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Add Comment
+              Comments</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </main>

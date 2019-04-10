@@ -28,6 +28,7 @@ helpers do
     }"
 
     res = from_dgraph_or_redis(query)
+    byebug
     uid = res.dig(:uid).first.dig(:uid)
     uid
   end

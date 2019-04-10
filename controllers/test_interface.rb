@@ -165,7 +165,7 @@ get '/status' do
   }"
   res = from_dgraph_or_redis(query, ex: 10)
   num_of_users = res.dig(:result).first.dig(:count)
-  
+
   query = "{
     uids(func: eq(Type, \"Tweet\")) {
       u as uid

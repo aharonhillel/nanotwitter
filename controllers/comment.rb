@@ -25,6 +25,11 @@ get '/comments/all/:context_id' do
     }"
   res = from_dgraph_or_redis(query, ex: 120)
   comments = res.dig(:comments).first
+
+  if comments.nil?
+    comments = "There are no comments for this tweet. Add some!"
+  end
+
   #Need to add front end view
   comments.to_json
 end
@@ -47,4 +52,3 @@ get '/test/comments/:tweet_id' do
     error 404, {error: "Tweet not found"}.to_json
   end
 end
-

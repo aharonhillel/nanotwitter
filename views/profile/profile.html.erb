@@ -29,7 +29,7 @@
 
           <div class="d-flex flex-row">
             <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %> Likes</button>
-            <form method="POST" action="/comment/<%= t.dig(:uid) %>/new">
+            <form method="POST" action="/comments/all<%= t.dig(:tweet)%>">
               <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %> Comments</button>
             </form>
             <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
@@ -78,7 +78,7 @@
 
           <div class="d-flex flex-row">
             <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %> Likes</button>
-            <form method="POST" action="/comment/<%= t.dig(:uid) %>/new">
+            <form method="POST" action="/comment/all<%= t.dig(:tweet) %>/new">
               <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %> Comments</button>
             </form>
             <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
