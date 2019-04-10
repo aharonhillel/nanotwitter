@@ -1,4 +1,4 @@
-post '/mention/:tweet_id/new' do
+post '/mentions/:tweet_id/new' do
   mentioned_user = username_to_uid(params[:username])
   tweet = params[:context_id]
   query = "{
@@ -12,6 +12,25 @@ post '/mention/:tweet_id/new' do
     <#{tweet}> <Mention> <#{mentioned_user}> .}}"
     $dg.mutate(query: mention)
   end
+end
+
+get '/mentions/tweets/:username' do
+  user = username_to_uid(params[:username])
+  query = "{
+  tweets(func: uid(#{user})){
+     tweets: ~Mention(orderdesc: Timestamp, first: 20){
+        uid
+        tweetedBy: ~Tweet { Username }
+        tweet: Text
+        totalLikes: count(~Like)
+        totalComments: count(~Comment_on)
+        Timestamp
+        }
+       }
+      }"
+  res = from_dgraph_or_redis(query, ex: 600)
+  @tweets = res.dig(:tweets).first
+  @tweets.to_json
 end
 
 #Only for test purpose

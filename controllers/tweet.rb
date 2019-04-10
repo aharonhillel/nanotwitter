@@ -49,6 +49,12 @@ post '/tweet/create' do
     _:hashtag <Text> \"#{hashtag}\" .
     _:hashtag <Type> \"Hashtag\" ."
   end
+
+  if text.include? '@'
+    mentioned_user = text[/#@(\w+)/]
+    tweet << "
+    _:tweet <Mention> <#{mentioned_user}> ."
+  end
   tweet << "}}"
 
   $dg.mutate(query: tweet)
