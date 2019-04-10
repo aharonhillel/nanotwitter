@@ -4,7 +4,7 @@
 <Follow>: uid @count @reverse .
 <Hashtag>: uid @reverse .
 <Like>: uid @count @reverse .
-<Mention>: uid .
+<Mention>: uid @count @reverse .
 <Password>: password .
 <Text>: string @index(fulltext) .
 <Timestamp>: datetime @index(hour) .

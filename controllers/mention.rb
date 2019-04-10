@@ -1,12 +1,20 @@
 post '/mention/:tweet_id/new' do
-  mention = Mention.new(:user_id => current_user.id, :tweet_id => params[:tweet_id])
-  if mention.save
-    "Mentioned"
-  else
-    'Failed to mention'
+  mentioned_user = username_to_uid(params[:username])
+  tweet = params[:context_id]
+  query = "{
+    tweet(func: uid(#{tweet})) {
+      uid
+    }
+  }"
+  tweet_exist = $dg.mutate(query: query).first.dig(:tweet)
+  if tweet_exist != nil
+    mention = "{set{
+    <#{tweet}> <Mention> <#{mentioned_user}> .}}"
+    $dg.mutate(query: mention)
   end
 end
 
+#Only for test purpose
 post '/test/mentions/new' do
   mention = Mention.new(:user_id => params[:user_id], :tweet_id => params[:tweet_id])
   if mention.save

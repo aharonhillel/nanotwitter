@@ -121,7 +121,7 @@ get '/users/:username' do
         uid
         tweetedBy: ~Tweet { Username }
         tweet: Text
-        totalLikes: count(Like)
+        totalLikes: count(~Like)
         totalComments: count(~Comment_on)
         Timestamp
       }
