@@ -94,21 +94,22 @@ post '/login' do
   res = $dg.query(query: query)
   success = res.dig(:login).first.dig(:Success)
   username = res.dig(:login).first.dig(:Username)
-
   if success
     session[:username] = username
-    redirect "/users/#{username}/timeline"
+    if params[:headers][:Accept] != 'application/json'
+      redirect "/users/#{username}/timeline"
+    else
+      h = Hash.new
+      h[:username] = username
+      h[:success] = success
+      return h.to_json
+  end
   else
     'Login failed'
   end
 end
 
 get '/logout' do
-  session.clear
-  redirect '/login'
-end
-
-post '/logout' do
   session.clear
   redirect '/login'
 end

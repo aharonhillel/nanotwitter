@@ -72,7 +72,6 @@ describe 'POST on /signup' do
       email: email,
       password: password
     }, format: 'json'
-    password = '12345678'
     post '/signup', {
       username: username,
       email: email,
@@ -82,18 +81,29 @@ describe 'POST on /signup' do
     assert_equal last_response.body, 'Failed to create user'
   end
 
-  # it 'POST /test/login' do
-  #
-  #   u = User.create(username: "Thomas", email: "tclouga@gmail.com", password_hash: "12345678")
-  #   post '/test/login',{
-  #       email: u.email,
-  #       password: "12345678"}
-  #   get '/test/users/Thomas'
-  #   last_response.ok?
-  #   json = JSON.parse(last_response.body)
-  #   json["email"].must_equal "tclouga@gmail.com"
-  #   end
-  # after do
-  #   # User.delete_all
-  # end
+  it 'POST /test/login' do
+    # before do
+    # $dg.drop_all
+    # end
+    username = Faker::Name.first_name
+    email = Faker::Internet.email
+    password = '12345678'
+    post '/signup', {
+      username: username,
+      email: email,
+      password: password
+    }, format: 'json'
+    h = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
+    post '/login', {
+      email: email,
+      password: password,
+      headers: h
+    }, 'headers' => h
+
+    last_response.ok?
+    a = last_response.body
+    json = JSON.parse(last_response.body)
+    assert_equal json['username'], username
+    assert_equal json['success'], true
+  end
 end
