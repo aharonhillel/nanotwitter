@@ -1,11 +1,13 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <main role="main" class="container">
   <div class="d-flex align-items-center p-3 my-3 text-black-50 bg-purple rounded shadow-sm">
     <div class="lh-100">
       <h4 class="mb-0 lh-100">@<%= @info[:profile_user] %></h4>
       <% if @info[:profile_user] != @info[:current_user] %>
-        <form class="form-inline my-2 my-lg-0" action='/follows/follow/<%= @info[:profile_user] %>' method='post'>
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Follow</button>
-        </form>
+        <div class="form-inline my-2 my-lg-0" >
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit" value="follow-btn"
+                  onclick="follow(<%= @info[:profile_user] %>)">Follow</button>
+        </div>
       <% end %>
     </div>
 
@@ -99,5 +101,13 @@
       xhttp.send();
       alert("Liked " + tweet)
     }
+
+    function follow(user) {
+        let xhttpf = new XMLHttpRequest();
+        xhttpf.open("POST", "/follows/follow/" + user, true);
+        xhttpf.send();
+        alert("Followed " + user)
+    }
   </script>
+
 </main>

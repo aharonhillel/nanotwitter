@@ -15,94 +15,22 @@ require_relative '../db/setup_dgraph'
 enable :sessions
 
 # Reset models
-get '/test/reset/all' do
+post '/test/reset/all' do
   drop_all
   setup_schema
+  create_test_user
 
   content_type :json
   status 200
   {
     'operation' => 'Reset all models',
-    'success' => true,
+    'success' => true
   }.to_json
 end
 
-get '/test/reset/comments' do
-  records_affected = Comment.delete_all
-  reset_auto_increment 'comments'
+post '/test/reset/standard' do
+  users = params[:users].to_i
 
-  content_type :json
-  status 200
-  {
-    'operation' => 'Reset comment model',
-    'success' => true,
-    'records_removed' => records_affected
-  }.to_json
-end
-
-get '/test/reset/follows' do
-  records_affected = Follow.delete_all
-  reset_auto_increment 'follows'
-
-  content_type :json
-  status 200
-  {
-    'operation' => 'Reset follow model',
-    'success' => true,
-    'records_removed' => records_affected
-  }.to_json
-end
-
-get '/test/reset/hash_tags' do
-  records_affected = HashTag.delete_all
-  reset_auto_increment 'hash_tags'
-
-  content_type :json
-  status 200
-  {
-    'operation' => 'Reset hash_tag model',
-    'success' => true,
-    'records_removed' => records_affected
-  }.to_json
-end
-
-get '/test/reset/hash_tag_tweets' do
-  records_affected = HashTagTweet.delete_all
-  reset_auto_increment 'hash_tag_tweets'
-
-  content_type :json
-  status 200
-  {
-    'operation' => 'Reset hash_tag_tweet model',
-    'success' => true,
-    'records_removed' => records_affected
-  }.to_json
-end
-
-get '/test/reset/likes' do
-  records_affected = Like.delete_all
-  reset_auto_increment 'likes'
-
-  content_type :json
-  status 200
-  {
-    'operation' => 'Reset like model',
-    'success' => true,
-    'records_removed' => records_affected
-  }.to_json
-end
-
-get '/test/reset/mentions' do
-  records_affected = Mention.delete_all
-  reset_auto_increment 'mentions'
-
-  content_type :json
-  status 200
-  {
-    'operation' => 'Reset mention model',
-    'success' => true,
-    'records_removed' => records_affected
-  }.to_json
 end
 
 get '/test/reset?' do
@@ -134,7 +62,12 @@ get '/test/reset/tweets' do
   }.to_json
 end
 
-get '/status' do
+get '/test/tweet' do
+  user_id = params[:user_id]
+  count = params[:count]
+end
+
+get '/test/status' do
   status 200
   query = "{
     uids(func: eq(Type, \"User\")) {
@@ -202,7 +135,7 @@ get '/test/users/create/:total' do
   }.to_json
 end
 
-post '/test/user/:username/tweets?:count' do
+post '/test/user/:username/tweets' do
   username = params[:username]
   uid = username_to_uid(username)
   count = params[:count].to_i

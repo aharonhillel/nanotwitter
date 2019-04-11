@@ -59,5 +59,10 @@ class Dgraph
       body = JSON.parse(res.body, symbolize_names: true)
       body.dig(:data, :code).equal? 'Success'
     end
+
+    def drop_attr(options = {})
+      attr = options[:attr]
+      alter(schema: "{\"drop_attr\": \"#{attr}\"}")
+    end
   end
 end
