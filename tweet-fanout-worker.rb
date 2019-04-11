@@ -1,17 +1,15 @@
 require 'sinatra'
-require 'sinatra/activerecord'
-require 'bcrypt'
 require 'byebug'
-require 'date'
 require 'redis'
 require_relative 'config/config'
 require_relative 'vendor/dgraph/dgraph'
 require 'json'
 
-
 before do
   $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
   $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
+  @queue = Queue.new
+  background_worker()
 end
 
 get '/update-timelines/:username' do
@@ -23,21 +21,17 @@ get '/update-timelines/:username' do
     }
 }"
 
-res = $dg.query(query: query)
-followers = res.dig(:profile).first.dig(:Follow)
-if !followers.nil?
-followers.each do |a|
-  follower_username = a[:Username]
-  thr = Thread.new{update_redis(follower_username)}
-  thr.join
-end
-end
-
-puts "Done Updating Follower's Feeds"
+  res = $dg.query(query: query)
+  followers = res.dig(:profile).first.dig(:Follow)
+  unless followers.nil?
+    followers.each do |a|
+      @queue.push(a[:Username])
+    end
+    puts "Finished adding usernames to queue"
+  end
 end
 
-
-def update_redis (username)
+def update_redis(username)
   query = "{
     var(func: eq(Username, \"#{username}\")) {
       Follow {
@@ -56,5 +50,20 @@ def update_redis (username)
   $redis.del(query)
   res = $dg.query(query: query)
   $redis.set(query, res.to_json, ex: 120)
-  puts "Thread Completed"
+  puts  "Updated Redis"
+end
+
+
+def background_worker
+Thread.new do
+  while true do
+    until @queue.empty?
+      work_unit = @queue.pop
+      puts "popped #{work_unit}"
+      update_redis(work_unit)
+    end
+    sleep 30
+    puts "Done Updating Follower's Feeds after 30 seconds"
+  end
+end
 end
