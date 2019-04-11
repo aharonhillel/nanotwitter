@@ -70,7 +70,6 @@ get '/signup' do
 end
 
 post '/signup' do
-  byebug
   if create_user(params[:email], params[:username], params[:password])
     session[:username] = params[:username]
     redirect "/users/#{params[:username]}"
