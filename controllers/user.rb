@@ -32,6 +32,8 @@ helpers do
   end
 
   def create_user(email, username, password)
+    return false if email.nil? || username.nil? || password.nil?
+
     qname = "{
       uid(func: eq(Username, \"#{username}\")){
        uid
@@ -68,11 +70,12 @@ get '/signup' do
 end
 
 post '/signup' do
+  byebug
   if create_user(params[:email], params[:username], params[:password])
     session[:username] = params[:username]
     redirect "/users/#{params[:username]}"
   else
-    "Failed to create user"
+    'Failed to create user'
   end
 end
 
@@ -149,7 +152,7 @@ get '/users/:username' do
       total_following: profile[:totalFollowing],
       total_follower: profile[:totalFollower]
     }
-    erb :'profile/profile.html', layout: :'layout_profile'
+    erb :'profile/profile.html', layout: :layout_profile
   end
 end
 
