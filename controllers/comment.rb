@@ -5,7 +5,14 @@ post '/comments/:context_id/new' do
     _:comment <Text> \"#{text}\" .
     <#{username_to_uid(current_user)}> <Comment> _:comment .
     _:comment <Comment_on> <#{params[:context_id]}> .
-    _:comment <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .}}"
+    _:comment <Timestamp> \"#{DateTime.now.rfc3339(5)}\" ."
+
+  if text.include? '@'
+    mentioned_user = text[/#@(\w+)/]
+    comment << "
+    _:comment <Comment> <#{mentioned_user}> ."
+  end
+  comment << "}}"
 
   $dg.mutate(query: comment)
   " #{current_user} comment on  #{params[:context_id]} : #{text}"
