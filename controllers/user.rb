@@ -96,20 +96,21 @@ post '/login' do
   username = res.dig(:login).first.dig(:Username)
   if success
     session[:username] = username
-    if params[:headers][:Accept] != 'application/json'
-      redirect "/users/#{username}/timeline"
+    redirect "/users/#{username}/timeline"
+    if params[:headers] != nil && params[:headers][:Accept] != 'application/json'
+
     else
       h = Hash.new
       h[:username] = username
       h[:success] = success
       return h.to_json
-  end
+    end
   else
     'Login failed'
   end
 end
 
-get '/logout' do
+post '/logout' do
   session.clear
   redirect '/login'
 end
