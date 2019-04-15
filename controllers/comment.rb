@@ -8,9 +8,12 @@ post '/comments/:context_id/new' do
     _:comment <Timestamp> \"#{DateTime.now.rfc3339(5)}\" ."
 
   if text.include? '@'
-    mentioned_user = text[/#@(\w+)/]
-    comment << "
-    _:comment <Comment> <#{mentioned_user}> ."
+    mentioned_users = text.scan(/@(\w+)/)
+    mentioned_users.each do |u|
+      user = username_to_uid(u.first)
+      comment << "
+        _:comment <Mention> <#{user}> ."
+    end
   end
   comment << "}}"
 

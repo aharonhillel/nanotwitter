@@ -126,6 +126,7 @@ get '/users/:username' do
         tweet: Text
         totalLikes: count(~Like)
         totalComments: count(~Comment_on)
+        totalRetweets: count(~Retweet)
         Timestamp
       }
       totalFollowing: count(Follow)
@@ -133,6 +134,7 @@ get '/users/:username' do
         Username
       }
       totalFollower: count(~Follow)
+
     }
   }"
 
@@ -224,6 +226,7 @@ get '/users/:username/timeline' do
       tweetedBy: ~Tweet { Username }
       tweet: Text
       totalLikes: count(~Like)
+      totalRetweets: count(~Retweet)
       totalComments: count(~Comment_on)
       Timestamp
     }

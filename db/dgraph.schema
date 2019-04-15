@@ -9,6 +9,7 @@
 <Text>: string @index(fulltext) .
 <Timestamp>: datetime @index(hour) .
 <Tweet>: uid @reverse .
+<Retweet>: uid @count @reverse .
 <Type>: string @index(exact) .
 <Username>: string @index(exact) .
 <dgraph.group.acl>: string .

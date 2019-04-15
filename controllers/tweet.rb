@@ -99,6 +99,65 @@ get '/tweets/all' do
   erb :'/tweets/tweetsAll'
 end
 
+post '/tweets/retweet/:tweet_id' do
+  text = params[:text].to_s
+  query = "{
+  parent(func: uid(#{params[:tweet_id]})){
+    last_author: ~Tweet{Username}
+    p: ~Retweet{
+      uid
+      Text
+  	  }
+    }
+  }"
+
+  p_tweet = $dg.query(query: query).dig(:parent).first.dig(:p)
+  if p_tweet.nil?
+    parent = params[:tweet_id]
+  else
+    parent = p_tweet.first.dig(:uid)
+  end
+
+  text.insert(0, p_tweet.first.dig(:last_author)).insert(0, "@")
+  retweet = "{set{
+    _:tweet <Text> \"#{text}\" .
+    _:tweet <Type> \"Tweet\" .
+    _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
+    <#{username_to_uid(current_user)}> <Tweet> _:tweet .
+    _:tweet <Retweet> <#{parent}>"
+
+  if text.include? '#'
+    hashtags = text.scan(/#(\w+)/)
+    hashtags.each do |h|
+      retweet << "
+    _:hashtag <Text> \"#{h.first}\" .
+    _:hashtag <Type> \"Hashtag\" .
+    _:tweet <Hashtag> _:hashtag ."
+    end
+  end
+
+  if text.include? '@'
+    mentioned_users = text.scan(/@(\w+)/)
+    mentioned_users.each do |u|
+      user = username_to_uid(u.first)
+      retweet << "
+        _:tweet <Mention> <#{user}> ."
+    end
+  end
+  retweet << "}}"
+
+  $dg.mutate(query: retweet)
+  expire_user_profile(current_user)
+  if params[:header] != nil && params[:header][:Accept] == "application/json"
+    h = Hash.new
+    h[:user] = current_user
+    h[:text] = text
+    h[:success] = true
+    return h.to_json
+  end
+  redirect "/users/#{current_user}"
+end
+
 post '/test/tweets/new' do
   tweet = Tweet.new(:user_id => params[:user_id], :content => params[:content])
   if tweet.save
