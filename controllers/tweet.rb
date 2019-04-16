@@ -29,8 +29,53 @@ helpers do
     $redis.del(key)
   end
 
-  def create_tweet(text)
-    
+  def create_tweet(text, user_id)
+    text = params[:text].to_s
+    if text.nil?  || text.blank? || user_id.nil?
+      if user_id.nil?
+        return "Failed to create tweet, most likely the reason is that you are not signed in."
+      else
+        return "Your tweet is blank. Add some content!"
+      end
+    elsif text.length > 280
+      return "Your tweet is more than 280 characters. Make it shorter!"
+    end
+
+    tweet = "{set{
+      _:tweet <Text> \"#{text}\" .
+      _:tweet <Type> \"Tweet\" .
+      _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
+      <#{username_to_uid(user_id)}> <Tweet> _:tweet ."
+
+    if text.include? '#'
+      hashtags = text.scan(/#(\w+)/)
+      hashtags.each do |h|
+        tweet << "
+      _:hashtag <Text> \"#{h.first}\" .
+      _:hashtag <Type> \"Hashtag\" .
+      _:tweet <Hashtag> _:hashtag ."
+      end
+    end
+
+    if text.include? '@'
+      mentioned_users = text.scan(/@(\w+)/)
+      mentioned_users.each do |u|
+        user = username_to_uid(u.first)
+        tweet << "
+          _:tweet <Mention> <#{user}> ."
+      end
+    end
+    tweet << "}}"
+
+    $dg.mutate(query: tweet)
+    expire_user_profile(user_id)
+    # if params[:header] != nil && params[:header][:Accept] == "application/json"
+    #   h = Hash.new
+    #   h[:user] = current_user
+    #   h[:text] = text
+    #   h[:success] = true
+    #   return h.to_json
+    # end
   end
 end
 
@@ -39,52 +84,7 @@ get '/tweet/new' do
 end
 
 post '/tweet/create' do
-  text = params[:text].to_s
-  if text.nil?  || text.blank? || current_user.nil?
-    if current_user.nil?
-      return "Failed to create tweet, most likely the reason is that you are not signed in."
-    else
-      return "Your tweet is blank. Add some content!"
-    end
-  elsif text.length > 280
-    return "Your tweet is more than 280 characters. Make it shorter!"
-  end
-
-  tweet = "{set{
-    _:tweet <Text> \"#{text}\" .
-    _:tweet <Type> \"Tweet\" .
-    _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
-    <#{username_to_uid(current_user)}> <Tweet> _:tweet ."
-
-  if text.include? '#'
-    hashtags = text.scan(/#(\w+)/)
-    hashtags.each do |h|
-      tweet << "
-    _:hashtag <Text> \"#{h.first}\" .
-    _:hashtag <Type> \"Hashtag\" .
-    _:tweet <Hashtag> _:hashtag ."
-    end
-  end
-
-  if text.include? '@'
-    mentioned_users = text.scan(/@(\w+)/)
-    mentioned_users.each do |u|
-      user = username_to_uid(u.first)
-      tweet << "
-        _:tweet <Mention> <#{user}> ."
-    end
-  end
-  tweet << "}}"
-
-  $dg.mutate(query: tweet)
-  expire_user_profile(current_user)
-  if params[:header] != nil && params[:header][:Accept] == "application/json"
-    h = Hash.new
-    h[:user] = current_user
-    h[:text] = text
-    h[:success] = true
-    return h.to_json
-  end
+  create_tweet(params[:text], current_user)
   redirect "/users/#{current_user}"
 end
 

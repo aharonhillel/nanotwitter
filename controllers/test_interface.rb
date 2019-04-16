@@ -34,38 +34,21 @@ post '/test/reset/standard' do
 end
 
 get '/test/reset?' do
-  u = params[:users]
-  records_added = u.to_i
-  records_removed = User.delete_all
-  reset_auto_increment 'users'
-
-  content_type :json
-  status 200
-  {
-    'operation' => 'Reset user model',
-    'success' => true,
-    'records_removed' => records_removed,
-    'records_added' => records_added
-  }.to_json
+  
 end
 
 get '/test/reset/tweets' do
-  records_affected = Tweet.delete_all
-  reset_auto_increment 'tweets'
 
-  content_type :json
-  status 200
-  {
-    'operation' => 'Reset tweet model',
-    'success' => true,
-    'records_affected' => records_affected
-  }.to_json
 end
 
 # create a number of tweets
 get '/test/tweet' do
-  user_id = params[:user_id]
-  count = params[:count]
+  user_id = session[:username]
+  count = params[:count].to_i
+
+  count.each do
+    create_tweet(Faker::Lorem.unique.words(3), user_id)
+  end
 end
 
 get '/test/status' do
@@ -157,12 +140,6 @@ post '/test/user/:username/tweets' do
     $dg.mutate(query: tweet)
   end
   redirect "/users/#{username}"
-end
-
-def reset_auto_increment(table_name)
-  ActiveRecord::Base.connection.execute(
-    "TRUNCATE TABLE #{table_name} RESTART IDENTITY CASCADE"
-  )
 end
 
 get '/test/login/user/:username' do
