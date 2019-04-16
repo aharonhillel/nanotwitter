@@ -9,7 +9,7 @@ before do
   $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
   $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
   @queue = Queue.new
-  background_worker()
+  background_worker
 end
 
 get '/update-timelines/:username' do
@@ -19,7 +19,7 @@ get '/update-timelines/:username' do
         Username
       }
     }
-}"
+  }"
 
   res = $dg.query(query: query)
   followers = res.dig(:profile).first.dig(:Follow)
@@ -27,6 +27,7 @@ get '/update-timelines/:username' do
     followers.each do |a|
       @queue.push(a[:Username])
     end
+    status 200
     puts "Finished adding usernames to queue"
   end
 end
@@ -55,15 +56,15 @@ end
 
 
 def background_worker
-Thread.new do
-  while true do
-    until @queue.empty?
-      work_unit = @queue.pop
-      puts "popped #{work_unit}"
-      update_redis(work_unit)
+  Thread.new do
+    while true do
+      until @queue.empty?
+        work_unit = @queue.pop
+        puts "popped #{work_unit}"
+        update_redis(work_unit)
+      end
+      sleep 30
+      puts "Done Updating Follower's Feeds after 30 seconds"
     end
-    sleep 30
-    puts "Done Updating Follower's Feeds after 30 seconds"
   end
-end
 end
