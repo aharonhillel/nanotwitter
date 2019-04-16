@@ -12,6 +12,14 @@ http://product-Elb-VQ59Q2YO4G9G-1381768724.us-east-1.elb.amazonaws.com
 
 ## Changes
 
+
+### 0.7 (4/7/19)
+
+- Switched from using Postgres to Dgraph
+- Implemented search, trending tweets
+- Caching all dgraph queries to redis
+- Enabled sticky session on aws to ensure user login is preserved
+
 ### 0.6 (3/23/19)
 
 - Fixed UI bugs, and improved overall layout design

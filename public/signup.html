@@ -1,0 +1,52 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <title>NanoTwitter</title>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light">
+  <a class="navbar-brand mr-auto mr-lg-0" href="/">Nanotwitter</a>
+  <button class="navbar-toggler p-0 border-0" type="button" data-toggle="offcanvas">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+</nav>
+
+<div class="d-flex justify-content-center mt-5 pt-5">
+  <div class="d-flex flex-column p-2">
+    <h2>Sign Up Now with NanoTwitter and Enjoy! </h2>
+    <form method="POST" action="/signup">
+      <div class="form-group">
+        <label for="exampleInputEmail1">Email address</label>
+        <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" name="email">
+      </div>
+
+      <div class="form-group">
+        <label for="exampleInputEmail1">Username</label>
+        <input type="text" class="form-control" aria-describedby="emailHelp" placeholder="Username" name="username">
+      </div>
+
+      <div class="form-group">
+        <label for="exampleInputPassword1">Password</label>
+        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name="password">
+      </div>
+
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Remember me</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

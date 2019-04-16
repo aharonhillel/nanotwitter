@@ -1,12 +1,13 @@
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <main role="main" class="container">
   <div class="d-flex align-items-center p-3 my-3 text-black-50 bg-purple rounded shadow-sm">
     <div class="lh-100">
-      <h4 class="mb-0 lh-100">@<%= @profile_user.username %></h4>
-      <% if @profile_user != current_user %>
-        <form class="form-inline my-2 my-lg-0" action='/follows/<%= @profile_user.username %>' method='post'>
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Follow</button>
-        </form>
+      <h4 class="mb-0 lh-100">@<%= @info[:profile_user] %></h4>
+      <% if @info[:profile_user] != @info[:current_user] %>
+        <div class="form-inline my-2 my-lg-0" >
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit" value="follow-btn"
+                  onclick="follow(<%= @info[:profile_user] %>)">Follow</button>
+        </div>
       <% end %>
     </div>
 
@@ -14,26 +15,45 @@
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Recent tweets</h6>
-    <% @profile_user.tweets.each do |t| %>
-    <div class="media text-muted pt-3">
-      <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-        <strong class="d-block text-gray-dark">@<%= @profile_user.username %></strong>
-        <%= t.content.to_s %>
-      </p>
-    </div>
+    <% if  @user_tweets != nil%>
+    <% @user_tweets.each do |t| %>
+      <div class="card my-2">
+        <div class="card-body">
+          <strong class="d-block text-gray-dark">
+            <h5 class="card-title">
+              <a href="/users/<%= @info[:profile_user] %>">
+                @<%= @info[:profile_user] %>
+              </a>
+              <small class="text-muted"><%= time_since(t.dig(:Timestamp)) %></small>
+            </h5>
+          </strong>
+          <p class="card-text"><%= t.dig(:tweet) %></p>
+
+          <div class="d-flex flex-row">
+            <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %> Likes</button>
+            <form method="POST" action="/comments/all<%= t.dig(:tweet)%>">
+              <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %> Comments</button>
+            </form>
+            <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
+          </div>
+        </div>
+      </div>
     <% end %>
+
     <small class="d-block text-right mt-3">
       <a href="#">Show more tweets</a>
     </small>
+    <%end %>
   </div>
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Followed</h6>
-    Following size: <%= @profile_user.following.count %>
-    <% @profile_user.following.each do |f| %>
+    Following size: <%= @info[:total_following] %>
+    <% if  @user_followings != nil%>
+    <% @user_followings.each do |f| %>
       <div class="media text-muted pt-3">
         <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-          <strong class="d-block text-gray-dark"><%= f.username %></strong>
+          <strong class="d-block text-gray-dark"><%= f.dig(:Username) %></strong>
           <!--link to the followed user profile page -->
         </p>
       </div>
@@ -41,20 +61,53 @@
     <small class="d-block text-right mt-3">
       <a href="#">Show more tweets</a>
     </small>
+      <%end %>
+  </div>
+
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Follower</h6>
+    Follower size: <%= @info[:total_follower] %>
   </div>
 
   <div class="my-3 p-3 bg-white rounded shadow-sm">
     <h6 class="border-bottom border-gray pb-2 mb-0">Trending</h6>
-    <% mock_user_tweets.each do |t| %>
-      <div class="media text-muted pt-3">
-        <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-          <strong class="d-block text-gray-dark">@<%= mock_user.username %></strong>
-          <%= t.content.to_s %>
-        </p>
+    <% if @trending_tweets != nil %>
+    <% @trending_tweets.each do |t| %>
+      <div class="card my-2">
+        <div class="card-body">
+          <strong class="d-block text-gray-dark"><a href="/users/<%= t.dig(:tweetedBy).first.dig(:Username) %>"><h5 class="card-title">@<%= t.dig(:tweetedBy).first.dig(:Username) %></h5></a></strong>
+          <p class="card-text"><%= t.dig(:tweet) %></p>
+
+          <div class="d-flex flex-row">
+            <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %> Likes</button>
+            <form method="POST" action="/comment/all<%= t.dig(:tweet) %>/new">
+              <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %> Comments</button>
+            </form>
+            <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
+          </div>
+        </div>
       </div>
     <% end %>
     <small class="d-block text-right mt-3">
       <a href="#">Show more trending tweets</a>
     </small>
+      <% end %>
   </div>
+
+  <script>
+    function like(tweet) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/like/" + tweet + "/new", true);
+      xhttp.send();
+      alert("Liked " + tweet)
+    }
+
+    function follow(user) {
+        let xhttpf = new XMLHttpRequest();
+        xhttpf.open("POST", "/follows/follow/" + user, true);
+        xhttpf.send();
+        alert("Followed " + user)
+    }
+  </script>
+
 </main>

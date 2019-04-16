@@ -1,7 +1,7 @@
 class User < ActiveRecord::Base
-  has_many :tweets
-  has_many :follows
-  has_many :likes
+  has_many :tweets, dependent: :nullify
+  has_many :follows, dependent: :nullify
+  has_many :likes, dependent: :nullify
 
   has_many :follower_relationships, foreign_key: :following_id, class_name: 'Follow'
   has_many :followers, through: :follower_relationships, source: :follower
@@ -9,7 +9,8 @@ class User < ActiveRecord::Base
   has_many :following_relationships, foreign_key: :user_id, class_name: 'Follow'
   has_many :following, through: :following_relationships, source: :following
 
-  before_save {self.email = email.downcase, self.username = username.downcase}
+  has_many :mentions, dependent: :nullify
+  has_many :mentioned_in_tweets, through: :mentions
 
   validates :username, presence: true, uniqueness: true, length: {maximum: 12}
   validates :password_hash, presence: true, length: {minimum: 8}
@@ -39,7 +40,18 @@ class User < ActiveRecord::Base
   end
 
   def followingTweets
-    Tweet.where("user_id IN (?)", following_ids).includes(:user)
+    # Tweet.where("user_id IN (?)", following_ids).includes(:user)
+    query = "
+    SELECT users.username, tweets.user_id, tweets.retweet_id, tweets.content, tweets.img_url,
+       tweets.video_url, tweets.date, tweets.total_likes, tweets.created_at, tweets.updated_at
+    FROM tweets, users
+    WHERE tweets.user_id IN (
+      SELECT following_id
+      FROM users, follows
+      WHERE follows.user_id = #{self.id})
+    AND tweets.user_id = users.id;
+    "
+    ActiveRecord::Base.connection.execute(query)
   end
 
 end

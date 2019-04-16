@@ -1,20 +1,74 @@
-post '/follows/:followed' do
-  #current_user = session[:user]
-  @followed_user = User.find_by_username(params[:followed])
-  f = Follow.new(following: @followed_user, follower: current_user)
-  #if !f.valid?
-    #"Cannot follow yourself"
-  #else
-    if f.save
-    # when 'text/html'
-    #   halt
-      @id = f.id
-      erb :'follows/following'
-    # when 'text/json'
-    #   halt current_user.followers.to_json
-    # end
-    else
-      "Follow not work"
-    end
+
+post '/follows/follow/:followed' do
+  cur = username_to_uid(current_user)
+  following = username_to_uid(params[:followed])
+  query = "{
+    following(func: uid(#{cur})){
+      Follow @filter(uid(#{following})){
+        uid
+      }
+    }
+  }"
+
+  res = $dg.query(query: query).dig(:following).first
+  if res.nil?
+    follow = "{set{
+    <#{cur}> <Follow> <#{following}> .}}"
+
+    $dg.mutate(query: follow)
+    "#{current_user} followed #{params[:followed]}"
+    #erb :'follows/followings'
+  else
+    "Already followed"
+  end
 end
 
+post '/follows/unfollow/:followed' do
+  unfollow = "{delete{
+    <#{username_to_uid(current_user)}> <Follow> <#{username_to_uid(params[:followed])}> .}}"
+
+  $dg.mutate(query: unfollow)
+  " #{current_user} unfollowed #{params[:followed]}"
+  #erb :'follows/followings'
+end
+
+get '/follows/followers/:username' do
+  query = "{
+    followers(func: uid(#{username_to_uid(params[:username])}){
+      count(~Follow)
+      followers: ~Follow{
+        uid
+        Username
+        Email
+      }
+    }
+  }"
+  res = from_dgraph_or_redis(query)
+  if res.nil?
+    "#{params[:username]} has no followers"
+  else
+    @followers = res.dig(:followers).first.dig(:followers)
+    erb :'follows/followers'
+  end
+end
+
+  # Show all followers
+get '/follows/followings/:username' do
+  query = "{
+    followings(func: uid(#{username_to_uid(params[:username])})){
+      followings: Follow{
+        uid
+        Username
+        Email
+      }
+    }
+  }"
+
+  res = from_dgraph_or_redis(query, ex: 120)
+  if res.nil?
+    "#{params[:username]} has no followings"
+  else
+    @followings = res.dig(:followings).first.dig(:followings)
+    erb :'follows/followings'
+  end
+end

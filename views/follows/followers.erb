@@ -1,10 +1,12 @@
 <h4>All Followers </h4>
-<%@user.followers.each do |f|%>
+<ol>
+<%@followers.each do |f|%>
   <li>
-    Name: <%= f.username%>
-    Email: <%= f.email %>
-    <form action='/follows/unfollow/<%=f.username %>' method='post'>
-      <button type='submit' class='btn btn-primary'>Unfollow</button>
+    Name: <%= f.dig(:Username)%>
+    Email: <%= f.dig(:Email) %>
+    <form action='/follows/follow/<%= f.dig(:Username) %>' method='post'>
+      <button type='submit' class='btn btn-primary'>Follow</button>
     </form>
   </li>
 <% end %>
+</ol>

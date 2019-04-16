@@ -1,0 +1,18 @@
+<Comment>: uid @count @reverse .
+<Comment_on>: uid @count @reverse .
+<Email>: string @index(exact) .
+<Follow>: uid @count @reverse .
+<Hashtag>: uid @reverse .
+<Like>: uid @count @reverse .
+<Mention>: uid @count @reverse .
+<Password>: password .
+<Text>: string @index(fulltext) .
+<Timestamp>: datetime @index(hour) .
+<Tweet>: uid @reverse .
+<Retweet>: uid @count @reverse .
+<Type>: string @index(exact) .
+<Username>: string @index(exact) .
+<dgraph.group.acl>: string .
+<dgraph.password>: password .
+<dgraph.user.group>: uid @reverse .
+<dgraph.xid>: string @index(exact) .

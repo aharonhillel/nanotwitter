@@ -1,7 +1,0 @@
-development:
-  host: 127.0.0.1
-  port: 6379
-
-production:
-  host: <%= ENV['REDIS_HOSTNAME'] %>
-  port: <%= ENV['REDIS_PORT'] %>

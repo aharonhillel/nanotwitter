@@ -38,3 +38,10 @@ nanotwitter-deploy-prod-pipeline.json.ufo/current
 .ufo/data
 .ufo/log
 .ufo/output
+
+*.rdb
+*.gz
+*.rdf
+
+.DS_Store
+.byebug_history
