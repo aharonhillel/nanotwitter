@@ -81,7 +81,7 @@ describe 'POST on /signup' do
     assert_equal last_response.body, 'Failed to create user'
   end
 
-  it 'POST /test/login' do
+  it 'POST /login' do
     # before do
     # $dg.drop_all
     # end

@@ -29,10 +29,9 @@ helpers do
     $redis.del(key)
   end
 
-  def create_tweet(text, user_id)
-    text = params[:text].to_s
-    if text.nil?  || text.blank? || user_id.nil?
-      if user_id.nil?
+  def create_tweet(text, user)
+    if text.nil?  || text.blank? || user.nil?
+      if user.nil?
         return "Failed to create tweet, most likely the reason is that you are not signed in."
       else
         return "Your tweet is blank. Add some content!"
@@ -45,7 +44,7 @@ helpers do
       _:tweet <Text> \"#{text}\" .
       _:tweet <Type> \"Tweet\" .
       _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
-      <#{username_to_uid(user_id)}> <Tweet> _:tweet ."
+      <#{username_to_uid(user)}> <Tweet> _:tweet ."
 
     if text.include? '#'
       hashtags = text.scan(/#(\w+)/)
@@ -68,7 +67,7 @@ helpers do
     tweet << "}}"
 
     $dg.mutate(query: tweet)
-    expire_user_profile(user_id)
+    expire_user_profile(user)
     # if params[:header] != nil && params[:header][:Accept] == "application/json"
     #   h = Hash.new
     #   h[:user] = current_user
@@ -76,6 +75,7 @@ helpers do
     #   h[:success] = true
     #   return h.to_json
     # end
+
   end
 end
 
@@ -85,7 +85,7 @@ end
 
 post '/tweet/create' do
   create_tweet(params[:text], current_user)
-  redirect "/users/#{current_user}"
+  redirect "/users/#{user}"
 end
 
 get '/tweets/all' do

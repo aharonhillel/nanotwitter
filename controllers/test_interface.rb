@@ -43,11 +43,11 @@ end
 
 # create a number of tweets
 get '/test/tweet' do
-  user_id = session[:username]
+  user = session[:username]
   count = params[:count].to_i
 
-  count.each do
-    create_tweet(Faker::Lorem.unique.words(3), user_id)
+  count.times do
+    create_tweet(Faker::Lorem.sentence(6), user)
   end
 end
 

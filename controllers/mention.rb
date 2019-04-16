@@ -1,5 +1,5 @@
 post '/mentions/:tweet_id/new' do
-  mentioned_user = username_to_uid(params[:username])
+  mentioned_user = username_to_uid(params[:c])
   tweet = params[:context_id]
   query = "{
     tweet(func: uid(#{tweet})) {
@@ -11,6 +11,9 @@ post '/mentions/:tweet_id/new' do
     mention = "{set{
     <#{tweet}> <Mention> <#{mentioned_user}> .}}"
     $dg.mutate(query: mention)
+    "#{params[:username]} is mentioned in #{tweet}"
+  else
+    "Tweet doesn't exist."
   end
 end
 
