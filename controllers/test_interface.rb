@@ -62,6 +62,7 @@ get '/test/reset/tweets' do
   }.to_json
 end
 
+# create a number of tweets
 get '/test/tweet' do
   user_id = params[:user_id]
   count = params[:count]

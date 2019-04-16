@@ -28,6 +28,10 @@ helpers do
   }"
     $redis.del(key)
   end
+
+  def create_tweet(text)
+    
+  end
 end
 
 get '/tweet/new' do
