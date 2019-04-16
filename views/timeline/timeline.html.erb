@@ -25,10 +25,10 @@
                 Likes</button>
 
               <form class="form-inline my-2 my-lg-0">
-                <button class="btn btn-primary" type="button" data-toggle="modal" onclick="getComments(<%= t.dig(:uid)%>)"><%= t.dig(:totalComments) %> Comments</button>
+                <button class="btn btn-primary btn-sm mx-1" type="button" data-toggle="modal" onclick="getComments(<%= t.dig(:uid)%>)"><%= t.dig(:totalComments) %> Comments</button>
               </form>
               <form class="form-inline my-2 my-lg-0">
-              <button href="/tweets/retweet/<%=t.dig(:uid) %>" class="btn btn-primary btn-sm mx-1" type="button" data-toggle="#retweetModal"><%= t.dig(:totalRetweets) %>Retweet</button>
+              <button href="/tweets/retweet/<%=t.dig(:uid) %>" class="btn btn-primary btn-sm mx-1" type="button" data-toggle="#retweetModal"><%= t.dig(:totalRetweets) %> Retweets</button>
               </form>
             </div>
           </div>
@@ -185,7 +185,7 @@ for( var i = 0; i < res["~Comment_on"].length; i++) {
 <!--          <textarea class="form-control my-2" id="retweet-content" name="text" placeholder="Say something" rows="5"></textarea>-->
 <!--          <h6 class="pull-right" id="count_message"></h6>-->
 <!--          <button class="btn btn-info my-2" type="submit" value="Retweet">Tweet!</button>-->
-<!--          <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->-->
+<!--          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
 <!--        </form>-->
 <!--      </div>-->
 <!--    </div>-->

@@ -49,6 +49,7 @@ get '/test/tweet' do
   count.times do
     create_tweet(Faker::Lorem.sentence(6), user)
   end
+  redirect "/users/#{user}"
 end
 
 get '/test/status' do
