@@ -1,4 +1,4 @@
-post '/search' do
+get '/search' do
   text = params[:search].to_s
 
   type = "Tweet"
