@@ -1,5 +1,5 @@
 post '/search' do
-  text = params[:text].to_s
+  text = params[:search].to_s
 
   type = "Tweet"
   if text.include? '#'

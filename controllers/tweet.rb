@@ -30,12 +30,10 @@ helpers do
   end
 
   def create_tweet(text, user)
-    if text.nil?  || text.blank? || user.nil?
-      if user.nil?
-        return "Failed to create tweet, most likely the reason is that you are not signed in."
-      else
-        return "Your tweet is blank. Add some content!"
-      end
+    if text.nil?  || text.blank?
+      return "Your tweet is blank. Add some content!"
+    elsif user.nil?
+      return "Failed to create tweet, most likely the reason is that you are not signed in."
     elsif text.length > 280
       return "Your tweet is more than 280 characters. Make it shorter!"
     end
@@ -75,7 +73,6 @@ helpers do
     #   h[:success] = true
     #   return h.to_json
     # end
-
   end
 end
 
@@ -160,22 +157,4 @@ post '/tweets/retweet/:tweet_id' do
     return h.to_json
   end
   redirect "/users/#{current_user}"
-end
-
-post '/test/tweets/new' do
-  tweet = Tweet.new(:user_id => params[:user_id], :content => params[:content])
-  if tweet.save
-    tweet.to_json
-  else
-    error 404, {error: "Tweet not created"}.to_json
-  end
-end
-
-get '/test/tweets/:username' do
-  u = User.find_by_username(params[:username])
-  if u != nil
-    u.tweets.to_json
-  else
-    error 404, {error: "User not find"}.to_json
-  end
 end
