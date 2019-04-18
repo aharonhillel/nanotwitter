@@ -16,6 +16,9 @@ gem 'ufo'
 gem 'redis'
 gem 'railties', '~> 5.2'
 gem 'thin'
+gem 'httpclient'
+gem 'faraday'
+gem 'net-http-persistent'
 
 group :development do
   gem 'irb'

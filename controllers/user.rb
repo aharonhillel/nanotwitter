@@ -8,18 +8,6 @@ helpers do
     session[:username]
   end
 
-  # def current_user_uid
-  #   query = "{
-  #     uid(func: eq(Username, \"#{session[:username]}\")) {
-  #       uid
-  #     }
-  #   }"
-  #
-  #   res = from_dgraph_or_redis(query)
-  #   uid = res.dig(:uid).first.dig(:uid)
-  #   uid
-  # end
-
   def username_to_uid(username)
     query = "{
       uid(func: eq(Username, \"#{username}\")) {

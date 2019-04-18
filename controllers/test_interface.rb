@@ -1,15 +1,6 @@
 require 'sinatra'
 require 'faker'
 
-require_relative '../models/comment'
-require_relative '../models/follow'
-require_relative '../models/hash_tag'
-require_relative '../models/hash_tag_tweet'
-require_relative '../models/like'
-require_relative '../models/mention'
-require_relative '../models/user'
-require_relative '../models/tweet'
-
 require_relative '../db/setup_dgraph'
 
 enable :sessions
