@@ -1,4 +1,4 @@
 require './app'
-require 'acorn_cache'
-# use Rack::AcornCache
+
+use Rack::Deflater
 run Sinatra::Application
