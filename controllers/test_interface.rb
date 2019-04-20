@@ -143,6 +143,7 @@ end
 # Create testUser
 get '/test/user/testuser' do
   create_test_user
+  session[:username] = 'testuser'
   redirect '/users/testuser/timeline'
 end
 
@@ -154,7 +155,7 @@ def create_test_user
   }"
 
   res = $dg.query(query: query)
-  if res.nil?
+  if res.dig(:q).empty?
     query = "{set{
       _:user <Username> \"testuser\" .
       _:user <Email> \"testuser@sample.com\" .

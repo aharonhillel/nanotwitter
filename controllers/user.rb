@@ -79,21 +79,22 @@ post '/login' do
       Success: checkpwd(Password, \"#{params[:password]}\")
     }
   }"
+
   res = $dg.query(query: query)
+  if res.dig(:login).empty?
+    'Failed to login'
+    redirect '/login'
+  end
+
   success = res.dig(:login).first.dig(:Success)
   username = res.dig(:login).first.dig(:Username)
-  if success
+  if !!success
     session[:username] = username
-    if params[:headers] != nil && params[:headers][:Accept] == 'application/json'
-      h = Hash.new
-      h[:username] = username
-      h[:success] = success
-      return h.to_json
+    if request.env['HTTP_ACCEPT'].to_s.include? 'application/json'
+      res.dig(:login).first
     else
       redirect "/users/#{username}/timeline"
     end
-  else
-    'Login failed'
   end
 end
 
@@ -161,10 +162,10 @@ get '/users/:username/tweets' do
   tweets = res.dig(:tweets)
 
   if tweets.nil?
-    status_code 404
+    status 404
     'User not found'
   else
-    status_code 200
+    status 200
     tweets.first.dig(:Tweet).to_json
   end
 end
@@ -182,24 +183,14 @@ get '/users' do
   users = res.dig(:users)
 
   if users.nil?
-    status_code 404
+    status 404
     'No users'
   else
-    status_code 200
+    status 200
     @users = users
     erb :'users/all'
   end
 end
-
-# # Show all followers
-# get '/users/:username/followers' do
-#   @user = User.find_by_username(params[:username])
-#   if @user.nil?
-#     "#{params[:username]} has no followers"
-#   else
-#     erb :'follows/followers'
-#   end
-# end
 
 get '/users/:username/timeline' do
   query = "{
@@ -223,10 +214,10 @@ get '/users/:username/timeline' do
   timeline = res.dig(:timeline)
 
   if timeline.nil?
-    status_code 404
+    status 404
     'User not found'
   else
-    status_code 200
+    status 200
     @following_tweets = timeline
     @current_user = session[:username]
     @trending_tweets = trending_tweets
@@ -255,9 +246,5 @@ def trending_tweets
   res = from_dgraph_or_redis(query, ex: 360)
   tweets = res.dig(:trending)
 
-  if tweets.nil?
-    []
-  else
-    tweets
-  end
+  tweets
 end

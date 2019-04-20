@@ -30,7 +30,7 @@ helpers do
   end
 
   def create_tweet(text, user)
-    if text.nil?  || text.blank?
+    if text.nil?
       return "Your tweet is blank. Add some content!"
     elsif user.nil?
       return "Failed to create tweet, most likely the reason is that you are not signed in."

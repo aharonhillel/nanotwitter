@@ -1,6 +1,5 @@
 require 'json'
 require 'faraday'
-require 'net/http/persistent'
 require 'net/http'
 
 class Dgraph
@@ -10,7 +9,11 @@ class Dgraph
       #       #   # faraday.response :logger                  # log requests and responses to $stdout
       #       #   faraday.adapter  Faraday.default_adapter
       #       # end
-      @client = Net::HTTP.new(options[:host], options[:port])
+      pool = options[:pool] || 5
+      @clients = []
+      pool.times do
+        @clients << Net::HTTP.new(options[:host], options[:port])
+      end
     end
 
     def alter(options = {})
@@ -24,7 +27,7 @@ class Dgraph
       # req.continue_timeout = options[:timeout]
       req.body = options[:schema]
 
-      res = @client.request(req)
+      res = any_client.request(req)
 
       body = JSON.parse(res.body, symbolize_names: true)
       body.dig(:data, :code).equal? 'Success'
@@ -42,7 +45,7 @@ class Dgraph
       # req.continue_timeout = options[:timeout]
       req.body = options[:query]
 
-      res = @client.request(req)
+      res = any_client.request(req)
 
       if options[:raw]
         JSON.parse(res.body, symbolize_names: true)
@@ -65,7 +68,7 @@ class Dgraph
       req['X-Dgraph-CommitNow'] = true
       req.body = options[:query]
 
-      res = @client.request(req)
+      res = any_client.request(req)
 
       body = JSON.parse(res.body, symbolize_names: true)
 
@@ -83,6 +86,10 @@ class Dgraph
     def drop_attr(options = {})
       attr = options[:attr]
       alter(schema: "{\"drop_attr\": \"#{attr}\"}")
+    end
+
+    def any_client
+      @clients.sample
     end
   end
 end
