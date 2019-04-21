@@ -136,7 +136,7 @@ get '/users/:username' do
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = from_dgraph_or_redis("#{params[:username]}:profile", query)
   profile = res.dig(:profile).first
 
   if profile.nil?

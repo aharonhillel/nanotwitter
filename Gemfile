@@ -17,6 +17,7 @@ gem 'sinatra-contrib'
 gem 'ufo'
 gem 'redis'
 gem 'railties', '~> 5.2'
+gem 'bunny'
 
 group :development do
   gem 'irb'

@@ -37,6 +37,12 @@ require_relative 'helpers/helpers'
 
 require 'json'
 require 'date'
+require 'bunny'
+
+
+  # connection.close
+
+
 
 # cache
 # Rack::AcornCache.configure do |config|
@@ -50,6 +56,14 @@ require 'date'
 # end
 
 before do
+
+  connection = Bunny.new(automatically_recover: false)
+  connection.start
+
+  channel = connection.create_channel
+  @queue = channel.queue('task_queue', durable: true)
+
+  
   $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
   $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
 end

@@ -26,6 +26,7 @@ helpers do
       totalFollower: count(~Follow)
     }
   }"
+  byebug
     $redis.del(key)
   end
 end
@@ -71,8 +72,14 @@ post '/tweet/create' do
     end
   end
   tweet << "}}"
+  sent_data = Hash.new
+  sent_data["query"]= tweet
+  sent_data["username"] = current_user
+  sent_data["action"] = "New Tweet"
+  @queue.publish(sent_data.to_json, persistent: true)
+  puts " [x] Sent Data to Queue"
 
-  $dg.mutate(query: tweet)
+
   expire_user_profile(current_user)
   if params[:header] != nil && params[:header][:Accept] == "application/json"
     h = Hash.new
