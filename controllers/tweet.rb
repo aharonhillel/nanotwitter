@@ -146,7 +146,6 @@ post '/tweets/retweet/:tweet_id' do
         _:tweet <Mention> <#{user}> ."
     end
   end
-<<<<<<< HEAD
   tweet << "}}"
   sent_data = Hash.new
   sent_data["query"]= tweet
@@ -157,18 +156,11 @@ post '/tweets/retweet/:tweet_id' do
 
 
   # expire_user_profile(current_user)
-=======
+
   retweet << "}}"
 
   $dg.mutate(query: retweet)
   expire_user_profile(current_user)
->>>>>>> 06087902e81a7c9197f80c15284447fd3ecfbaee
-  if params[:header] != nil && params[:header][:Accept] == "application/json"
-    h = Hash.new
-    h[:user] = current_user
-    h[:text] = text
-    h[:success] = true
-    return h.to_json
-  end
+  
   redirect "/users/#{current_user}"
 end
