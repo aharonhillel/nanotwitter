@@ -1,27 +1,22 @@
 require 'json'
-require 'faraday'
 require 'net/http'
+require 'httpclient'
 
 class Dgraph
   class Client
     def initialize(options = {})
-      # @conn = Faraday.new(:url => "http://#{options[:host]}:#{options[:port]}") do |faraday|
-      #       #   # faraday.response :logger                  # log requests and responses to $stdout
-      #       #   faraday.adapter  Faraday.default_adapter
-      #       # end
       pool = options[:pool] || 5
+      @host = options[:host] || '127.0.0.1'
+      @port = options[:port] || 8080
       @clients = []
+      @async_clients = []
       pool.times do
-        @clients << Net::HTTP.new(options[:host], options[:port])
+        @clients << Net::HTTP.new(@host, @port)
+        @async_clients << HTTPClient.new
       end
     end
 
     def alter(options = {})
-      # res = @conn.post do |req|
-      #   req.url '/alter'
-      #   req.headers['Content-Type'] = 'application/json'
-      #   req.body = options[:schema]
-      # end
       req = Net::HTTP::Post.new('/alter')
       req['accept'] = 'application/json'
       # req.continue_timeout = options[:timeout]
@@ -34,12 +29,6 @@ class Dgraph
     end
 
     def query(options = {})
-      # res = @conn.post do |req|
-      #   req.url '/query'
-      #   req.headers['Content-Type'] = 'application/json'
-      #   req.body = options[:query]
-      # end
-
       req = Net::HTTP::Post.new('/query')
       req['accept'] = 'application/json'
       # req.continue_timeout = options[:timeout]
@@ -55,13 +44,6 @@ class Dgraph
     end
 
     def mutate(options = {})
-      # res = @conn.post do |req|
-      #   req.url '/mutate'
-      #   req.headers['Content-Type'] = 'application/json'
-      #   req.headers['X-Dgraph-CommitNow'] = true
-      #   req.body = options[:query]
-      # end
-
       req = Net::HTTP::Post.new('/mutate')
       req['accept'] = 'application/json'
       # commit immediately
@@ -79,6 +61,18 @@ class Dgraph
       end
     end
 
+    def mutate_async(options = {})
+      conn = any_async_client.post_async(
+        "http://#{@host}:#{@port}/mutate",
+        header: {
+          'accept' => 'application/json',
+          'X-Dgraph-CommitNow' => true,
+        },
+        body: options[:query]
+      )
+      conn
+    end
+
     def drop_all
       alter(schema: '{"drop_all": true}')
     end
@@ -90,6 +84,10 @@ class Dgraph
 
     def any_client
       @clients.sample
+    end
+
+    def any_async_client
+      @async_clients.sample
     end
   end
 end

@@ -64,7 +64,7 @@ helpers do
     end
     tweet << "}}"
 
-    $dg.mutate(query: tweet)
+    $dg.mutate_async(query: tweet)
     expire_user_profile(user)
     # if params[:header] != nil && params[:header][:Accept] == "application/json"
     #   h = Hash.new
