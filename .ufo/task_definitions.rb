@@ -29,7 +29,7 @@ task_definition "nanotwitter-web" do
     awslogs_group: ["ecs/nanotwitter-web", Ufo.env_extra].compact.join('-'),
     awslogs_stream_prefix: "nanotwitter",
     awslogs_region: helper.current_region,
-    # command: ["bin/web"] # IMPORTANT: change or create a bin/web file
+    command: ["bin/web"] # IMPORTANT: change or create a bin/web file
   )
 end
 

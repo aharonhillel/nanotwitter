@@ -19,28 +19,20 @@ require_relative 'config/config'
 require_relative 'helpers/helpers'
 
 require 'json'
-<<<<<<< HEAD
 require 'date'
 require 'bunny'
-
-
-  # connection.close
-
-
-=======
->>>>>>> 06087902e81a7c9197f80c15284447fd3ecfbaee
 
 current_dir = Dir.pwd
 
 before do
-
-  connection = Bunny.new(automatically_recover: false)
+  connection = Bunny.new(host: settings.rabbitmq_host, port: settings.rabbitmq_port,
+                         user: settings.rabbitmq_user, pass: settings.rabbitmq_pass,
+                         automatically_recover: false)
   connection.start
 
   channel = connection.create_channel
   @queue = channel.queue('task_queue', durable: true)
 
-  
   $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
   $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
 end

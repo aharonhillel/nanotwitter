@@ -1,19 +1,10 @@
 require 'sinatra'
-require 'sinatra/activerecord'
-require 'bcrypt'
 require 'byebug'
-require 'date'
 require 'redis'
 require_relative 'config/config'
 require_relative 'vendor/dgraph/dgraph'
 require 'json'
-
 require 'bunny'
-
-before do
-end
-
-
 
 def action_decider(body)
   parsed_json = JSON.parse(body)
@@ -23,19 +14,20 @@ def action_decider(body)
 end
 
 def new_tweet(parsed_json)
-  # byebug
   username = parsed_json["username"].to_s
   $dg.mutate(query: parsed_json["query"])
   update_own_profile(username)
   update_timelines_of_followers(username)
 end
+
 def update_timelines_of_followers(tweet_username)
-  query = "{profile(func: eq(Username,#{tweet_username})) {
+  query = "{profile(func: eq(Username, \"#{tweet_username}\")) {
       Follow{
         Username
       }
     }
-}"
+  }"
+  # TODO: cache the followers in redis
   res = $dg.query(query: query)
   followers = res.dig(:profile).first.dig(:Follow)
   update_redis_of_followers(tweet_username) #update your own timeline
@@ -96,11 +88,12 @@ def update_own_profile(username)
   end
 
 begin
-
   $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
   $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
 
-  connection = Bunny.new(automatically_recover: false)
+  connection = Bunny.new(host: settings.rabbitmq_host, port: settings.rabbitmq_port,
+                         user: settings.rabbitmq_user, pass: settings.rabbitmq_pass,
+                         automatically_recover: false)
   connection.start
 
   channel = connection.create_channel
@@ -108,7 +101,6 @@ begin
 
   channel.prefetch(1)
   puts ' [*] Waiting for messages. To exit press CTRL+C'
-
 
   queue.subscribe(manual_ack: true, block: true) do |delivery_info, _properties, body|
     puts " [x] Received '#{body}'"

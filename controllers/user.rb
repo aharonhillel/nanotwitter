@@ -151,7 +151,6 @@ get '/users/:username' do
   end
 end
 
-<<<<<<< HEAD
 # # Display all tweets by a user as JSON
 # get '/users/:username/tweets' do
 #   query = "{
@@ -196,7 +195,7 @@ end
 #     erb :'users/all'
 #   end
 # end
-=======
+
 # Display all tweets by a user as JSON
 get '/users/:username/tweets' do
   query = "{
@@ -229,7 +228,7 @@ get '/users' do
     }
   }"
 
-  res = from_dgraph_or_redis(query)
+  res = from_dgraph_or_redis("users", query, ex: 120)
   users = res.dig(:users)
 
   if users.nil?
@@ -241,7 +240,6 @@ get '/users' do
     erb :'users/all'
   end
 end
->>>>>>> 06087902e81a7c9197f80c15284447fd3ecfbaee
 
 get '/users/:username/timeline' do
   query = "{
@@ -261,7 +259,7 @@ get '/users/:username/timeline' do
     }
   }"
 
-  res = from_dgraph_or_redis("#{params[:username]}:timeline",query)
+  res = from_dgraph_or_redis("#{params[:username]}:timeline", query)
   timeline = res.dig(:timeline)
 
   if timeline.nil?

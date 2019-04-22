@@ -7,10 +7,11 @@ configure :development do
   set :redis_host, '127.0.0.1'
   set :redis_port, 6379
 
-  # acorn_cache
-  set :acorncache_host, '127.0.0.1'
-  set :acorncache_port, 6379
-  set :acorncache_password, ENV['ACORNCACHE_REDIS_PASSWORD']
+  # rabbitmq
+  set :rabbitmq_host, '127.0.0.1'
+  set :rabbitmq_port, 5672
+  set :rabbitmq_user, 'guest'
+  set :rabbitmq_pass, 'guest'
 end
 
 configure :test do
@@ -22,10 +23,11 @@ configure :test do
   set :redis_host, '127.0.0.1'
   set :redis_port, 6379
 
-  # acorn_cache
-  set :acorncache_host, '127.0.0.1'
-  set :acorncache_port, 6379
-  set :acorncache_password, ENV['ACORNCACHE_REDIS_PASSWORD']
+  # rabbitmq
+  set :rabbitmq_host, '127.0.0.1'
+  set :rabbitmq_port, 5672
+  set :rabbitmq_user, 'guest'
+  set :rabbitmq_pass, 'guest'
 end
 
 configure :production do
@@ -37,8 +39,9 @@ configure :production do
   set :redis_host, ENV['REDIS_HOSTNAME']
   set :redis_port, ENV['REDIS_PORT']
 
-  # acorn_cache
-  set :acorncache_host, ENV['ACORNCACHE_REDIS_HOST']
-  set :acorncache_port, ENV['ACORNCACHE_REDIS_PORT']
-  set :acorncache_password, ENV['ACORNCACHE_REDIS_PASSWORD']
+  # rabbitmq
+  set :rabbitmq_host, ENV['RABBITMQ_HOST']
+  set :rabbitmq_port, ENV['RABBITMQ_PORT']
+  set :rabbitmq_user, ENV['RABBITMQ_USER']
+  set :rabbitmq_pass, ENV['RABBITMQ_PASS']
 end
