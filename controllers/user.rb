@@ -21,14 +21,18 @@ helpers do
   # end
 
   def username_to_uid(username)
-    query = "{
-      uid(func: eq(Username, \"#{username}\")) {
-        uid
-      }
-    }"
-    res = from_dgraph_or_redis(query)
-    uid = res.dig(:uid).first.dig(:uid)
-    uid
+    if session[:uid].nil?
+      query = "{
+        uid(func: eq(Username, \"#{username}\")) {
+          uid
+        }
+      }"
+      res = from_dgraph_or_redis("current_user", query)
+      uid = res.dig(:uid).first.dig(:uid)
+      session[:uid] = uid
+    else
+      session[:uid]
+    end
   end
 
   def create_user(email, username, password)
@@ -157,50 +161,50 @@ get '/users/:username' do
   end
 end
 
-# Display all tweets by a user as JSON
-get '/users/:username/tweets' do
-  query = "{
-    tweets(func: eq(Username, \"#{params[:username]}\")) {
-      Tweet {
-        uid
-        expand(_all_)
-      }
-    }
-  }"
-
-  res = from_dgraph_or_redis(query, ex: 120)
-  tweets = res.dig(:tweets)
-
-  if tweets.nil?
-    status_code 404
-    'User not found'
-  else
-    status_code 200
-    tweets.first.dig(:Tweet).to_json
-  end
-end
-
-# Show all users
-get '/users' do
-  query = "{
-    users(func: eq(Type, \"User\")) {
-      Username
-      Email
-    }
-  }"
-
-  res = from_dgraph_or_redis(query)
-  users = res.dig(:users)
-
-  if users.nil?
-    status_code 404
-    'No users'
-  else
-    status_code 200
-    @users = users
-    erb :'users/all'
-  end
-end
+# # Display all tweets by a user as JSON
+# get '/users/:username/tweets' do
+#   query = "{
+#     tweets(func: eq(Username, \"#{params[:username]}\")) {
+#       Tweet {
+#         uid
+#         expand(_all_)
+#       }
+#     }
+#   }"
+#
+#   res = from_dgraph_or_redis(query, ex: 120)
+#   tweets = res.dig(:tweets)
+#
+#   if tweets.nil?
+#     status_code 404
+#     'User not found'
+#   else
+#     status_code 200
+#     tweets.first.dig(:Tweet).to_json
+#   end
+# end
+#
+# # Show all users
+# get '/users' do
+#   query = "{
+#     users(func: eq(Type, \"User\")) {
+#       Username
+#       Email
+#     }
+#   }"
+#
+#   res = from_dgraph_or_redis(query)
+#   users = res.dig(:users)
+#
+#   if users.nil?
+#     status_code 404
+#     'No users'
+#   else
+#     status_code 200
+#     @users = users
+#     erb :'users/all'
+#   end
+# end
 
 # # Show all followers
 # get '/users/:username/followers' do
@@ -229,7 +233,7 @@ get '/users/:username/timeline' do
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = from_dgraph_or_redis("#{params[:username]}:timeline",query)
   timeline = res.dig(:timeline)
 
   if timeline.nil?
@@ -262,7 +266,7 @@ def trending_tweets
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 360)
+  res = from_dgraph_or_redis("trending_tweets", query)
   tweets = res.dig(:trending)
 
   if tweets.nil?

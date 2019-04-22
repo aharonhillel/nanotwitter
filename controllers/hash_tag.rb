@@ -26,7 +26,7 @@ get '/hashtags/:hashtag' do
     }
   }"
 
-  res = from_dgraph_or_redis(query)
+  res = from_dgraph_or_redis("#{hashtag}:hashtag", query)
 
   if res != nil
     status_code 200

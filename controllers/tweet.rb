@@ -80,7 +80,7 @@ post '/tweet/create' do
   puts " [x] Sent Data to Queue"
 
 
-  expire_user_profile(current_user)
+  # expire_user_profile(current_user)
   if params[:header] != nil && params[:header][:Accept] == "application/json"
     h = Hash.new
     h[:user] = current_user

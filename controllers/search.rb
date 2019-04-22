@@ -22,7 +22,7 @@ post '/search' do
     }"
   end
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = from_dgraph_or_redis("#{text}:search", query, ex: 120)
 
   if res.nil?
     status_code 404
