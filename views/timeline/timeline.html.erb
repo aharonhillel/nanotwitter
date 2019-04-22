@@ -22,12 +22,19 @@
 
             <div class="d-flex flex-row">
               <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %>
-                Likes</button>
+                Likes
+              </button>
 
               <form class="form-inline my-2 my-lg-0">
-                <button class="btn btn-primary" type="button" data-toggle="modal" onclick="getComments(<%= t.dig(:uid)%>)"><%= t.dig(:totalComments) %> Comments</button>
+                <button class="btn btn-primary btn-sm mx-1" type="button" data-toggle="modal" onclick="getComments(<%= t.dig(:uid)%>)"><%= t.dig(:totalComments) %>
+                  Comments
+                </button>
               </form>
-              <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
+              <form class="form-inline my-2 my-lg-0">
+                <button href="/tweets/retweet/<%= t.dig(:uid) %>" class="btn btn-primary btn-sm mx-1" type="button" data-toggle="#retweetModal"><%= t.dig(:totalRetweets) %>
+                  Retweets
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -53,10 +60,12 @@
 
             <div class="d-flex flex-row">
               <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %>
-                Likes</button>
+                Likes
+              </button>
               <form method="POST" action="/comment/<%= t.dig(:uid) %>/new">
                 <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %>
-                  Comments</button>
+                  Comments
+                </button>
               </form>
               <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
             </div>
@@ -69,72 +78,74 @@
     <% end %>
   </div>
 
+
   <script>
-    function like(tweet) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.open("POST", "/like/" + tweet + "/new", true);
-      xhttp.send();
-      alert("Liked " + tweet)
-    }
+      function like(tweet) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.open("POST", "/like/" + tweet + "/new", true);
+          xhttp.send();
+          alert("Liked " + tweet)
+      }
   </script>
 
   <script>
-    var tweet_id;
-    function getComments(id) {
-      tweet_id = id
-      var url_to_search = '/comments/all/' + id
-      console.log(url_to_search);
-      $.ajax({
-        url: url_to_search,
-        type: 'get',
-        dataType: 'json',
-        success: function (res) {
+      var tweet_id;
 
-var string_return ="";
-for( var i = 0; i < res["~Comment_on"].length; i++) {
-  sr = "<br>" + "\ User: " + res["~Comment_on"][i]["author"][0]["Username"] + " says: " +  res["~Comment_on"][i]["Text"] + "\n"
-  string_return = string_return + sr
-}
-          $('.modal-body').html(string_return);
+      function getComments(id) {
+          tweet_id = id
+          var url_to_search = '/comments/all/' + id
+          console.log(url_to_search);
+          $.ajax({
+              url: url_to_search,
+              type: 'get',
+              dataType: 'json',
+              success: function (res) {
 
-          // show modal
-          $('#commentModel').modal('show');
-        },
-        error: function (request, status, error) {
-          console.log("ajax call went wrong:" + request.responseText);
-        }
-      });
-      return false;
-    }
+                  var string_return = "";
+                  for (var i = 0; i < res["~Comment_on"].length; i++) {
+                      sr = "<br>" + "\ User: " + res["~Comment_on"][i]["author"][0]["Username"] + " says: " + res["~Comment_on"][i]["Text"] + "\n"
+                      string_return = string_return + sr
+                  }
+                  $('.modal-body').html(string_return);
+
+                  // show modal
+                  $('#commentModel').modal('show');
+              },
+              error: function (request, status, error) {
+                  console.log("ajax call went wrong:" + request.responseText);
+              }
+          });
+          return false;
+      }
 
 
-    function your_ajax_function(){
-      console.log("second ajax");
-      console.log("Tweet ID is:" + tweet_id)
-      var mydata = $("#new-comment").serialize();
-      $.ajax({
-        url: "/comments/" + tweet_id + "/new",
-        type: 'post',
-        data: mydata,
-        success: function (res) {
-          console.log(res);
-          debugger;
-          var x = document.getElementsByClassName('modal-body')[0].innerHTML
-          // get the ajax response data update modal content here you may want to format data or update other modal elements here too
-          x = "<br>" + "\ User: You says: " + mydata.split("=")[1] + x
-          $('.modal-body').html(x);
+      function your_ajax_function() {
+          console.log("second ajax");
+          console.log("Tweet ID is:" + tweet_id)
+          var mydata = $("#new-comment").serialize();
+          $.ajax({
+              url: "/comments/" + tweet_id + "/new",
+              type: 'post',
+              data: mydata,
+              success: function (res) {
+                  console.log(res);
+                  debugger;
+                  var x = document.getElementsByClassName('modal-body')[0].innerHTML
+                  // get the ajax response data update modal content here you may want to format data or update other modal elements here too
+                  x = "<br>" + "\ User: You says: " + mydata.split("=")[1] + x
+                  $('.modal-body').html(x);
 
-          document.getElementsByClassName('comment-form').value = "";
+                  document.getElementsByClassName('comment-form').value = "";
 
-          // show modal
-        },
-        error: function (request, status, error) {
-            $('.modal-body').html("Something went wrong. Most likely you're not signed in. Please try to comment again");
-            document.getElementsByClassName('comment-form').value = "";
-          console.log("ajax call went wrong:" + request.responseText);
-        }
-      });
-      return false;
+                  // show modal
+              },
+              error: function (request, status, error) {
+                  $('.modal-body').html("Something went wrong. Most likely you're not signed in. Please try to comment again");
+                  document.getElementsByClassName('comment-form').value = "";
+                  console.log("ajax call went wrong:" + request.responseText);
+              }
+          });
+          return false;
       }
   </script>
 
@@ -155,7 +166,9 @@ for( var i = 0; i < res["~Comment_on"].length; i++) {
         <div class="modal-footer">
           <form id="new-comment">
             <textarea class="form-control comment-form" id="text" name="text" placeholder="Type in your Comment" rows="5"></textarea>
-            <button  type="button" class="btn btn-primary btn-sm mx-1" onclick="your_ajax_function();">Add Comment Comments</button>
+            <button type="button" class="btn btn-primary btn-sm mx-1" onclick="your_ajax_function();">Add Comment
+              Comments
+            </button>
           </form>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
@@ -164,3 +177,32 @@ for( var i = 0; i < res["~Comment_on"].length; i++) {
   </div>
 
 </main>
+
+
+<!-- Retweet Modal -->
+<!--<div class="modal fade" id="retweetModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">-->
+<!--  <div class="modal-dialog" role="document">-->
+<!--    <div class="modal-content">-->
+<!--      <div class="modal-header">-->
+<!--        <h5 class="modal-title" id="retweet">Retweet</h5>-->
+<!--        <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--          <span aria-hidden="true">&times;</span>-->
+<!--        </button>-->
+<!--      </div>-->
+
+<!--      <div class="col well">-->
+<!--        <form method="POST" action="/tweets/retweet/<%#=t.dig(:uid) %>">-->
+<!--          <textarea class="form-control my-2" id="retweet-content" name="text" placeholder="Say something" rows="5"></textarea>-->
+<!--          <h6 class="pull-right" id="count_message"></h6>-->
+<!--          <button class="btn btn-info my-2" type="submit" value="Retweet">Tweet!</button>-->
+<!--          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+<!--        </form>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
+<!--<script type="text/javascript">-->
+<!--    $('#retweetModal').on('shown.bs.modal', function () {-->
+<!--        $('#retweet-content').trigger('focus')-->
+<!--    })-->
+<!--</script>-->

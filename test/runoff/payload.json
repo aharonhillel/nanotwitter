@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "variables": [
+    {
+      "names": [
+        "login"
+      ],
+      "values": [
+        [
+          "Jo"
+        ],
+        [
+          "Claire"
+        ],
+        [
+          "Jo"
+        ],
+        [
+          "Claire"
+        ],
+        [
+          "Bonnie"
+        ],
+        [
+          "Bonnie"
+        ],
+        [
+          "Bonnie"
+        ]
+      ]
+    },
+    {
+      "names": [
+        "commands"
+      ],
+      "values": [
+        [
+          "test/login/user/"
+        ],
+        [
+          "test/login/user/"
+        ],
+        [
+          "test/login/user/"
+        ],
+        [
+          "test/login/user/"
+        ],
+        [
+          "test/login/user/"
+        ],
+        [
+          "test/login/user/"
+        ],
+        [
+          "test/login/user/"
+        ],
+        [
+          "test/login/user/"
+        ],
+        [
+          "test/login/user/"
+        ],
+        [
+          "search?search=person;username="
+        ],
+        [
+          "search?search=drive;username="
+        ],
+        [
+          "test/tweet?count=1;username="
+        ]
+      ]
+    }
+  ]
+}

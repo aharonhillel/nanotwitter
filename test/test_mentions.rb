@@ -11,32 +11,49 @@ end
 
 describe 'POST on /test/mentions/new' do
   before do
-    @u1 = User.create(username: "Thomas", email: "tclouga@gmail.com", password_hash: "12345678")
-    @u2 = User.create(username: "James", email: "jchapel@gmail.com", password_hash: "12345678")
-    @u3 = User.create(username: "Ryan", email: "ryan@gmail.com", password_hash: "12345678")
-    @t1 = Tweet.create(user_id: @u1.id, content: "We are a team.")
-    @t2 = Tweet.create(user_id: @u3.id, content: "We are pure Michgan.")
+    query1 = "{set{
+        _:user <Username> \"testerB\" .
+        _:user <Email> \"testerB@gmail.com\" .
+        _:user <Password> \"12345678\" .
+        _:user <Type> \"User\" .
+      }}"
+    $dg.mutate(query: query1)
+
+    query2 = "{set{
+        _:user <Username> \"testerC\" .
+        _:user <Email> \"testerC@gmail.com\" .
+        _:user <Password> \"12345678\" .
+        _:user <Type> \"User\" .
+      }}"
+    $dg.mutate(query: query2)
+
+    tweet = "{set{
+    _:tweet <Text> \"A tweet to mention someone\" .
+    _:tweet <Type> \"Tweet\" .
+    _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
+    <#{username_to_uid("testerC")}> <Tweet> _:tweet ."
+    $dg.mutate(query: tweet)
   end
 
-  it 'allows user to mention another in a tweet' do
-    post '/test/mentions/new', {
-        tweet_id: @t1.id.to_s,
-        user_id: @u2.id.to_s
-    }
-    post '/test/mentions/new', {
-        tweet_id: @t2.id.to_s,
-        user_id: @u2.id.to_s
-    }
-    get '/test/mentions/tweets/James'
+  it 'can mention a user in a tweet/comment' do
+    query3 = "{
+    tweet(func: eq(Username, \"testerC\")){
+      tweets: Tweet{uid}
+      }
+    }"
+    tweet = $dg.query(query: query3).dig(:tweet).first.dig(:tweets).first.dig(:uid)
+    post '/mentions/' + tweet + '/new',{
+        username: "testerB"
+    }, format: 'json'
 
     last_response.ok?
-    json = JSON.parse(last_response.body)
-    json.size.must_equal 2
+    assert_equal last_response.body, "testerB is mentioned in #{tweet}"
   end
 
-  after do
-    Mention.delete_all
-    Tweet.delete_all
-    User.delete_all
+  it 'list all tweets which a user is mentioned in' do
+    get '/mentions/tweets/testerB'
+    last_response.ok?
+    json = JSON.parse(last_response.body)
+    assert_equal 1, json.count
   end
 end

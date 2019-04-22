@@ -8,18 +8,6 @@ helpers do
     session[:username]
   end
 
-  # def current_user_uid
-  #   query = "{
-  #     uid(func: eq(Username, \"#{session[:username]}\")) {
-  #       uid
-  #     }
-  #   }"
-  #
-  #   res = from_dgraph_or_redis(query)
-  #   uid = res.dig(:uid).first.dig(:uid)
-  #   uid
-  # end
-
   def username_to_uid(username)
     if session[:uid].nil?
       query = "{
@@ -95,22 +83,22 @@ post '/login' do
       Success: checkpwd(Password, \"#{params[:password]}\")
     }
   }"
+
   res = $dg.query(query: query)
+  if res.dig(:login).empty?
+    'Failed to login'
+    redirect '/login'
+  end
+
   success = res.dig(:login).first.dig(:Success)
   username = res.dig(:login).first.dig(:Username)
-  if success
+  if !!success
     session[:username] = username
-    redirect "/users/#{username}/timeline"
-    if params[:headers] != nil && params[:headers][:Accept] != 'application/json'
-
+    if request.env['HTTP_ACCEPT'].to_s.include? 'application/json'
+      res.dig(:login).first
     else
-      h = Hash.new
-      h[:username] = username
-      h[:success] = success
-      return h.to_json
+      redirect "/users/#{username}/timeline"
     end
-  else
-    'Login failed'
   end
 end
 
@@ -130,6 +118,7 @@ get '/users/:username' do
         tweet: Text
         totalLikes: count(~Like)
         totalComments: count(~Comment_on)
+        totalRetweets: count(~Retweet)
         Timestamp
       }
       totalFollowing: count(Follow)
@@ -137,6 +126,7 @@ get '/users/:username' do
         Username
       }
       totalFollower: count(~Follow)
+
     }
   }"
 
@@ -161,6 +151,7 @@ get '/users/:username' do
   end
 end
 
+<<<<<<< HEAD
 # # Display all tweets by a user as JSON
 # get '/users/:username/tweets' do
 #   query = "{
@@ -205,16 +196,52 @@ end
 #     erb :'users/all'
 #   end
 # end
+=======
+# Display all tweets by a user as JSON
+get '/users/:username/tweets' do
+  query = "{
+    tweets(func: eq(Username, \"#{params[:username]}\")) {
+      Tweet {
+        uid
+        expand(_all_)
+      }
+    }
+  }"
 
-# # Show all followers
-# get '/users/:username/followers' do
-#   @user = User.find_by_username(params[:username])
-#   if @user.nil?
-#     "#{params[:username]} has no followers"
-#   else
-#     erb :'follows/followers'
-#   end
-# end
+  res = from_dgraph_or_redis(query, ex: 120)
+  tweets = res.dig(:tweets)
+
+  if tweets.nil?
+    status 404
+    'User not found'
+  else
+    status 200
+    tweets.first.dig(:Tweet).to_json
+  end
+end
+
+# Show all users
+get '/users' do
+  query = "{
+    users(func: eq(Type, \"User\")) {
+      Username
+      Email
+    }
+  }"
+
+  res = from_dgraph_or_redis(query)
+  users = res.dig(:users)
+
+  if users.nil?
+    status 404
+    'No users'
+  else
+    status 200
+    @users = users
+    erb :'users/all'
+  end
+end
+>>>>>>> 06087902e81a7c9197f80c15284447fd3ecfbaee
 
 get '/users/:username/timeline' do
   query = "{
@@ -228,6 +255,7 @@ get '/users/:username/timeline' do
       tweetedBy: ~Tweet { Username }
       tweet: Text
       totalLikes: count(~Like)
+      totalRetweets: count(~Retweet)
       totalComments: count(~Comment_on)
       Timestamp
     }
@@ -237,10 +265,10 @@ get '/users/:username/timeline' do
   timeline = res.dig(:timeline)
 
   if timeline.nil?
-    status_code 404
+    status 404
     'User not found'
   else
-    status_code 200
+    status 200
     @following_tweets = timeline
     @current_user = session[:username]
     @trending_tweets = trending_tweets
@@ -269,9 +297,5 @@ def trending_tweets
   res = from_dgraph_or_redis("trending_tweets", query)
   tweets = res.dig(:trending)
 
-  if tweets.nil?
-    []
-  else
-    tweets
-  end
+  tweets
 end

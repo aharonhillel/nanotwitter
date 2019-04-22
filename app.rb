@@ -1,27 +1,9 @@
 require 'sinatra'
-require 'sinatra/activerecord'
-require 'bcrypt'
 require 'byebug'
 require 'date'
 require 'redis'
+require 'newrelic_rpm'
 require_relative 'vendor/dgraph/dgraph'
-#require 'acorn_cache'
-
-require_relative 'models/user'
-require_relative 'models/tweet'
-require_relative 'models/comment'
-require_relative 'models/follow'
-require_relative 'models/hash_tag'
-require_relative 'models/hash_tag_tweet'
-require_relative 'models/like'
-require_relative 'models/mention'
-require_relative 'models/hash_tag'
-require_relative 'models/hash_tag_tweet'
-
-require_relative 'controllers/tweet'
-require_relative 'controllers/user'
-require_relative 'controllers/test_interface'
-current_dir = Dir.pwd
 
 require_relative 'controllers/follow'
 require_relative 'controllers/user'
@@ -31,11 +13,13 @@ require_relative 'controllers/comment'
 require_relative 'controllers/mention'
 require_relative 'controllers/hash_tag'
 require_relative 'controllers/search'
+require_relative 'controllers/test_interface'
 
 require_relative 'config/config'
 require_relative 'helpers/helpers'
 
 require 'json'
+<<<<<<< HEAD
 require 'date'
 require 'bunny'
 
@@ -43,17 +27,10 @@ require 'bunny'
   # connection.close
 
 
+=======
+>>>>>>> 06087902e81a7c9197f80c15284447fd3ecfbaee
 
-# cache
-# Rack::AcornCache.configure do |config|
-#   config.cache_everything = true
-#   config.page_rules = {
-#     /^.+(\/)$/ => {
-#       browser_cache_ttl: 600,
-#       acorn_cache_ttl: 600
-#     }
-#   }
-# end
+current_dir = Dir.pwd
 
 before do
 

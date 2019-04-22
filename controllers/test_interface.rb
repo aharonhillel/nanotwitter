@@ -1,15 +1,6 @@
 require 'sinatra'
 require 'faker'
 
-require_relative '../models/comment'
-require_relative '../models/follow'
-require_relative '../models/hash_tag'
-require_relative '../models/hash_tag_tweet'
-require_relative '../models/like'
-require_relative '../models/mention'
-require_relative '../models/user'
-require_relative '../models/tweet'
-
 require_relative '../db/setup_dgraph'
 
 enable :sessions
@@ -34,37 +25,22 @@ post '/test/reset/standard' do
 end
 
 get '/test/reset?' do
-  u = params[:users]
-  records_added = u.to_i
-  records_removed = User.delete_all
-  reset_auto_increment 'users'
-
-  content_type :json
-  status 200
-  {
-    'operation' => 'Reset user model',
-    'success' => true,
-    'records_removed' => records_removed,
-    'records_added' => records_added
-  }.to_json
+  
 end
 
 get '/test/reset/tweets' do
-  records_affected = Tweet.delete_all
-  reset_auto_increment 'tweets'
 
-  content_type :json
-  status 200
-  {
-    'operation' => 'Reset tweet model',
-    'success' => true,
-    'records_affected' => records_affected
-  }.to_json
 end
 
+# create a number of tweets
 get '/test/tweet' do
-  user_id = params[:user_id]
-  count = params[:count]
+  user = session[:username]
+  count = params[:count].to_i
+
+  count.times do
+    create_tweet(Faker::Lorem.sentence(6), user)
+  end
+  redirect "/users/#{user}"
 end
 
 get '/test/status' do
@@ -158,12 +134,6 @@ post '/test/user/:username/tweets' do
   redirect "/users/#{username}"
 end
 
-def reset_auto_increment(table_name)
-  ActiveRecord::Base.connection.execute(
-    "TRUNCATE TABLE #{table_name} RESTART IDENTITY CASCADE"
-  )
-end
-
 get '/test/login/user/:username' do
   session[:username] = params[:username]
   'Logged in'
@@ -173,6 +143,7 @@ end
 # Create testUser
 get '/test/user/testuser' do
   create_test_user
+  session[:username] = 'testuser'
   redirect '/users/testuser/timeline'
 end
 
@@ -184,7 +155,7 @@ def create_test_user
   }"
 
   res = $dg.query(query: query)
-  if res.nil?
+  if res.dig(:q).empty?
     query = "{set{
       _:user <Username> \"testuser\" .
       _:user <Email> \"testuser@sample.com\" .
