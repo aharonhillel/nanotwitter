@@ -27,7 +27,7 @@ current_dir = Dir.pwd
 before do
   connection = Bunny.new(host: settings.rabbitmq_host, port: settings.rabbitmq_port,
                          user: settings.rabbitmq_user, pass: settings.rabbitmq_pass,
-                         automatically_recover: false)
+                         automatically_recover: true)
   connection.start
 
   channel = connection.create_channel
@@ -42,6 +42,6 @@ get '/' do
 end
 
 # loader.io
-get '/loaderio-08e9f67e3891ab1cfd8b3be422621a7c' do
-  send_file('loaderio-08e9f67e3891ab1cfd8b3be422621a7c.txt')
+get '/loaderio-aae49fb72cbe679310ff0d5b965e041f' do
+  send_file('loaderio-aae49fb72cbe679310ff0d5b965e041f.txt')
 end

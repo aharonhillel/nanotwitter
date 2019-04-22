@@ -109,5 +109,6 @@ begin
     channel.ack(delivery_info.delivery_tag)
   end
 rescue Interrupt => _
+  '[?] Connection closed'
   connection.close
 end
