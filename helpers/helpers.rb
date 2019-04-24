@@ -1,13 +1,13 @@
 require 'date'
 
 helpers do
-  def from_dgraph_or_redis(query, options = {})
+  def from_dgraph_or_redis(key, query, options = {})
     ex = options[:ex] || 30
-    res = $redis.get(query)
+    res = $redis.get(key)
     # query dgraph if redis cache miss
     if res.nil?
       res = $dg.query(query: query)
-      $redis.set(query, res.to_json, ex: ex)
+      $redis.set(key, res.to_json, ex: ex)
       res
     else
       JSON.parse(res, symbolize_names: true)

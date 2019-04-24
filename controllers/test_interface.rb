@@ -1,15 +1,6 @@
 require 'sinatra'
 require 'faker'
 
-require_relative '../models/comment'
-require_relative '../models/follow'
-require_relative '../models/hash_tag'
-require_relative '../models/hash_tag_tweet'
-require_relative '../models/like'
-require_relative '../models/mention'
-require_relative '../models/user'
-require_relative '../models/tweet'
-
 require_relative '../db/setup_dgraph'
 
 enable :sessions
@@ -152,6 +143,7 @@ end
 # Create testUser
 get '/test/user/testuser' do
   create_test_user
+  session[:username] = 'testuser'
   redirect '/users/testuser/timeline'
 end
 
@@ -163,7 +155,7 @@ def create_test_user
   }"
 
   res = $dg.query(query: query)
-  if res.nil?
+  if res.dig(:q).empty?
     query = "{set{
       _:user <Username> \"testuser\" .
       _:user <Email> \"testuser@sample.com\" .

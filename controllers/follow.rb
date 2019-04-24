@@ -43,7 +43,7 @@ get '/follows/followers/:username' do
       }
     }
   }"
-  res = from_dgraph_or_redis(query)
+  res = from_dgraph_or_redis("#{params[:username]}:followers", query)
   if res.nil?
     "#{params[:username]} has no followers"
   else
@@ -64,7 +64,7 @@ get '/follows/followings/:username' do
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = from_dgraph_or_redis("#{params[:username]}:followers", query)
   if res.nil?
     "#{params[:username]} has no followings"
   else

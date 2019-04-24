@@ -3,34 +3,34 @@ require 'date'
 helpers do
   def expire_user_profile(username)
     key = "{
-    profile(func: eq(Username, \"#{username}\")){
-      uid
-      tweets: Tweet(orderdesc: Timestamp, first: 20) {
+      profile(func: eq(Username, \"#{username}\")){
         uid
-        tweetedBy: ~Tweet { Username }
-        tweet: Text
-        totalLikes: count(~Like)
-        totalComments: count(Comment)
-        comments: Comment(orderdesc: Timestamp, first: 3) {
-          commentedBy: ~Comment { User { Username } }
-          comment: Text
+        tweets: Tweet(orderdesc: Timestamp, first: 20) {
+          uid
+          tweetedBy: ~Tweet { Username }
+          tweet: Text
           totalLikes: count(~Like)
           totalComments: count(Comment)
+          comments: Comment(orderdesc: Timestamp, first: 3) {
+            commentedBy: ~Comment { User { Username } }
+            comment: Text
+            totalLikes: count(~Like)
+            totalComments: count(Comment)
+          }
+          Timestamp
         }
-        Timestamp
+        totalFollowing: count(Follow)
+        Follow {
+          Username
+        }
+        totalFollower: count(~Follow)
       }
-      totalFollowing: count(Follow)
-      Follow {
-        Username
-      }
-      totalFollower: count(~Follow)
-    }
-  }"
+    }"
     $redis.del(key)
   end
 
   def create_tweet(text, user)
-    if text.nil?  || text.blank?
+    if text.nil?
       return "Your tweet is blank. Add some content!"
     elsif user.nil?
       return "Failed to create tweet, most likely the reason is that you are not signed in."
@@ -64,8 +64,16 @@ helpers do
     end
     tweet << "}}"
 
-    $dg.mutate(query: tweet)
-    expire_user_profile(user)
+    sent_data = Hash.new
+    sent_data["query"]= tweet
+    sent_data["username"] = current_user
+    sent_data["action"] = "New Tweet"
+    @queue.publish(sent_data.to_json, persistent: true)
+    puts " [x] Sent Data to Queue"
+
+    # $dg.mutate_async(query: tweet)
+    # expire_user_profile(user)
+
     # if params[:header] != nil && params[:header][:Accept] == "application/json"
     #   h = Hash.new
     #   h[:user] = current_user
@@ -95,7 +103,7 @@ get '/tweets/all' do
       Timestamp
     }
   }"
-  res = from_dgraph_or_redis(query, ex: 600)
+  res = from_dgraph_or_redis('all_tweet', query, ex: 600)
   @tweets = res.dig(:tweets)
   erb :'/tweets/tweetsAll'
 end
@@ -145,16 +153,20 @@ post '/tweets/retweet/:tweet_id' do
         _:tweet <Mention> <#{user}> ."
     end
   end
+
   retweet << "}}"
 
-  $dg.mutate(query: retweet)
-  expire_user_profile(current_user)
-  if params[:header] != nil && params[:header][:Accept] == "application/json"
-    h = Hash.new
-    h[:user] = current_user
-    h[:text] = text
-    h[:success] = true
-    return h.to_json
-  end
+  sent_data = Hash.new
+  sent_data["query"]= retweet
+  sent_data["username"] = current_user
+  sent_data["action"] = "New Tweet"
+  @queue.publish(sent_data.to_json, persistent: true)
+  puts " [x] Sent Data to Queue"
+
+
+  # expire_user_profile(current_user)
+  # $dg.mutate(query: retweet)
+  # expire_user_profile(current_user)
+  
   redirect "/users/#{current_user}"
 end

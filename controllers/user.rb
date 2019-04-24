@@ -9,14 +9,18 @@ helpers do
   end
 
   def username_to_uid(username)
-    query = "{
-      uid(func: eq(Username, \"#{username}\")) {
-        uid
-      }
-    }"
-    res = from_dgraph_or_redis(query)
-    uid = res.dig(:uid).first.dig(:uid)
-    uid
+    if session[:uid].nil?
+      query = "{
+        uid(func: eq(Username, \"#{username}\")) {
+          uid
+        }
+      }"
+      res = from_dgraph_or_redis("current_user", query)
+      uid = res.dig(:uid).first.dig(:uid)
+      session[:uid] = uid
+    else
+      session[:uid]
+    end
   end
 
   def create_user(email, username, password)
@@ -79,21 +83,22 @@ post '/login' do
       Success: checkpwd(Password, \"#{params[:password]}\")
     }
   }"
+
   res = $dg.query(query: query)
+  if res.dig(:login).empty?
+    'Failed to login'
+    redirect '/login'
+  end
+
   success = res.dig(:login).first.dig(:Success)
   username = res.dig(:login).first.dig(:Username)
-  if success
+  if !!success
     session[:username] = username
-    if params[:headers] != nil && params[:headers][:Accept] == 'application/json'
-      h = Hash.new
-      h[:username] = username
-      h[:success] = success
-      return h.to_json
+    if request.env['HTTP_ACCEPT'].to_s.include? 'application/json'
+      res.dig(:login).first
     else
       redirect "/users/#{username}/timeline"
     end
-  else
-    'Login failed'
   end
 end
 
@@ -104,12 +109,6 @@ end
 
 # Profile route
 get '/users/:username' do
-  offset = 0
-  page = 1
-  if params[:page] != nil
-    page = params[:page].to_i
-    offset = (page - 1) * 20
-  end
   query = "{
     profile(func: eq(Username, \"#{params[:username]}\")){
       uid
@@ -131,7 +130,7 @@ get '/users/:username' do
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = from_dgraph_or_redis("#{params[:username]}:profile", query)
   profile = res.dig(:profile).first
 
   if profile.nil?
@@ -169,10 +168,10 @@ get '/users/:username/tweets' do
   tweets = res.dig(:tweets)
 
   if tweets.nil?
-    status_code 404
+    status 404
     'User not found'
   else
-    status_code 200
+    status 200
     tweets.first.dig(:Tweet).to_json
   end
 end
@@ -186,19 +185,18 @@ get '/users' do
     }
   }"
 
-  res = from_dgraph_or_redis(query)
+  res = from_dgraph_or_redis("users", query, ex: 120)
   users = res.dig(:users)
 
   if users.nil?
-    status_code 404
+    status 404
     'No users'
   else
-    status_code 200
+    status 200
     @users = users
     erb :'users/all'
   end
 end
-
 
 get '/users/:username/timeline' do
   offset = 0
@@ -225,14 +223,14 @@ get '/users/:username/timeline' do
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = from_dgraph_or_redis("#{params[:username]}:timeline", query)
   timeline = res.dig(:timeline)
 
   if timeline.nil?
-    status_code 404
+    status 404
     'User not found'
   else
-    status_code 200
+    status 200
     @p = page + 1
     @following_tweets = timeline
     @current_user = session[:username]
@@ -259,12 +257,8 @@ def trending_tweets
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 360)
+  res = from_dgraph_or_redis("trending_tweets", query)
   tweets = res.dig(:trending)
 
-  if tweets.nil?
-    []
-  else
-    tweets
-  end
+  tweets
 end

@@ -1,27 +1,9 @@
 require 'sinatra'
-require 'sinatra/activerecord'
-require 'bcrypt'
 require 'byebug'
 require 'date'
 require 'redis'
+require 'newrelic_rpm'
 require_relative 'vendor/dgraph/dgraph'
-#require 'acorn_cache'
-
-require_relative 'models/user'
-require_relative 'models/tweet'
-require_relative 'models/comment'
-require_relative 'models/follow'
-require_relative 'models/hash_tag'
-require_relative 'models/hash_tag_tweet'
-require_relative 'models/like'
-require_relative 'models/mention'
-require_relative 'models/hash_tag'
-require_relative 'models/hash_tag_tweet'
-
-require_relative 'controllers/tweet'
-require_relative 'controllers/user'
-require_relative 'controllers/test_interface'
-current_dir = Dir.pwd
 
 require_relative 'controllers/follow'
 require_relative 'controllers/user'
@@ -31,25 +13,26 @@ require_relative 'controllers/comment'
 require_relative 'controllers/mention'
 require_relative 'controllers/hash_tag'
 require_relative 'controllers/search'
+require_relative 'controllers/test_interface'
 
 require_relative 'config/config'
 require_relative 'helpers/helpers'
 
 require 'json'
 require 'date'
+require 'bunny'
 
-# cache
-# Rack::AcornCache.configure do |config|
-#   config.cache_everything = true
-#   config.page_rules = {
-#     /^.+(\/)$/ => {
-#       browser_cache_ttl: 600,
-#       acorn_cache_ttl: 600
-#     }
-#   }
-# end
+current_dir = Dir.pwd
 
 before do
+  connection = Bunny.new(host: settings.rabbitmq_host, port: settings.rabbitmq_port,
+                         user: settings.rabbitmq_user, pass: settings.rabbitmq_pass,
+                         automatically_recover: true)
+  connection.start
+
+  channel = connection.create_channel
+  @queue = channel.queue('task_queue', durable: true)
+
   $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
   $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
 end
@@ -59,6 +42,6 @@ get '/' do
 end
 
 # loader.io
-get '/loaderio-08e9f67e3891ab1cfd8b3be422621a7c' do
-  send_file('loaderio-08e9f67e3891ab1cfd8b3be422621a7c.txt')
+get '/loaderio-aae49fb72cbe679310ff0d5b965e041f' do
+  send_file('loaderio-aae49fb72cbe679310ff0d5b965e041f.txt')
 end

@@ -19,6 +19,7 @@ http://product-Elb-VQ59Q2YO4G9G-1381768724.us-east-1.elb.amazonaws.com
 - Implemented search, trending tweets
 - Caching all dgraph queries to redis
 - Enabled sticky session on aws to ensure user login is preserved
+- Added New Relic for performance monitoring
 
 ### 0.6 (3/23/19)
 
