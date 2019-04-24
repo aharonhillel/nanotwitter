@@ -82,7 +82,7 @@ end
 
 post '/tweet/create' do
   create_tweet(params[:text], current_user)
-  redirect "/users/#{current_user}"
+  # redirect "/users/#{current_user}"
 end
 
 get '/tweets/all' do

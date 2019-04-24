@@ -8,18 +8,6 @@ helpers do
     session[:username]
   end
 
-  # def current_user_uid
-  #   query = "{
-  #     uid(func: eq(Username, \"#{session[:username]}\")) {
-  #       uid
-  #     }
-  #   }"
-  #
-  #   res = from_dgraph_or_redis(query)
-  #   uid = res.dig(:uid).first.dig(:uid)
-  #   uid
-  # end
-
   def username_to_uid(username)
     query = "{
       uid(func: eq(Username, \"#{username}\")) {
@@ -116,10 +104,16 @@ end
 
 # Profile route
 get '/users/:username' do
+  offset = 0
+  page = 1
+  if params[:page] != nil
+    page = params[:page].to_i
+    offset = (page - 1) * 20
+  end
   query = "{
     profile(func: eq(Username, \"#{params[:username]}\")){
       uid
-      tweets: Tweet(orderdesc: Timestamp, first: 20) {
+      tweets: Tweet(orderdesc: Timestamp, first: 10, offset: #{offset}) {
         uid
         tweetedBy: ~Tweet { Username }
         tweet: Text
@@ -145,6 +139,8 @@ get '/users/:username' do
     'User not found'
   else
     status_code 200
+    #@max_page = ((profile[:totalTweets].to_f)/10).ceil
+    @page = page + 1
     @user_tweets = profile[:tweets]
     @user_followings = profile[:Follow]
     @trending_tweets = trending_tweets
@@ -154,7 +150,7 @@ get '/users/:username' do
       total_following: profile[:totalFollowing],
       total_follower: profile[:totalFollower]
     }
-    erb :'profile/profile.html', layout: :layout_profile
+    erb :'profile/profile.html'
   end
 end
 
@@ -203,24 +199,22 @@ get '/users' do
   end
 end
 
-# # Show all followers
-# get '/users/:username/followers' do
-#   @user = User.find_by_username(params[:username])
-#   if @user.nil?
-#     "#{params[:username]} has no followers"
-#   else
-#     erb :'follows/followers'
-#   end
-# end
 
 get '/users/:username/timeline' do
+  offset = 0
+  page = 1
+  if params[:page] != nil
+    page = params[:page].to_i
+    offset = (page - 1) * 20
+  end
+
   query = "{
     var(func: eq(Username, \"#{params[:username]}\")) {
       Follow {
         f as Tweet
       }
     }
-    timeline(func: uid(f), orderdesc: Timestamp, first: 20){
+    timeline(func: uid(f), orderdesc: Timestamp, first: 10, offset: #{offset}){
       uid
       tweetedBy: ~Tweet { Username }
       tweet: Text
@@ -239,6 +233,7 @@ get '/users/:username/timeline' do
     'User not found'
   else
     status_code 200
+    @p = page + 1
     @following_tweets = timeline
     @current_user = session[:username]
     @trending_tweets = trending_tweets

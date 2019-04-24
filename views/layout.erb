@@ -19,17 +19,17 @@
 
     <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
+        <li class="nav-item home active">
           <% if current_user != nil %>
-            <a class="nav-link" href="/users/<%= current_user %>/timeline">Home <span class="sr-only"></span></a>
+            <a class="nav-link" id="home-link" href="/users/<%= current_user %>/timeline">Home <span class="sr-only"></span></a>
           <% else %>
             <a class="nav-link" href="#">Home <span class="sr-only"></span></a>
           <% end %>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item profile">
           <% if current_user != nil %>
-           <a class="nav-link" href="/users/<%= current_user %>" >Profile</a>
+           <a class="nav-link" id="profile-link" href="/users/<%= current_user %>" >Profile</a>
           <% else %>
             <a class="nav-link" href="#" >Profile</a>
           <% end %>
@@ -45,6 +45,7 @@
       <form class="form-inline my-2 my-lg-0">
         <button class="btn btn-outline-info mx-1 my-sm-0" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Tweet</button>
       </form>
+
       <form class="form-inline my-2 my-lg-0" action='/logout' method='post'>
         <button class="btn btn-outline-danger mx-1 my-sm-0" type="submit">Logout</button>
       </form>
@@ -67,10 +68,10 @@
         </div>
 
         <div class="col well">
-          <form method="POST" action="/tweet/create">
+          <form class="tweet-form">
             <textarea class="form-control my-2" id="text" name="text" placeholder="Type in your message" rows="5"></textarea>
             <h6 class="pull-right" id="count_message"></h6>
-            <button class="btn btn-info my-2" type="submit" value="Tweet">Tweet!</button>
+            <button class="btn btn-info my-2"  type="submit" value="Tweet">Tweet!</button>
             <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
           </form>
         </div>
@@ -86,8 +87,32 @@
 </html>
 
 <script type="text/javascript">
-    $('#myModal').on('shown.bs.modal', function () {
-        $('#myInput').trigger('focus')
+    $(function(){
+        let $profileDOM = $(".nav-item.profile");
+        let $homeDOM = $(".nav-item.home");
+        $("#home-link").click(() => {
+            $homeDOM.removeClass("active");
+            $profileDOM.removeClass("active");
+            $homeDOM.addClass("active");
+        });
+        $("#profile-link").click(() => {
+            $profileDOM.removeClass("active");
+            $homeDOM.removeClass("active");
+            $profileDOM.addClass("active");
+        });
+    });
+
+
+    $('#exampleModal').on('shown.bs.modal', function () {
+        $('#text').trigger('focus');
+        $(".tweet-form").submit(() => {
+            let text = $("#text").val();
+            $.ajax({
+                url: "/tweet/create",
+                method: 'post',
+                data: {text: text}
+            });
+        })
     })
 
     //Number of characters in the tweet
@@ -100,4 +125,6 @@
 
         $('#count_message').html(text_remaining + ' remaining');
     });
+
+
 </script>

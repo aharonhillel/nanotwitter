@@ -34,20 +34,26 @@
               <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %>
                 Likes
               </button>
-              <form method="POST" action="/comments/all<%= t.dig(:tweet) %>">
-                <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %>
+              <form>
+                <button class="btn btn-primary btn-sm mx-1" type="button" data-toggle="modal" data-target="#gModal" data-url="/comments/all<%= t.dig(:uid) %>"><%= t.dig(:totalComments) %>
                   Comments
                 </button>
               </form>
-              <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
+
+              <form>
+                <button class="btn btn-primary btn-sm mx-1" type="button" data-toggle="modal" data-target="#gModal" data-url="/tweets/retweet/<%= t.dig(:uid)%>"><%= t.dig(:totalRetweets) %>
+                  Retweet
+                </button>
+              </form>
             </div>
           </div>
         </div>
       <% end %>
 
       <small class="d-block text-right mt-3">
-        <a href="#">Show more tweets</a>
+        <a href="/users/<%= @info[:profile_user] %>?page=<%= @page %>">Show more tweets</a>
       </small>
+
     <% end %>
   </div>
 
@@ -88,12 +94,17 @@
               <button class="btn btn-primary btn-sm mr-1" type="submit" value="like-btn" onclick="like(<%= t.dig(:uid) %>)"><%= t.dig(:totalLikes) %>
                 Likes
               </button>
-              <form method="POST" action="/comment/all<%= t.dig(:tweet) %>/new">
-                <button href="#" class="btn btn-primary btn-sm mx-1" type="submit"><%= t.dig(:totalComments) %>
+
+              <form>
+                <button class="btn btn-primary btn-sm mx-1" type="button" data-toggle="modal" data-target="#gModal" data-url="/comments/<%= t.dig(:uid) %>/new"><%= t.dig(:totalComments) %>
                   Comments
                 </button>
               </form>
-              <button href="#" class="btn btn-primary btn-sm mx-1" type="submit">Retweet</button>
+              <form>
+                <button class="btn btn-primary btn-sm mx-1" type="button" data-toggle="modal" data-target="#gModal" data-url="/tweets/retweet/<%= t.dig(:uid)%>"><%= t.dig(:totalRetweets) %>
+                  Retweet
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -103,8 +114,33 @@
       </small>
     <% end %>
   </div>
+</main>
 
-  <script>
+<!-- Modal -->
+<div class="modal fade" id="gModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Say something...</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="col well">
+        <form class="comment-retweet-form">
+          <textarea class="form-control my-2" id="content" name="text" placeholder="Say something" rows="5"></textarea>
+          <h6 class="pull-right" id="count_message"></h6>
+          <button class="btn btn-info my-2" type="submit">Submit</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
       function like(tweet) {
           var xhttp = new XMLHttpRequest();
           xhttp.open("POST", "/like/" + tweet + "/new", true);
@@ -118,6 +154,19 @@
           xhttpf.send();
           alert("Followed " + user)
       }
+
+      $('#gModal').on('shown.bs.modal', (event) => {
+          let button = $(event.relatedTarget); // Button that triggered the modal
+          let url = button.data('url');
+          $('#content').trigger('focus');
+          $('.comment-retweet-form').submit(() => {
+              let text = $("#content").val();
+              $.ajax({
+                  url: url,
+                  method: 'post',
+                  data: {text: text}
+              });
+          })
+      })
   </script>
 
-</main>
