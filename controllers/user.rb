@@ -109,10 +109,17 @@ end
 
 # Profile route
 get '/users/:username' do
+  offset = 0
+  page = 1
+  if params[:page] != nil
+    page = params[:page].to_i
+    offset = (page - 1) * 20
+  end
+
   query = "{
     profile(func: eq(Username, \"#{params[:username]}\")){
       uid
-      tweets: Tweet(orderdesc: Timestamp, first: 10, offset: #{offset}) {
+      tweets: Tweet(orderdesc: Timestamp, first: #{page * 10}) {
         uid
         tweetedBy: ~Tweet { Username }
         tweet: Text
@@ -212,7 +219,7 @@ get '/users/:username/timeline' do
         f as Tweet
       }
     }
-    timeline(func: uid(f), orderdesc: Timestamp, first: 10, offset: #{offset}){
+    timeline(func: uid(f), orderdesc: Timestamp, first: #{page * 10}){
       uid
       tweetedBy: ~Tweet { Username }
       tweet: Text
