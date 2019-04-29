@@ -1,0 +1,12 @@
+export RABBITMQ_HOST=ec2-54-84-127-215.compute-1.amazonaws.com
+export RABBITMQ_PORT=5672
+export RABBITMQ_USER=user
+export RABBITMQ_PASS=KS5xdTXy0VTc
+
+
+
+export REDIS_HOSTNAME=nt-redis.rryc2c.0001.use1.cache.amazonaws.com
+export REDIS_PORT=6379
+
+export DGRAPH_HOST=ec2-54-236-60-236.compute-1.amazonaws.com
+export DGRAPH_PORT=8080

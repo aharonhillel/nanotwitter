@@ -1,10 +1,12 @@
-require 'sinatra'
-require 'byebug'
+# require 'sinatra'
+# require 'byebug'
 require 'redis'
-require_relative 'config/config'
+# require_relative 'config/config'
 require_relative 'vendor/dgraph/dgraph'
 require 'json'
 require 'bunny'
+
+
 
 def action_decider(body)
   parsed_json = JSON.parse(body)
@@ -87,28 +89,30 @@ def update_own_profile(username)
     $redis.set("#{username}:profile", res.to_json)
   end
 
-begin
-  $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
-  $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
 
-  connection = Bunny.new(host: settings.rabbitmq_host, port: settings.rabbitmq_port,
-                         user: settings.rabbitmq_user, pass: settings.rabbitmq_pass,
-                         automatically_recover: false)
+  # $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
+  # $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
+
+
+  $redis = Redis.new(host: ENV['REDIS_HOSTNAME'], port: ENV['REDIS_PORT'])
+  $dg = Dgraph::Client.new(host: ENV['DGRAPH_HOST'], port: ENV['DGRAPH_PORT'])
+
+  # connection = Bunny.new(host: '127.0.0.1', port: 5672,
+  #                        user: 'guest', pass: 'guest',
+  #                        automatically_recover: true)
+
+  connection = Bunny.new(host: ENV['RABBITMQ_HOST'], port: ENV['RABBITMQ_PORT'],
+                         user: ENV['RABBITMQ_USER'], pass: ENV['RABBITMQ_PASS'],
+                         automatically_recover: true)
+
+
+
   connection.start
 
-  channel = connection.create_channel
-  queue = channel.queue('task_queue', durable: true)
-
-  channel.prefetch(1)
+  ch = connection.create_channel
+  queue = ch.queue("task_queue", durable: true)
   puts ' [*] Waiting for messages. To exit press CTRL+C'
-
-  queue.subscribe(manual_ack: true, block: true) do |delivery_info, _properties, body|
+  queue.subscribe(block: true) do |_delivery_info, _properties, body|
     puts " [x] Received '#{body}'"
-    # imitate some work
     action_decider(body)
-    channel.ack(delivery_info.delivery_tag)
   end
-rescue Interrupt => _
-  '[?] Connection closed'
-  connection.close
-end
