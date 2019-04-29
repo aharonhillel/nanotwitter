@@ -1,5 +1,5 @@
 require 'date'
-
+require 'byebug'
 helpers do
   def expire_user_profile(username)
     key = "{
@@ -68,9 +68,27 @@ helpers do
     sent_data["query"]= tweet
     sent_data["username"] = current_user
     sent_data["action"] = "New Tweet"
-    @queue.publish(sent_data.to_json, persistent: true)
+
+    puts "Creating tweets here"
+
+    connection = Bunny.new(host: settings.rabbitmq_host, port: settings.rabbitmq_port,
+                           user: settings.rabbitmq_user, pass: settings.rabbitmq_pass,
+                           automatically_recover: true)
+    connection.start unless connection.open?
+
+    ch = connection.create_channel
+  # Declare a queue with a given name, examplequeue. In this example is a durable shared queue used.
+  q  = ch.queue("task_queue", :durable => true)
+
+
+    q.publish(sent_data.to_json,
+      :timestamp      => Time.now.to_i,
+      :routing_key    => "process"
+    )
     puts " [x] Sent Data to Queue"
 
+connection.close
+# @connection.close
     # $dg.mutate_async(query: tweet)
     # expire_user_profile(user)
 
@@ -89,6 +107,7 @@ get '/tweet/new' do
 end
 
 post '/tweet/create' do
+  puts "Create new tweet"
   create_tweet(params[:text], current_user)
   # redirect "/users/#{current_user}"
 end
@@ -167,6 +186,6 @@ post '/tweets/retweet/:tweet_id' do
   # expire_user_profile(current_user)
   # $dg.mutate(query: retweet)
   # expire_user_profile(current_user)
-  
+
   redirect "/users/#{current_user}"
 end
