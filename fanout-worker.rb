@@ -1,7 +1,7 @@
-require 'sinatra'
-require 'byebug'
+# require 'sinatra'
+# require 'byebug'
 require 'redis'
-require_relative 'config/config'
+# require_relative 'config/config'
 require_relative 'vendor/dgraph/dgraph'
 require 'json'
 require 'bunny'
@@ -94,16 +94,16 @@ def update_own_profile(username)
   # $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
 
 
-  $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
-  $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
+  $redis = Redis.new(host: ENV['REDIS_HOSTNAME'], port: ENV['REDIS_PORT'])
+  $dg = Dgraph::Client.new(host: ENV['DGRAPH_HOST'], port: ENV['DGRAPH_PORT'])
 
-  connection = Bunny.new(host: '127.0.0.1', port: 5672,
-                         user: 'guest', pass: 'guest',
-                         automatically_recover: true)
-
-  # connection = Bunny.new(host: ENV['RABBITMQ_HOST'], port: ENV['RABBITMQ_PORT'],
-  #                        user: ENV['RABBITMQ_USER'], pass: ENV['RABBITMQ_PASS'],
+  # connection = Bunny.new(host: '127.0.0.1', port: 5672,
+  #                        user: 'guest', pass: 'guest',
   #                        automatically_recover: true)
+
+  connection = Bunny.new(host: ENV['RABBITMQ_HOST'], port: ENV['RABBITMQ_PORT'],
+                         user: ENV['RABBITMQ_USER'], pass: ENV['RABBITMQ_PASS'],
+                         automatically_recover: true)
 
 
 
