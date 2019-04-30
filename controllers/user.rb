@@ -212,3 +212,25 @@ def trending_tweets
     tweets
   end
 end
+
+get '/users' do
+  query = "{
+    users(func: eq(Type, \"User\")) {
+      Username
+      Email
+    }
+  }"
+
+  res = from_dgraph_or_redis("users", query, ex: 120)
+  users = res.dig(:users)
+
+  if users.nil?
+    status 404
+    'No users'
+  else
+    status 200
+    @users = users
+    erb :'users/all'
+    #erb :'profile/profile.html', layout: :layout_profile
+  end
+end

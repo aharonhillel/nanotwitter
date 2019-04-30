@@ -1,7 +1,9 @@
 
 post '/follows/follow/:followed' do
   cur = username_to_uid(current_user)
+  #byebug
   following = username_to_uid(params[:followed])
+  #byebug
   query = "{
     following(func: uid(#{cur})){
       Follow @filter(uid(#{following})){
