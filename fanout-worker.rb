@@ -1,23 +1,21 @@
-# require 'sinatra'
-# require 'byebug'
 require 'redis'
-# require_relative 'config/config'
 require_relative 'vendor/dgraph/dgraph'
 require 'json'
 require 'bunny'
 
-
-
 def action_decider(body)
+  # Hash is passed in with the action to be completed.
+  # For future use cases if different queues and workers are developed
   parsed_json = JSON.parse(body)
-  if parsed_json["action"] == "New Tweet"
-    new_tweet(parsed_json)
-  end
+  new_tweet(parsed_json) if parsed_json['action'] == 'New Tweet'
 end
 
 def new_tweet(parsed_json)
-  username = parsed_json["username"].to_s
-  $dg.mutate(query: parsed_json["query"])
+  # Creates new tweet with Dgraph
+  # Expires and updates own users feed
+  # Expires and updates all follower's feeds
+  username = parsed_json['username'].to_s
+  $dg.mutate(query: parsed_json['query'])
   update_own_profile(username)
   update_timelines_of_followers(username)
 end
@@ -29,10 +27,9 @@ def update_timelines_of_followers(tweet_username)
       }
     }
   }"
-  # TODO: cache the followers in redis
   res = $dg.query(query: query)
   followers = res.dig(:profile).first.dig(:Follow)
-  update_redis_of_followers(tweet_username) #update your own timeline
+  update_redis_of_followers(tweet_username) # update your own timeline so your tweets appear
   unless followers.nil?
     followers.each do |a|
       follower_username = a[:Username]
@@ -63,7 +60,6 @@ def update_redis_of_followers(username)
   $redis.set("#{username}:timeline", res.to_json)
 end
 
-
 def update_own_profile(username)
   query = "{
       profile(func: eq(Username, \"#{username}\")){
@@ -84,35 +80,27 @@ def update_own_profile(username)
       }
     }"
 
-    $redis.del("#{username}:profile")
-    res = $dg.query(query: query)
-    $redis.set("#{username}:profile", res.to_json)
+  $redis.del("#{username}:profile")
+  res = $dg.query(query: query)
+  $redis.set("#{username}:profile", res.to_json)
   end
 
-
-  # $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
-  # $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
-
-
-  $redis = Redis.new(host: ENV['REDIS_HOSTNAME'], port: ENV['REDIS_PORT'])
-  $dg = Dgraph::Client.new(host: ENV['DGRAPH_HOST'], port: ENV['DGRAPH_PORT'])
-
-  # connection = Bunny.new(host: '127.0.0.1', port: 5672,
-  #                        user: 'guest', pass: 'guest',
-  #                        automatically_recover: true)
-
-  connection = Bunny.new(host: ENV['RABBITMQ_HOST'], port: ENV['RABBITMQ_PORT'],
-                         user: ENV['RABBITMQ_USER'], pass: ENV['RABBITMQ_PASS'],
-                         automatically_recover: true)
+$redis = Redis.new(host: ENV['REDIS_HOSTNAME'], port: ENV['REDIS_PORT'])
+$dg = Dgraph::Client.new(host: ENV['DGRAPH_HOST'], port: ENV['DGRAPH_PORT'])
 
 
+# Bunny/RabbitMQ Queue
 
-  connection.start
+connection = Bunny.new(host: ENV['RABBITMQ_HOST'], port: ENV['RABBITMQ_PORT'],
+                       user: ENV['RABBITMQ_USER'], pass: ENV['RABBITMQ_PASS'],
+                       automatically_recover: true)
 
-  ch = connection.create_channel
-  queue = ch.queue("task_queue", durable: true)
-  puts ' [*] Waiting for messages. To exit press CTRL+C'
-  queue.subscribe(block: true) do |_delivery_info, _properties, body|
-    puts " [x] Received '#{body}'"
-    action_decider(body)
-  end
+connection.start
+
+ch = connection.create_channel
+queue = ch.queue('task_queue', durable: true)
+puts ' [*] Waiting for messages. To exit press CTRL+C'
+queue.subscribe(block: true) do |_delivery_info, _properties, body|
+  puts " [x] Received '#{body}'"
+  action_decider(body)
+end
