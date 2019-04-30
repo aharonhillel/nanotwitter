@@ -7,7 +7,7 @@ get '/search' do
   end
 
   query = "{
-    search(func: alloftext(Text, \"#{text}\"), first: 20) @filter(eq(Type, \"#{type}\")) {
+    search(func: alloftext(Text, \"#{text}\"), first: 10) @filter(eq(Type, \"#{type}\")) {
       Type
       Text
     }

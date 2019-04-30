@@ -10,18 +10,14 @@ helpers do
 
   # username_to_uid retrieves the uid of a user from the database
   def username_to_uid(username)
-    if session[:uid].nil?
-      query = "{
-        uid(func: eq(Username, \"#{username}\")) {
-          uid
-        }
-      }"
-      res = from_dgraph_or_redis("current_user", query)
-      uid = res.dig(:uid).first.dig(:uid)
-      session[:uid] = uid
-    else
-      session[:uid]
-    end
+    query = "{
+      uid(func: eq(Username, \"#{username}\")) {
+        uid
+      }
+    }"
+    res = from_dgraph_or_redis(username, query)
+    uid = res.dig(:uid).first.dig(:uid)
+    uid
   end
 
   # create_user creates a new user
@@ -92,7 +88,7 @@ post '/login' do
   success = res.dig(:login).first.dig(:Success)
   username = res.dig(:login).first.dig(:Username)
   if !!success
-    if (params[:headers][:Accept] == "application/json")
+    if params[:headers] != nil && params[:headers][:Accept] == "application/json"
       return_hash = {
         username: username,
         success: success,
