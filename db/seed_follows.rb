@@ -1,7 +1,7 @@
 require 'csv'
 require 'faker'
 require 'activerecord-import'
-require 'byebug'
+# require 'byebug'
 require_relative '../app.rb'
 # require_relative 'seed_files/users.csv'
 

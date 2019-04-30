@@ -1,5 +1,5 @@
 require 'sinatra'
-require 'byebug'
+# require 'byebug'
 require 'date'
 require 'redis'
 require 'newrelic_rpm'

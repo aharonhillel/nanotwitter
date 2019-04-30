@@ -1,5 +1,5 @@
 require 'date'
-require 'byebug'
+# require 'byebug'
 helpers do
   def expire_user_profile(username)
     key = "{
