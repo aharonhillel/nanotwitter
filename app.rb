@@ -1,5 +1,4 @@
 require 'sinatra'
-# require 'byebug'
 require 'date'
 require 'redis'
 require 'newrelic_rpm'
@@ -25,31 +24,6 @@ require 'bunny'
 current_dir = Dir.pwd
 
 before do
-  # @connection = Bunny.new(host: settings.rabbitmq_host, port: settings.rabbitmq_port,
-  #                        user: settings.rabbitmq_user, pass: settings.rabbitmq_pass,
-  #                        automatically_recover: true)
-#   connection.start unless connection.open?
-#   #
-#   # if @channel.nil?
-#   #   @channel = connection.create_channel(nil, 16)
-#   # end
-#
-#   ch = connection.create_channel
-# # Declare a queue with a given name, examplequeue. In this example is a durable shared queue used.
-# @q  = ch.queue("task_queue", :durable => true)
-#
-# @x = ch.direct("example.exchange", :durable => true)
-# @q.bind(@x, :routing_key => "process")
-
-
-  # rescue Timeout::Error => e
-  #   puts "Timeout"
-  #   puts e
-  # end
-  # if !@channel.queue_exists?('task_queue')
-  # @queue = @channel.queue('task_queue', durable: true)
-  # end
-
   $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
   $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
 end

@@ -1,13 +1,15 @@
 require 'date'
-# require 'byebug'
-helpers do
 
+helpers do
+  # create_tweet create a tweet, and any hashtags/mentions related to the tweet
+  # by default, create_tweet will not directly write to db, but instead send
+  # to a worker to queue for writing to dgraph
   def create_tweet(text, user)
-    #Dgrah doesn't support checks like models so if statement check
-  if user.nil?
-    return "Failed to create tweet, most likely the reason is that you are not signed in."
-  elsif text.nil?
-      return "Your tweet is blank. Add some content!"
+    # Schema check before inserting to db
+    if user.nil?
+      return "Failed to create tweet, most likely the reason is that you are not signed in."
+    elsif text.nil?
+        return "Your tweet is blank. Add some content!"
     elsif user.nil?
       return "Failed to create tweet, most likely the reason is that you are not signed in."
     elsif text.length > 280
@@ -22,11 +24,13 @@ helpers do
 
     if text.include? '#'
       hashtags = text.scan(/#(\w+)/)
+      i = 0
       hashtags.each do |h|
         tweet << "
-      _:hashtag <Text> \"#{h.first}\" .
-      _:hashtag <Type> \"Hashtag\" .
-      _:tweet <Hashtag> _:hashtag ."
+        _:hashtag#{i} <Text> \"#{h.first}\" .
+        _:hashtag#{i} <Type> \"Hashtag\" .
+        _:tweet <Hashtag> _:hashtag#{i} ."
+        i = i + 1
       end
     end
 
@@ -40,11 +44,11 @@ helpers do
     end
     tweet << "}}"
 
-    sent_data = Hash.new
-    sent_data["query"]= tweet
-    sent_data["username"] = current_user
-    sent_data["action"] = "New Tweet"
-
+    sent_data = {
+      query: tweet,
+      username: current_user,
+      action: "New Tweet",
+    }
 
     #RabbitMQ/Bunny publisher
     puts "Creating tweets here"
@@ -57,30 +61,23 @@ helpers do
     ch = connection.create_channel
     q  = ch.queue("task_queue", :durable => true)
 
-
     q.publish(sent_data.to_json,
       :timestamp      => Time.now.to_i,
       :routing_key    => "process"
     )
     puts " [x] Sent Data to Queue"
 
-connection.close
-
-    # if params[:header] != nil && params[:header][:Accept] == "application/json"
-    #   h = Hash.new
-    #   h[:user] = current_user
-    #   h[:text] = text
-    #   h[:success] = true
-    #   return h.to_json
-    # end
+    connection.close
   end
 end
 
+# Create tweet through UI
 post '/tweet/create' do
   puts "Create new tweet"
   create_tweet(params[:text], current_user)
 end
 
+# Show all the tweets, by default updates every 10 minutes
 get '/tweets/all' do
   query = "{
     tweets(func: eq(Type, \"Tweet\"), first: 100) {
@@ -96,6 +93,7 @@ get '/tweets/all' do
   erb :'/tweets/tweetsAll'
 end
 
+#  Create retweet, same logic with tweeting
 post '/tweets/retweet/:tweet_id' do
   text = params[:text].to_s
   query = "{
@@ -125,11 +123,13 @@ post '/tweets/retweet/:tweet_id' do
 
   if text.include? '#'
     hashtags = text.scan(/#(\w+)/)
+    i = 0
     hashtags.each do |h|
-      retweet << "
-    _:hashtag <Text> \"#{h.first}\" .
-    _:hashtag <Type> \"Hashtag\" .
-    _:tweet <Hashtag> _:hashtag ."
+      tweet << "
+        _:hashtag#{i} <Text> \"#{h.first}\" .
+        _:hashtag#{i} <Type> \"Hashtag\" .
+        _:tweet <Hashtag> _:hashtag#{i} ."
+      i = i + 1
     end
   end
 
@@ -144,10 +144,12 @@ post '/tweets/retweet/:tweet_id' do
 
   retweet << "}}"
 
-  sent_data = Hash.new
-  sent_data["query"]= retweet
-  sent_data["username"] = current_user
-  sent_data["action"] = "New Tweet"
+  sent_data = {
+    query: retweet,
+    username: current_user,
+    action: "New Tweet",
+  }
+
   @queue.publish(sent_data.to_json, persistent: true)
   puts " [x] Sent Data to Queue"
 

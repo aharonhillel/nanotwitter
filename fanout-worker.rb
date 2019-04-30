@@ -83,7 +83,7 @@ def update_own_profile(username)
   $redis.del("#{username}:profile")
   res = $dg.query(query: query)
   $redis.set("#{username}:profile", res.to_json)
-  end
+end
 
 $redis = Redis.new(host: ENV['REDIS_HOSTNAME'], port: ENV['REDIS_PORT'])
 $dg = Dgraph::Client.new(host: ENV['DGRAPH_HOST'], port: ENV['DGRAPH_PORT'])

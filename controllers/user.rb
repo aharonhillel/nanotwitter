@@ -8,6 +8,7 @@ helpers do
     session[:username]
   end
 
+  # username_to_uid retrieves the uid of a user from the database
   def username_to_uid(username)
     if session[:uid].nil?
       query = "{
@@ -23,6 +24,7 @@ helpers do
     end
   end
 
+  # create_user creates a new user
   def create_user(email, username, password)
     return false if email.nil? || username.nil? || password.nil?
 
@@ -57,10 +59,12 @@ helpers do
 end
 
 # Signup routes
+# Show signup path
 get '/signup' do
   send_file File.expand_path('signup.html', settings.public_folder)
 end
 
+# For creating a new user through UI
 post '/signup' do
   if create_user(params[:email], params[:username], params[:password])
     session[:username] = params[:username]
@@ -75,6 +79,7 @@ get '/login' do
   send_file File.expand_path('login.html', settings.public_folder)
 end
 
+# Login
 post '/login' do
   query = "{
     login(func: eq(Email, \"#{params[:email]}\")) {
@@ -86,27 +91,30 @@ post '/login' do
   res = $dg.query(query: query)
   success = res.dig(:login).first.dig(:Success)
   username = res.dig(:login).first.dig(:Username)
-  if success
+  if !!success
     if (params[:headers][:Accept] == "application/json")
-      return_hash = Hash.new
-      return_hash[:username] = username
-      return_hash[:success] = success
+      return_hash = {
+        username: username,
+        success: success,
+      }
       return return_hash.to_json
     else
-    session[:username] = username
-    redirect "/users/#{username}/timeline"
-  end
+      session[:username] = username
+      redirect "/users/#{username}/timeline"
+    end
   else
     'Login failed'
+    redirect '/login'
   end
 end
 
 post '/logout' do
   session.clear
-  redirect '/login'
+  redirect '/'
 end
 
 # Profile route
+# Show user's profile
 get '/users/:username' do
   query = "{
     profile(func: eq(Username, \"#{params[:username]}\")){
@@ -148,6 +156,7 @@ get '/users/:username' do
   end
 end
 
+# Show user's timeline
 get '/users/:username/timeline' do
   query = "{
     var(func: eq(Username, \"#{params[:username]}\")) {
@@ -180,8 +189,8 @@ get '/users/:username/timeline' do
   end
 end
 
+# trending tweets shows the trending tweet of last 7 days
 def trending_tweets
-  # trending of last 7 days
   date = Date.today - 7
   query = "{
     tweet as var(func: eq(Type, \"Tweet\"))
@@ -198,10 +207,10 @@ def trending_tweets
     }
   }"
 
-  res = from_dgraph_or_redis("trending_tweets", query)
+  res = from_dgraph_or_redis("trending_tweets", query, ex: 120)
   tweets = res.dig(:trending)
 
-  if tweets.nil?
+  if tweets.empty?
     []
   else
     tweets
