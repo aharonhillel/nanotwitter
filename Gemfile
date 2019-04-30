@@ -14,6 +14,7 @@ gem 'thin'
 gem 'httpclient'
 gem 'faraday'
 gem 'newrelic_rpm'
+gem 'byebug'
 
 group :development do
   gem 'irb'
