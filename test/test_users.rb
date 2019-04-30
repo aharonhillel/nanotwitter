@@ -10,10 +10,6 @@ def app
 end
 
 describe 'POST on /signup' do
-  # before do
-  #   Tweet.delete_all
-  #   User.delete_all
-  # end
   it 'create new user' do
     username = Faker::Name.first_name
     email = Faker::Internet.email
@@ -52,12 +48,10 @@ describe 'POST on /signup' do
 
   it 'User needs an email' do
     username = Faker::Name.first_name
-    email = Faker::Internet.email
     password = '12345678'
-    @user = User.new(username: Faker::Name.first_name, email: Faker::Internet.email)
     post '/signup', {
       username: username,
-      password: '12345678'
+      password: password
     }, format: 'json'
     last_response.ok?
     assert_equal last_response.body, 'Failed to create user'
@@ -82,9 +76,6 @@ describe 'POST on /signup' do
   end
 
   it 'POST /login' do
-    # before do
-    # $dg.drop_all
-    # end
     username = Faker::Name.first_name
     email = Faker::Internet.email
     password = '12345678'
@@ -99,9 +90,7 @@ describe 'POST on /signup' do
       password: password,
       headers: h
     }, 'headers' => h
-
     last_response.ok?
-    a = last_response.body
     json = JSON.parse(last_response.body)
     assert_equal json['username'], username
     assert_equal json['success'], true

@@ -1,36 +1,12 @@
 require 'date'
 require 'byebug'
 helpers do
-  def expire_user_profile(username)
-    key = "{
-      profile(func: eq(Username, \"#{username}\")){
-        uid
-        tweets: Tweet(orderdesc: Timestamp, first: 20) {
-          uid
-          tweetedBy: ~Tweet { Username }
-          tweet: Text
-          totalLikes: count(~Like)
-          totalComments: count(Comment)
-          comments: Comment(orderdesc: Timestamp, first: 3) {
-            commentedBy: ~Comment { User { Username } }
-            comment: Text
-            totalLikes: count(~Like)
-            totalComments: count(Comment)
-          }
-          Timestamp
-        }
-        totalFollowing: count(Follow)
-        Follow {
-          Username
-        }
-        totalFollower: count(~Follow)
-      }
-    }"
-    $redis.del(key)
-  end
 
   def create_tweet(text, user)
-    if text.nil?
+    #Dgrah doesn't support checks like models so if statement check
+  if user.nil?
+    return "Failed to create tweet, most likely the reason is that you are not signed in."
+  elsif text.nil?
       return "Your tweet is blank. Add some content!"
     elsif user.nil?
       return "Failed to create tweet, most likely the reason is that you are not signed in."
@@ -69,6 +45,8 @@ helpers do
     sent_data["username"] = current_user
     sent_data["action"] = "New Tweet"
 
+
+    #RabbitMQ/Bunny publisher
     puts "Creating tweets here"
 
     connection = Bunny.new(host: settings.rabbitmq_host, port: settings.rabbitmq_port,
@@ -77,8 +55,7 @@ helpers do
     connection.start unless connection.open?
 
     ch = connection.create_channel
-  # Declare a queue with a given name, examplequeue. In this example is a durable shared queue used.
-  q  = ch.queue("task_queue", :durable => true)
+    q  = ch.queue("task_queue", :durable => true)
 
 
     q.publish(sent_data.to_json,
@@ -88,9 +65,6 @@ helpers do
     puts " [x] Sent Data to Queue"
 
 connection.close
-# @connection.close
-    # $dg.mutate_async(query: tweet)
-    # expire_user_profile(user)
 
     # if params[:header] != nil && params[:header][:Accept] == "application/json"
     #   h = Hash.new
@@ -102,14 +76,9 @@ connection.close
   end
 end
 
-get '/tweet/new' do
-   erb :'tweets/tweet_form'
-end
-
 post '/tweet/create' do
   puts "Create new tweet"
   create_tweet(params[:text], current_user)
-  # redirect "/users/#{current_user}"
 end
 
 get '/tweets/all' do
@@ -181,11 +150,6 @@ post '/tweets/retweet/:tweet_id' do
   sent_data["action"] = "New Tweet"
   @queue.publish(sent_data.to_json, persistent: true)
   puts " [x] Sent Data to Queue"
-
-
-  # expire_user_profile(current_user)
-  # $dg.mutate(query: retweet)
-  # expire_user_profile(current_user)
 
   redirect "/users/#{current_user}"
 end
