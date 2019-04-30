@@ -6,7 +6,6 @@ require 'date'
 @generated_seed = File.open(File.join(File.dirname(__FILE__ ), 'seed.rdf'), "w")
 @usersNum = {}
 
-
 def generate_users(n)
   seed = CSV.read(File.join(File.dirname(__FILE__), '/seed_files/users.csv'))
 
