@@ -25,7 +25,7 @@ current_dir = Dir.pwd
 
 before do
   $redis = Redis.new(host: settings.redis_host, port: settings.redis_port)
-  $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port)
+  $dg = Dgraph::Client.new(host: settings.dgraph_host, port: settings.dgraph_port, pool: 15)
 end
 
 get '/' do

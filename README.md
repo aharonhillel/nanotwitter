@@ -2,7 +2,7 @@
 
 A baby twitter.
 
-http://product-Elb-VQ59Q2YO4G9G-1381768724.us-east-1.elb.amazonaws.com
+http://nanotwitter.com
 
 ## Contributors
 
@@ -60,22 +60,33 @@ http://product-Elb-VQ59Q2YO4G9G-1381768724.us-east-1.elb.amazonaws.com
 
 ## Steps to run
 
+### To run App
+
 ```
-bundle install
-
-rake db:create
-
-rake db:migrate
+ruby app.rb
 ```
 
-Optional:
+### To run dgraph
+```
+docker pull dgraph/dgraph
 
-```rake db:seed```
+mkdir -p ~/dgraph
 
-Tests can be ran by running:
+# Run dgraphzero
+docker run -it -p 5080:5080 -p 6080:6080 -p 8080:8080 -p 9080:9080 -p 8000:8000 -v ~/dgraph:/dgraph --name dgraph dgraph/dgraph dgraph zero
 
-```ruby test/test.rb```
+# In another terminal, now run dgraph
+docker exec -it dgraph dgraph alpha --lru_mb 2048 --zero localhost:5080
+```
 
-Seed data can be run by running
+### To seed
 
-```ruby db/seed.rb```
+```
+ruby db/seed_dgraph.rb
+
+gzip db/seed.rdf
+
+cp db/seed.rdf.gz ~/dgraph
+
+docker exec -it dgraph dgraph live -r seed.rdf.gz --zero localhost:5080 -c 1
+```
