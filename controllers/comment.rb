@@ -41,6 +41,5 @@ get '/comments/all/:context_id' do
   end
 
   #Need to add front end view
-  # byebug
   comments.to_json
 end
