@@ -14,10 +14,10 @@ gem 'thin'
 gem 'httpclient'
 gem 'faraday'
 gem 'newrelic_rpm'
-gem 'byebug'
 
 group :development do
   gem 'irb'
   gem 'pry-byebug'
+  gem 'byebug'
   gem 'ufo'
 end
