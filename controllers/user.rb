@@ -83,22 +83,21 @@ post '/login' do
       Success: checkpwd(Password, \"#{params[:password]}\")
     }
   }"
-
   res = $dg.query(query: query)
-  if res.dig(:login).empty?
-    'Failed to login'
-    redirect '/login'
-  end
-
   success = res.dig(:login).first.dig(:Success)
   username = res.dig(:login).first.dig(:Username)
-  if !!success
-    session[:username] = username
-    if request.env['HTTP_ACCEPT'].to_s.include? 'application/json'
-      res.dig(:login).first
+  if success
+    if (params[:headers][:Accept] == "application/json")
+      return_hash = Hash.new
+      return_hash[:username] = username
+      return_hash[:success] = success
+      return return_hash.to_json
     else
-      redirect "/users/#{username}/timeline"
-    end
+    session[:username] = username
+    redirect "/users/#{username}/timeline"
+  end
+  else
+    'Login failed'
   end
 end
 
@@ -109,23 +108,15 @@ end
 
 # Profile route
 get '/users/:username' do
-  offset = 0
-  page = 1
-  if params[:page] != nil
-    page = params[:page].to_i
-    offset = (page - 1) * 20
-  end
-
   query = "{
     profile(func: eq(Username, \"#{params[:username]}\")){
       uid
-      tweets: Tweet(orderdesc: Timestamp, first: #{page * 10}) {
+      tweets: Tweet(orderdesc: Timestamp, first: 20) {
         uid
         tweetedBy: ~Tweet { Username }
         tweet: Text
         totalLikes: count(~Like)
         totalComments: count(~Comment_on)
-        totalRetweets: count(~Retweet)
         Timestamp
       }
       totalFollowing: count(Follow)
@@ -133,7 +124,6 @@ get '/users/:username' do
         Username
       }
       totalFollower: count(~Follow)
-
     }
   }"
 
@@ -145,8 +135,6 @@ get '/users/:username' do
     'User not found'
   else
     status_code 200
-    #@max_page = ((profile[:totalTweets].to_f)/10).ceil
-    @page = page + 1
     @user_tweets = profile[:tweets]
     @user_followings = profile[:Follow]
     @trending_tweets = trending_tweets
@@ -156,89 +144,35 @@ get '/users/:username' do
       total_following: profile[:totalFollowing],
       total_follower: profile[:totalFollower]
     }
-    erb :'profile/profile.html'
-  end
-end
-
-# Display all tweets by a user as JSON
-get '/users/:username/tweets' do
-  query = "{
-    tweets(func: eq(Username, \"#{params[:username]}\")) {
-      Tweet {
-        uid
-        expand(_all_)
-      }
-    }
-  }"
-
-  res = from_dgraph_or_redis(query, ex: 120)
-  tweets = res.dig(:tweets)
-
-  if tweets.nil?
-    status 404
-    'User not found'
-  else
-    status 200
-    tweets.first.dig(:Tweet).to_json
-  end
-end
-
-# Show all users
-get '/users' do
-  query = "{
-    users(func: eq(Type, \"User\")) {
-      Username
-      Email
-    }
-  }"
-
-  res = from_dgraph_or_redis("users", query, ex: 120)
-  users = res.dig(:users)
-
-  if users.nil?
-    status 404
-    'No users'
-  else
-    status 200
-    @users = users
-    erb :'users/all'
+    erb :'profile/profile.html', layout: :layout_profile
   end
 end
 
 get '/users/:username/timeline' do
-  offset = 0
-  page = 1
-  if params[:page] != nil
-    page = params[:page].to_i
-    offset = (page - 1) * 20
-  end
-
   query = "{
     var(func: eq(Username, \"#{params[:username]}\")) {
       Follow {
         f as Tweet
       }
     }
-    timeline(func: uid(f), orderdesc: Timestamp, first: #{page * 10}){
+    timeline(func: uid(f), orderdesc: Timestamp, first: 20){
       uid
       tweetedBy: ~Tweet { Username }
       tweet: Text
       totalLikes: count(~Like)
-      totalRetweets: count(~Retweet)
       totalComments: count(~Comment_on)
       Timestamp
     }
   }"
 
-  res = from_dgraph_or_redis("#{params[:username]}:timeline", query)
+  res = from_dgraph_or_redis("#{params[:username]}:timeline",query)
   timeline = res.dig(:timeline)
 
   if timeline.nil?
-    status 404
+    status_code 404
     'User not found'
   else
-    status 200
-    @p = page + 1
+    status_code 200
     @following_tweets = timeline
     @current_user = session[:username]
     @trending_tweets = trending_tweets
@@ -267,5 +201,9 @@ def trending_tweets
   res = from_dgraph_or_redis("trending_tweets", query)
   tweets = res.dig(:trending)
 
-  tweets
+  if tweets.nil?
+    []
+  else
+    tweets
+  end
 end

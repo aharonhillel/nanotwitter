@@ -1,3 +1,4 @@
+#ACTIVE RECORD TESTS
 # ENV['APP_ENV'] = 'test'
 #
 # require 'rack/test'
