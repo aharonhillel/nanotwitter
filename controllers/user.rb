@@ -1,131 +1,242 @@
-require_relative '../models/user'
+require 'json'
+require 'date'
 
-enable :sessions
+enable :sessions unless test?
 
 helpers do
   def current_user
-    User.find_by_username(session[:username])
+    session[:username]
   end
 
-  def current_user_id
-    session[:user_id]
+  # username_to_uid retrieves the uid of a user from the database
+  def username_to_uid(username)
+    query = "{
+      uid(func: eq(Username, \"#{username}\")) {
+        uid
+      }
+    }"
+    res = from_dgraph_or_redis(username, query)
+    uid = res.dig(:uid).first.dig(:uid)
+    uid
   end
 
-  def current_user_tweets
-    u = User.find_by_username(session[:username])
-    if u.nil?
-      [{ content: 'No tweets' }]
+  # create_user creates a new user
+  def create_user(email, username, password)
+    return false if email.nil? || username.nil? || password.nil?
+
+    qname = "{
+      uid(func: eq(Username, \"#{username}\")){
+       uid
+      }
+    }"
+    name_check = $dg.query(query: qname)
+
+    qemail = "{
+      uid(func: eq(Email, \"#{email}\")){
+       uid
+      }
+    }"
+    email_check = $dg.query(query: qemail)
+    if email_check.dig(:uid).empty? && name_check.dig(:uid).empty?
+      query = "{set{
+        _:user <Username> \"#{username}\" .
+        _:user <Email> \"#{email}\" .
+        _:user <Password> \"#{password}\" .
+        _:user <Type> \"User\" .
+      }}"
+
+      $dg.mutate(query: query)
+      true
     else
-      u.tweets
+      false
     end
-  end
-
-  # Mock function for testing profile ui
-  Mock_User = Struct.new(:username, :email, :date, :bio)
-  def mock_user
-    Mock_User.new('Mock User', 'user@mock.com', '1999/9/9', 'Hi, im just a mock user!')
-  end
-
-  Mock_Tweet = Struct.new(:user_id, :retweet_id, :content, :date, :total_likes)
-  def mock_user_tweets
-    [
-      Mock_Tweet.new(99, 199, 'this is a mock tweet from the mock user', '2019/03/09', 10),
-      Mock_Tweet.new(99, 201, 'this is a mock tweet 2 from the mock user', '2019/03/06', 12)
-    ]
   end
 end
 
 # Signup routes
+# Show signup path
 get '/signup' do
-  erb :'users/signup'
+  send_file File.expand_path('signup.html', settings.public_folder)
 end
 
+# For creating a new user through UI
 post '/signup' do
-  @user = User.new(username: params[:username], email: params[:email])
-  @user.password = params[:password]
-  if @user.save
-    session[:username] = @user.username
-    request.accept.each do |type|
-      case type.to_s
-      when 'text/html'
-        halt (redirect '/users/' + session[:username])
-      when 'text/json'
-        halt @user.to_json
-    end
+  if create_user(params[:email], params[:username], params[:password])
+    session[:username] = params[:username]
+    if params["is_test"].nil?
+      redirect "/users/#{params[:username]}"
+    else
+      "Created User"
     end
   else
-    'Failed'
-    # redirect_to "/failure"
+    'Failed to create user'
   end
 end
 
 # Login/Logout routes
 get '/login' do
-  erb :'users/login'
+  send_file File.expand_path('login.html', settings.public_folder)
 end
 
+# Login
 post '/login' do
-  user = User.find_by_email(params[:email])
-
-  if !user.nil? && user.password == params[:password]
-    session[:username] = user.username
-    'Logged in'
-    redirect '/users/'+ session[:username] + '/timeline'
-    # Need to write give_token function
-    # give_token
+  query = "{
+    login(func: eq(Email, \"#{params[:email]}\")) {
+      Username
+      Email
+      Success: checkpwd(Password, \"#{params[:password]}\")
+    }
+  }"
+  res = $dg.query(query: query)
+  success = res.dig(:login).first.dig(:Success)
+  username = res.dig(:login).first.dig(:Username)
+  if success
+    if !params["is_test"].nil?
+      return_hash = {
+        username: username,
+        success: success,
+      }
+      return return_hash.to_json
+    else
+      session[:username] = username
+      redirect "/users/#{username}/timeline"
+    end
   else
-    'Wrong'
-    # redirect "/login-successful"
+    if !params["is_test"].nil?
+      return 'Login failed'
+    end
+    'Login failed'
+    redirect '/login'
   end
-end
-
-get '/logout' do
-  session.clear
-  redirect '/login'
 end
 
 post '/logout' do
   session.clear
-  redirect '/login'
+  redirect '/'
 end
 
-# Profile routes
+# Profile route
+# Show user's profile
 get '/users/:username' do
-  if current_user != nil
-    @profile_user = User.find_by_username(params[:username])
-    erb :'profile/profile.html'
+  query = "{
+    profile(func: eq(Username, \"#{params[:username]}\")){
+      uid
+      tweets: Tweet(orderdesc: Timestamp, first: 20) {
+        uid
+        tweetedBy: ~Tweet { Username }
+        tweet: Text
+        totalLikes: count(~Like)
+        totalComments: count(~Comment_on)
+        Timestamp
+      }
+      totalFollowing: count(Follow)
+      Follow {
+        Username
+      }
+      totalFollower: count(~Follow)
+    }
+  }"
+
+  res = from_dgraph_or_redis("#{params[:username]}:profile", query)
+  profile = res.dig(:profile).first
+
+  if profile.nil?
+    status_code 404
+    'User not found'
   else
-    redirect '/'
+    status_code 200
+    @user_tweets = profile[:tweets]
+    @user_followings = profile[:Follow]
+    @trending_tweets = trending_tweets
+    @info = {
+      profile_user: params[:username],
+      current_user: session[:username],
+      total_following: profile[:totalFollowing],
+      total_follower: profile[:totalFollower]
+    }
+    erb :'profile/profile.html', layout: :layout_profile
   end
 end
 
-# Display all tweets by a user
-get '/users/:username/tweets' do
-  u = User.find_by_username(params[:username])
-  if u.nil?
-    "#{params[:username]} has no tweets"
-  else
-    u.tweets.to_json
-  end
-end
-
-# Show all users
-get '/users' do
-  @users = User.all
-  erb :'users/all'
-end
-
-# Show all followers
-get '/users/:username/followers' do
-  @user = User.find_by_username(params[:username])
-  if @user.nil?
-    "#{params[:username]} has no followers"
-  else
-    erb :'follows/followers'
-  end
-end
-
+# Show user's timeline
 get '/users/:username/timeline' do
-  @following_tweets = current_user.followingTweets
-  erb :'timeline/timeline.html'
+  query = "{
+    var(func: eq(Username, \"#{params[:username]}\")) {
+      Follow {
+        f as Tweet
+      }
+    }
+    timeline(func: uid(f), orderdesc: Timestamp, first: 20){
+      uid
+      tweetedBy: ~Tweet { Username }
+      tweet: Text
+      totalLikes: count(~Like)
+      totalComments: count(~Comment_on)
+      Timestamp
+    }
+  }"
+
+  res = from_dgraph_or_redis("#{params[:username]}:timeline",query)
+  timeline = res.dig(:timeline)
+
+  if timeline.nil?
+    status_code 404
+    'User not found'
+  else
+    status_code 200
+    @following_tweets = timeline
+    @current_user = session[:username]
+    @trending_tweets = trending_tweets
+    erb :'timeline/timeline.html'
+  end
+end
+
+# trending tweets shows the trending tweet of last 7 days
+def trending_tweets
+  date = Date.today - 7
+  query = "{
+    tweet as var(func: eq(Type, \"Tweet\"))
+    @filter(ge(Timestamp, \"#{date.rfc3339}\")){
+      l as count(Like)
+    }
+    trending(func: uid(tweet), orderdesc: val(l), first: 10) {
+      uid
+      tweetedBy: ~Tweet { Username }
+      tweet: Text
+      totalLikes: count(~Like)
+      totalComments: count(Comment)
+      Timestamp
+    }
+  }"
+
+  res = from_dgraph_or_redis("trending_tweets", query, ex: 120)
+  tweets = res.dig(:trending)
+
+  if tweets.empty?
+    []
+  else
+    tweets
+  end
+end
+
+get '/users' do
+  query = "{
+    users(func: eq(Type, \"User\")) {
+      Username
+      Email
+    }
+  }"
+
+  res = from_dgraph_or_redis("users", query, ex: 120)
+  users = res.dig(:users)
+
+  if users.nil?
+    status 404
+    'No users'
+  else
+    status 200
+    @users = users
+    erb :'users/all'
+    #erb :'profile/profile.html', layout: :layout_profile
+  end
 end

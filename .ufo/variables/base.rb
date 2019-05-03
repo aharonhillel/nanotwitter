@@ -4,8 +4,8 @@
 @environment = helper.env_file(".env")
 # Ensure that the cpu and memory values are a supported combination by Fargate.
 # More info: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html"
-@cpu = 256
-@memory = 512
-@memory_reservation = 512
+@cpu = 512
+@memory = 1024
+@memory_reservation = 1024
 
 @execution_role_arn = "arn:aws:iam::423858844957:role/ecsTaskExecutionRole"

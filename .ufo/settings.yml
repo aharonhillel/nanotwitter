@@ -23,6 +23,7 @@ development:
   #   - dev_profile2
 
 production:
-  # cluster: production
-  # aws_profiles:
-  #   - prod_profile
+  cluster: production
+  aws_profiles:
+    - default
+    - aws1-cli
