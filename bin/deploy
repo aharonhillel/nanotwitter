@@ -4,4 +4,4 @@
 # Meant to be overridden.
 
 # Only build one docker image and deploys it to multiple ECS services
-ufo ships nanotwitter-{web,clock,worker}
+UFO_ENV=production ufo ships nanotwitter-web

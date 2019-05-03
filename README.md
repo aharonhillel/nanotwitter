@@ -1,4 +1,4 @@
-# Nanotwitter
+# Nanotwitter [![Maintainability](https://api.codeclimate.com/v1/badges/a8b178e8fa9a752068f7/maintainability)](https://codeclimate.com/github/aharonhillel/nanotwitter/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/a8b178e8fa9a752068f7/test_coverage)](https://codeclimate.com/github/aharonhillel/nanotwitter/test_coverage)
 
 A baby twitter.
 
@@ -10,12 +10,13 @@ http://nanotwitter.com
 - Julian Ho @xumr0x
 - Aaron Gold @aharonhillel
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/a8b178e8fa9a752068f7/maintainability)](https://codeclimate.com/github/aharonhillel/nanotwitter/maintainability)
-
-[![Test Coverage](https://api.codeclimate.com/v1/badges/a8b178e8fa9a752068f7/test_coverage)](https://codeclimate.com/github/aharonhillel/nanotwitter/test_coverage)
-
 ## Changes
 
+### 1.0 (5/3/19)
+
+- Implemented worker for tweeting and regenerating timelines
+- Fixed bug on UI where tweet AJAX does not post
+- Fixed CI/CD pipeline for Codeship
 
 ### 0.7 (4/7/19)
 
@@ -64,26 +65,33 @@ http://nanotwitter.com
 
 ## Steps to run
 
-### To run App
+Requirements
+
+- Redis server
+- Docker
+- Ruby 2.6.0
+
+### Run App
 
 ```
-ruby app.rb
+bundle install
+bundle exec ruby app.rb
 ```
 
-### To run dgraph
+### Start dgraph
 ```
 docker pull dgraph/dgraph
-
 mkdir -p ~/dgraph
-
-# Run dgraphzero
 docker run -it -p 5080:5080 -p 6080:6080 -p 8080:8080 -p 9080:9080 -p 8000:8000 -v ~/dgraph:/dgraph --name dgraph dgraph/dgraph dgraph zero
-
-# In another terminal, now run dgraph
 docker exec -it dgraph dgraph alpha --lru_mb 2048 --zero localhost:5080
 ```
 
-### To seed
+### Start Redis
+```
+redis-server
+```
+
+### Seed database
 
 ```
 ruby db/seed_dgraph.rb
