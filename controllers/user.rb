@@ -37,7 +37,6 @@ helpers do
       }
     }"
     email_check = $dg.query(query: qemail)
-
     if email_check.dig(:uid).empty? && name_check.dig(:uid).empty?
       query = "{set{
         _:user <Username> \"#{username}\" .
@@ -64,7 +63,11 @@ end
 post '/signup' do
   if create_user(params[:email], params[:username], params[:password])
     session[:username] = params[:username]
-    redirect "/users/#{params[:username]}"
+    if params["is_test"].nil?
+      redirect "/users/#{params[:username]}"
+    else
+      "Created User"
+    end
   else
     'Failed to create user'
   end
@@ -87,8 +90,8 @@ post '/login' do
   res = $dg.query(query: query)
   success = res.dig(:login).first.dig(:Success)
   username = res.dig(:login).first.dig(:Username)
-  if !!success
-    if params[:headers] != nil && params[:headers][:Accept] == "application/json"
+  if success
+    if !params["is_test"].nil?
       return_hash = {
         username: username,
         success: success,
@@ -99,6 +102,9 @@ post '/login' do
       redirect "/users/#{username}/timeline"
     end
   else
+    if !params["is_test"].nil?
+      return 'Login failed'
+    end
     'Login failed'
     redirect '/login'
   end

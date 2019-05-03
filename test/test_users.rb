@@ -1,6 +1,7 @@
 require 'minitest/autorun'
 require 'rack/test'
 require 'faker'
+require 'byebug'
 require_relative '../app.rb'
 
 include Rack::Test::Methods
@@ -11,16 +12,17 @@ end
 
 describe 'POST on /signup' do
   it 'create new user' do
-    username = Faker::Name.first_name
+    username = Faker::Name.first_name + Faker::Lorem.characters(10)
     email = Faker::Internet.email
     password = '12345678'
     post '/signup', {
       username: username,
       email: email,
-      password: password
+      password: password,
+      is_test: true
     }, format: 'json'
     last_response.ok?
-    assert_equal last_response.body, ''
+    assert_equal last_response.body, 'Created User'
 
     query = "{
       login(func: eq(Email, \"#{email}\")) {
@@ -40,25 +42,27 @@ describe 'POST on /signup' do
     password = '12345678'
     post '/signup', {
       email: email,
-      password: password
+      password: password,
+      is_test: true,
     }, format: 'json'
     last_response.ok?
     assert_equal last_response.body, 'Failed to create user'
   end
 
   it 'User needs an email' do
-    username = Faker::Name.first_name
+    username = Faker::Name.first_name + Faker::Lorem.characters(10)
     password = '12345678'
     post '/signup', {
       username: username,
-      password: password
+      password: password,
+      is_test: true
     }, format: 'json'
     last_response.ok?
     assert_equal last_response.body, 'Failed to create user'
   end
 
   it 'Cant have duplicate users' do
-    username = Faker::Name.first_name
+    username = Faker::Name.first_name + Faker::Lorem.characters(10)
     email = Faker::Internet.email
     password = '12345678'
     post '/signup', {
@@ -76,20 +80,21 @@ describe 'POST on /signup' do
   end
 
   it 'POST /login' do
-    username = Faker::Name.first_name
-    email = Faker::Internet.email
+    username = Faker::Name.first_name + Faker::Lorem.characters(10)
+    email = Faker::Internet.email + Faker::Name.first_name
     password = '12345678'
     post '/signup', {
       username: username,
       email: email,
-      password: password
+      password: password,
+      is_test: true,
     }, format: 'json'
-    h = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
+    assert_equal last_response.body, "Created User"
     post '/login', {
       email: email,
       password: password,
-      headers: h
-    }, 'headers' => h
+      is_test: true,
+    }, format: 'json'
     last_response.ok?
     json = JSON.parse(last_response.body)
     assert_equal json['username'], username
