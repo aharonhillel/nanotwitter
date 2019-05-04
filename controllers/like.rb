@@ -15,9 +15,9 @@ post '/like/:context_id/new' do
     like = "{set{
     <#{cur}> <Like> <#{context}> .}}"
     $dg.mutate(query: like)
-    " #{current_user} liked tweet/comment #{context}"
+    context.to_json
   else
-    "Already liked"
+    "Already liked".to_json
   end
 end
 
