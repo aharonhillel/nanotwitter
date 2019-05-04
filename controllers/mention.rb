@@ -1,5 +1,4 @@
 post '/mentions/:context_id/new' do
-  byebug
   mentioned_user = username_to_uid(params[:username])
   tweet = params[:context_id]
   # query = "{
@@ -12,11 +11,7 @@ post '/mentions/:context_id/new' do
     mention = "{set{
     <#{tweet}> <Mention> <#{mentioned_user}> .}}"
     $dg.mutate(query: mention)
-    res_json ={
-      u: params[:username],
-      context: tweet
-    }
-    res_json
+    params[:username].to_json
 end
 
 get '/mentions/tweets/:username' do
@@ -34,6 +29,7 @@ get '/mentions/tweets/:username' do
        }
       }"
   res = from_dgraph_or_redis(query, ex: 600)
+  byebug
   @tweets = res.dig(:tweets).first
   @tweets.to_json
 end
