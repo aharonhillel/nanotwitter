@@ -2,6 +2,7 @@ require 'sinatra'
 require 'date'
 require 'redis'
 require 'newrelic_rpm'
+require 'byebug'
 require_relative 'vendor/dgraph/dgraph'
 
 require_relative 'controllers/follow'

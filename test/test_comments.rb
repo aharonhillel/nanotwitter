@@ -9,37 +9,63 @@ def app
   Sinatra::Application
 end
 
-describe 'POST on /test/comments/:tweet_id/new' do
+describe 'POST on /comments/:context_id/new' do
   before do
-    @u1 = User.create(username: "Thomas", email: "tclouga@gmail.com", password_hash: "12345678")
-    @u2 = User.create(username: "Jay", email: "jay@gmail.com", password_hash: "12345678")
-    @u3 = User.create(username: "Time", email: "time@gmail.com", password_hash: "12345678")
-    @t = Tweet.create(user_id: @u1.id, content: "We are a team.")
+    post '/'
+    @user = Faker::Name.first_name
+    email = Faker::Internet.email
+    query1 = "{set{
+        _:user <Username> \"#{@user}\" .
+        _:user <Email> \"#{email}\" .
+        _:user <Password> \"12345678\" .
+        _:user <Type> \"User\" .
+      }}"
+    $dg.mutate(query: query1)
+    query2 = "{
+    user(func: eq(Username, \"#{@user}\")){
+      uid
+      }
+    }"
+    @uID = $dg.query(query: query2).dig(:user).first.dig(:uid)
+
+    tweet = "{set{
+    _:tweet <Text> \"A posted a tweet!\" .
+    _:tweet <Type> \"Tweet\" .
+    _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
+    <#{@uID}> <Tweet> _:tweet .}}"
+    $dg.mutate(query: tweet)
   end
 
   it 'allow users to comment on tweet' do
-    url = '/test/comments/' + @t.id.to_s + '/new'
-    post url, {
-        tweet_id: @t.id,
-        commenter_name: "Jay",
-        content: "Don't panic."
-    }
-    post url, {
-        tweet_id: @t.id,
-        commenter_name: "Tim",
-        reply_to_name: "Jay",
-        content: "He's right."
-    }
-    url = '/test/comments/' + @t.id.to_s
-    get url
+    query3 = "{
+    tweet(func: uid(#{@uID})){
+      tweets: Tweet{uid}
+      }
+    }"
+    tID = $dg.query(query: query3).dig(:tweet).first.dig(:tweets).first.dig(:uid)
+
+    browser = Rack::Test::Session.new(Rack::MockSession.new(Sinatra::Application))
+    post '/comments/' + tID + '/new',{
+        text: "Comment something",
+        context_id: tID
+    }, 'rack.session' => { :username => @user }, format: 'json'
     last_response.ok?
     json = JSON.parse(last_response.body)
-    json.size.must_equal 2
+    assert_equal json, "Comment something"
   end
 
-  after do
-    Comment.delete_all
-    Tweet.delete_all
-    User.delete_all
-  end
+  # it 'list all comments of a tweet' do
+  #   query3 = "{
+  #   tweet(func: uid(#{@uID})){
+  #     tweets: Tweet{uid}
+  #     }
+  #   }"
+  #   tID = $dg.query(query: query3).dig(:tweet).first.dig(:tweets).first.dig(:uid)
+  #   byebug
+  #   get '/comments/all/' + tID, format: 'json'
+  #   last_response.ok?
+  #   byebug
+  #   json = JSON.parse(last_response.body)
+  #   assert_equal 1, json.count
+  # end
 end

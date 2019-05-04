@@ -35,7 +35,6 @@ describe 'User like or unlike tweets' do
     _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
     <#{@uID}> <Tweet> _:tweet .}}"
     $dg.mutate(query: tweet)
-
   end
 
   it 'user can like a tweet' do

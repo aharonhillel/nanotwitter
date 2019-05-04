@@ -18,7 +18,7 @@ post '/comments/:context_id/new' do
   comment << "}}"
 
   $dg.mutate(query: comment)
-  " #{current_user} comment on  #{params[:context_id]} : #{text}"
+  text.to_json
 end
 
 get '/comments/all/:context_id' do
@@ -37,9 +37,11 @@ get '/comments/all/:context_id' do
   comments = res.dig(:comments).first
 
   if comments.nil?
-    comments = "There are no comments for this tweet. Add some!"
+    "There are no comments for this tweet. Add some!".to_json
+  else
+    comments.to_json
   end
 
   #Need to add front end view
-  comments.to_json
+
 end
