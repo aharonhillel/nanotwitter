@@ -113,5 +113,5 @@ ruby fanout-worker.rb #in new terminal window
 ### Login as User
 
 ```
-path: '/test/login/user/Username
+path: '/test/login/user/Username' #You must be logged in to tweet
 ```
