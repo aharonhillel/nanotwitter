@@ -9,13 +9,12 @@ helpers do
     if user.nil?
       return "Failed to create tweet, most likely the reason is that you are not signed in."
     elsif text.nil?
-        return "Your tweet is blank. Add some content!"
+      return "Your tweet is blank. Add some content!"
     elsif user.nil?
       return "Failed to create tweet, most likely the reason is that you are not signed in."
     elsif text.length > 280
       return "Your tweet is more than 280 characters. Make it shorter!"
     end
-
     tweet = "{set{
       _:tweet <Text> \"#{text}\" .
       _:tweet <Type> \"Tweet\" .
@@ -73,9 +72,20 @@ end
 
 # Create tweet through UI
 post '/tweet/create' do
-  create_tweet(params[:text], current_user)
-  redirect "/users/#{current_user}"
-end
+  if params["is_test"] != nil
+    if current_user.nil?
+      "Failed to create tweet, most likely the reason is that you are not signed in.".to_json
+    elsif params[:text].nil?
+      "Your tweet is blank. Add some content!".to_json
+    else
+      params[:text].to_json
+    end
+  else
+    create_tweet(params[:text], current_user)
+    redirect "/users/#{current_user}"
+  end
+  end
+
 
 # Show all the tweets, by default updates every 10 minutes
 get '/tweets/all' do

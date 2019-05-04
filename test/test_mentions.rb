@@ -9,8 +9,9 @@ def app
   Sinatra::Application
 end
 
-describe 'POST on /test/mentions/new' do
+describe 'POST on /mentions/:tweet_id/new' do
   before do
+    post '/'
     query1 = "{set{
         _:user <Username> \"testerB\" .
         _:user <Email> \"testerB@gmail.com\" .
@@ -31,27 +32,35 @@ describe 'POST on /test/mentions/new' do
     _:tweet <Text> \"A tweet to mention someone\" .
     _:tweet <Type> \"Tweet\" .
     _:tweet <Timestamp> \"#{DateTime.now.rfc3339(5)}\" .
-    <#{username_to_uid("testerC")}> <Tweet> _:tweet ."
+    <#{username_to_uid("testerC")}> <Tweet> _:tweet .
+    }}"
     $dg.mutate(query: tweet)
   end
 
   it 'can mention a user in a tweet/comment' do
+    byebug
     query3 = "{
     tweet(func: eq(Username, \"testerC\")){
       tweets: Tweet{uid}
       }
     }"
     tweet = $dg.query(query: query3).dig(:tweet).first.dig(:tweets).first.dig(:uid)
+
     post '/mentions/' + tweet + '/new',{
-        username: "testerB"
+        username: "testerB",
+        context_id: tweet
     }, format: 'json'
 
     last_response.ok?
-    assert_equal last_response.body, "testerB is mentioned in #{tweet}"
+    json = JSON.parse(last_response.body)
+    assert_equal json['u'], "testerB"
   end
 
   it 'list all tweets which a user is mentioned in' do
-    get '/mentions/tweets/testerB'
+    byebug
+    get '/mentions/tweets/testerB',{
+        username: "testerB"
+    }
     last_response.ok?
     json = JSON.parse(last_response.body)
     assert_equal 1, json.count
