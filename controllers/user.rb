@@ -8,29 +8,19 @@ helpers do
     session[:username]
   end
 
-  # def current_user_uid
-  #   query = "{
-  #     uid(func: eq(Username, \"#{session[:username]}\")) {
-  #       uid
-  #     }
-  #   }"
-  #
-  #   res = from_dgraph_or_redis(query)
-  #   uid = res.dig(:uid).first.dig(:uid)
-  #   uid
-  # end
-
+  # username_to_uid retrieves the uid of a user from the database
   def username_to_uid(username)
     query = "{
       uid(func: eq(Username, \"#{username}\")) {
         uid
       }
     }"
-    res = from_dgraph_or_redis(query)
+    res = from_dgraph_or_redis(username, query)
     uid = res.dig(:uid).first.dig(:uid)
     uid
   end
 
+  # create_user creates a new user
   def create_user(email, username, password)
     return false if email.nil? || username.nil? || password.nil?
 
@@ -47,7 +37,6 @@ helpers do
       }
     }"
     email_check = $dg.query(query: qemail)
-
     if email_check.dig(:uid).empty? && name_check.dig(:uid).empty?
       query = "{set{
         _:user <Username> \"#{username}\" .
@@ -65,14 +54,20 @@ helpers do
 end
 
 # Signup routes
+# Show signup path
 get '/signup' do
   send_file File.expand_path('signup.html', settings.public_folder)
 end
 
+# For creating a new user through UI
 post '/signup' do
   if create_user(params[:email], params[:username], params[:password])
     session[:username] = params[:username]
-    redirect "/users/#{params[:username]}"
+    if params["is_test"].nil?
+      redirect "/users/#{params[:username]}"
+    else
+      "Created User"
+    end
   else
     'Failed to create user'
   end
@@ -83,6 +78,7 @@ get '/login' do
   send_file File.expand_path('login.html', settings.public_folder)
 end
 
+# Login
 post '/login' do
   query = "{
     login(func: eq(Email, \"#{params[:email]}\")) {
@@ -95,26 +91,32 @@ post '/login' do
   success = res.dig(:login).first.dig(:Success)
   username = res.dig(:login).first.dig(:Username)
   if success
-    session[:username] = username
-    if params[:headers] != nil && params[:headers][:Accept] == 'application/json'
-      h = Hash.new
-      h[:username] = username
-      h[:success] = success
-      return h.to_json
+    if !params["is_test"].nil?
+      return_hash = {
+        username: username,
+        success: success,
+      }
+      return return_hash.to_json
     else
+      session[:username] = username
       redirect "/users/#{username}/timeline"
     end
   else
+    if !params["is_test"].nil?
+      return 'Login failed'
+    end
     'Login failed'
+    redirect '/login'
   end
 end
 
 post '/logout' do
   session.clear
-  redirect '/login'
+  redirect '/'
 end
 
 # Profile route
+# Show user's profile
 get '/users/:username' do
   query = "{
     profile(func: eq(Username, \"#{params[:username]}\")){
@@ -125,7 +127,6 @@ get '/users/:username' do
         tweet: Text
         totalLikes: count(~Like)
         totalComments: count(~Comment_on)
-        totalRetweets: count(~Retweet)
         Timestamp
       }
       totalFollowing: count(Follow)
@@ -133,11 +134,10 @@ get '/users/:username' do
         Username
       }
       totalFollower: count(~Follow)
-
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = from_dgraph_or_redis("#{params[:username]}:profile", query)
   profile = res.dig(:profile).first
 
   if profile.nil?
@@ -158,61 +158,7 @@ get '/users/:username' do
   end
 end
 
-# Display all tweets by a user as JSON
-get '/users/:username/tweets' do
-  query = "{
-    tweets(func: eq(Username, \"#{params[:username]}\")) {
-      Tweet {
-        uid
-        expand(_all_)
-      }
-    }
-  }"
-
-  res = from_dgraph_or_redis(query, ex: 120)
-  tweets = res.dig(:tweets)
-
-  if tweets.nil?
-    status_code 404
-    'User not found'
-  else
-    status_code 200
-    tweets.first.dig(:Tweet).to_json
-  end
-end
-
-# Show all users
-get '/users' do
-  query = "{
-    users(func: eq(Type, \"User\")) {
-      Username
-      Email
-    }
-  }"
-
-  res = from_dgraph_or_redis(query)
-  users = res.dig(:users)
-
-  if users.nil?
-    status_code 404
-    'No users'
-  else
-    status_code 200
-    @users = users
-    erb :'users/all'
-  end
-end
-
-# # Show all followers
-# get '/users/:username/followers' do
-#   @user = User.find_by_username(params[:username])
-#   if @user.nil?
-#     "#{params[:username]} has no followers"
-#   else
-#     erb :'follows/followers'
-#   end
-# end
-
+# Show user's timeline
 get '/users/:username/timeline' do
   query = "{
     var(func: eq(Username, \"#{params[:username]}\")) {
@@ -225,13 +171,12 @@ get '/users/:username/timeline' do
       tweetedBy: ~Tweet { Username }
       tweet: Text
       totalLikes: count(~Like)
-      totalRetweets: count(~Retweet)
       totalComments: count(~Comment_on)
       Timestamp
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = from_dgraph_or_redis("#{params[:username]}:timeline",query)
   timeline = res.dig(:timeline)
 
   if timeline.nil?
@@ -246,8 +191,8 @@ get '/users/:username/timeline' do
   end
 end
 
+# trending tweets shows the trending tweet of last 7 days
 def trending_tweets
-  # trending of last 7 days
   date = Date.today - 7
   query = "{
     tweet as var(func: eq(Type, \"Tweet\"))
@@ -264,12 +209,34 @@ def trending_tweets
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 360)
+  res = from_dgraph_or_redis("trending_tweets", query, ex: 120)
   tweets = res.dig(:trending)
 
-  if tweets.nil?
+  if tweets.empty?
     []
   else
     tweets
+  end
+end
+
+get '/users' do
+  query = "{
+    users(func: eq(Type, \"User\")) {
+      Username
+      Email
+    }
+  }"
+
+  res = from_dgraph_or_redis("users", query, ex: 120)
+  users = res.dig(:users)
+
+  if users.nil?
+    status 404
+    'No users'
+  else
+    status 200
+    @users = users
+    erb :'users/all'
+    #erb :'profile/profile.html', layout: :layout_profile
   end
 end

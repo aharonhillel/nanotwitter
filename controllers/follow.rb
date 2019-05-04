@@ -1,7 +1,9 @@
 
 post '/follows/follow/:followed' do
   cur = username_to_uid(current_user)
+  #byebug
   following = username_to_uid(params[:followed])
+  #byebug
   query = "{
     following(func: uid(#{cur})){
       Follow @filter(uid(#{following})){
@@ -16,10 +18,14 @@ post '/follows/follow/:followed' do
     <#{cur}> <Follow> <#{following}> .}}"
 
     $dg.mutate(query: follow)
-    "#{current_user} followed #{params[:followed]}"
-    #erb :'follows/followings'
+    follow_res = {
+        follower: current_user,
+        followed: params[:followed]
+    }
+
+    follow_res.to_json
   else
-    "Already followed"
+    "Already followed".to_json
   end
 end
 
@@ -43,7 +49,7 @@ get '/follows/followers/:username' do
       }
     }
   }"
-  res = from_dgraph_or_redis(query)
+  res = from_dgraph_or_redis("#{params[:username]}:followers", query)
   if res.nil?
     "#{params[:username]} has no followers"
   else
@@ -64,7 +70,7 @@ get '/follows/followings/:username' do
     }
   }"
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = from_dgraph_or_redis("#{params[:username]}:followers", query)
   if res.nil?
     "#{params[:username]} has no followings"
   else

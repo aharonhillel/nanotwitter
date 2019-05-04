@@ -29,20 +29,20 @@ task_definition "nanotwitter-web" do
     awslogs_group: ["ecs/nanotwitter-web", Ufo.env_extra].compact.join('-'),
     awslogs_stream_prefix: "nanotwitter",
     awslogs_region: helper.current_region,
-    # command: ["bin/web"] # IMPORTANT: change or create a bin/web file
+    command: ["bin/web"] # IMPORTANT: change or create a bin/web file
   )
 end
 
-task_definition "nanotwitter-worker" do
+task_definition "nanotwitter-builder" do
   source "fargate" # will use ufo/templates/fargate.json.erb
   variables(
     family: task_definition_name,
     name: "worker",
     # Comment out awslogs_* if you do not want logs to be sent to CloudWatch.
-    awslogs_group: ["ecs/nanotwitter-worker", Ufo.env_extra].compact.join('-'),
+    awslogs_group: ["ecs/nanotwitter-builder", Ufo.env_extra].compact.join('-'),
     awslogs_stream_prefix: "nanotwitter",
     awslogs_region: helper.current_region,
-    command: ["bin/fanout-worker"] # IMPORTANT: change or create a bin/worker file
+    command: ["bin/deploy"] # IMPORTANT: change or create a bin/worker file
   )
 end
 

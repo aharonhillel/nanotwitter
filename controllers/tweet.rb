@@ -1,41 +1,17 @@
 require 'date'
 
 helpers do
-  def expire_user_profile(username)
-    key = "{
-    profile(func: eq(Username, \"#{username}\")){
-      uid
-      tweets: Tweet(orderdesc: Timestamp, first: 20) {
-        uid
-        tweetedBy: ~Tweet { Username }
-        tweet: Text
-        totalLikes: count(~Like)
-        totalComments: count(Comment)
-        comments: Comment(orderdesc: Timestamp, first: 3) {
-          commentedBy: ~Comment { User { Username } }
-          comment: Text
-          totalLikes: count(~Like)
-          totalComments: count(Comment)
-        }
-        Timestamp
-      }
-      totalFollowing: count(Follow)
-      Follow {
-        Username
-      }
-      totalFollower: count(~Follow)
-    }
-  }"
-    $redis.del(key)
-  end
-
+  # create_tweet create a tweet, and any hashtags/mentions related to the tweet
+  # by default, create_tweet will not directly write to db, but instead send
+  # to a worker to queue for writing to dgraph
   def create_tweet(text, user)
-    if text.nil?  || text.blank? || user.nil?
-      if user.nil?
-        return "Failed to create tweet, most likely the reason is that you are not signed in."
-      else
+    # Schema check before inserting to db
+    if user.nil?
+      return "Failed to create tweet, most likely the reason is that you are not signed in."
+    elsif text.nil?
         return "Your tweet is blank. Add some content!"
-      end
+    elsif user.nil?
+      return "Failed to create tweet, most likely the reason is that you are not signed in."
     elsif text.length > 280
       return "Your tweet is more than 280 characters. Make it shorter!"
     end
@@ -48,11 +24,13 @@ helpers do
 
     if text.include? '#'
       hashtags = text.scan(/#(\w+)/)
+      i = 0
       hashtags.each do |h|
         tweet << "
-      _:hashtag <Text> \"#{h.first}\" .
-      _:hashtag <Type> \"Hashtag\" .
-      _:tweet <Hashtag> _:hashtag ."
+        _:hashtag#{i} <Text> \"#{h.first}\" .
+        _:hashtag#{i} <Type> \"Hashtag\" .
+        _:tweet <Hashtag> _:hashtag#{i} ."
+        i = i + 1
       end
     end
 
@@ -66,28 +44,40 @@ helpers do
     end
     tweet << "}}"
 
-    $dg.mutate(query: tweet)
-    expire_user_profile(user)
-    # if params[:header] != nil && params[:header][:Accept] == "application/json"
-    #   h = Hash.new
-    #   h[:user] = current_user
-    #   h[:text] = text
-    #   h[:success] = true
-    #   return h.to_json
-    # end
+    sent_data = {
+      query: tweet,
+      username: current_user,
+      action: "New Tweet",
+    }
 
+    #RabbitMQ/Bunny publisher
+    puts "Creating tweets here"
+
+    connection = Bunny.new(host: settings.rabbitmq_host, port: settings.rabbitmq_port,
+                           user: settings.rabbitmq_user, pass: settings.rabbitmq_pass,
+                           automatically_recover: true)
+    connection.start unless connection.open?
+
+    ch = connection.create_channel
+    q  = ch.queue("task_queue", :durable => true)
+
+    q.publish(sent_data.to_json,
+      :timestamp      => Time.now.to_i,
+      :routing_key    => "process"
+    )
+    puts " [x] Sent Data to Queue"
+
+    connection.close
   end
 end
 
-get '/tweet/new' do
-   erb :'tweets/tweet_form'
-end
-
+# Create tweet through UI
 post '/tweet/create' do
   create_tweet(params[:text], current_user)
-  redirect "/users/#{user}"
+  redirect "/users/#{current_user}"
 end
 
+# Show all the tweets, by default updates every 10 minutes
 get '/tweets/all' do
   query = "{
     tweets(func: eq(Type, \"Tweet\"), first: 100) {
@@ -98,11 +88,12 @@ get '/tweets/all' do
       Timestamp
     }
   }"
-  res = from_dgraph_or_redis(query, ex: 600)
+  res = from_dgraph_or_redis('all_tweet', query, ex: 600)
   @tweets = res.dig(:tweets)
   erb :'/tweets/tweetsAll'
 end
 
+#  Create retweet, same logic with tweeting
 post '/tweets/retweet/:tweet_id' do
   text = params[:text].to_s
   query = "{
@@ -132,11 +123,13 @@ post '/tweets/retweet/:tweet_id' do
 
   if text.include? '#'
     hashtags = text.scan(/#(\w+)/)
+    i = 0
     hashtags.each do |h|
-      retweet << "
-    _:hashtag <Text> \"#{h.first}\" .
-    _:hashtag <Type> \"Hashtag\" .
-    _:tweet <Hashtag> _:hashtag ."
+      tweet << "
+        _:hashtag#{i} <Text> \"#{h.first}\" .
+        _:hashtag#{i} <Type> \"Hashtag\" .
+        _:tweet <Hashtag> _:hashtag#{i} ."
+      i = i + 1
     end
   end
 
@@ -148,34 +141,17 @@ post '/tweets/retweet/:tweet_id' do
         _:tweet <Mention> <#{user}> ."
     end
   end
+
   retweet << "}}"
 
-  $dg.mutate(query: retweet)
-  expire_user_profile(current_user)
-  if params[:header] != nil && params[:header][:Accept] == "application/json"
-    h = Hash.new
-    h[:user] = current_user
-    h[:text] = text
-    h[:success] = true
-    return h.to_json
-  end
+  sent_data = {
+    query: retweet,
+    username: current_user,
+    action: "New Tweet",
+  }
+
+  @queue.publish(sent_data.to_json, persistent: true)
+  puts " [x] Sent Data to Queue"
+
   redirect "/users/#{current_user}"
-end
-
-post '/test/tweets/new' do
-  tweet = Tweet.new(:user_id => params[:user_id], :content => params[:content])
-  if tweet.save
-    tweet.to_json
-  else
-    error 404, {error: "Tweet not created"}.to_json
-  end
-end
-
-get '/test/tweets/:username' do
-  u = User.find_by_username(params[:username])
-  if u != nil
-    u.tweets.to_json
-  else
-    error 404, {error: "User not find"}.to_json
-  end
 end

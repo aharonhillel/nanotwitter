@@ -1,10 +1,19 @@
 require 'json'
 require 'net/http'
+require 'httpclient'
 
 class Dgraph
   class Client
     def initialize(options = {})
-      @client = Net::HTTP.new(options[:host], options[:port])
+      pool = options[:pool] || 5
+      @host = options[:host] || '127.0.0.1'
+      @port = options[:port] || 8080
+      @clients = []
+      @async_clients = []
+      pool.times do
+        @clients << Net::HTTP.new(@host, @port)
+        @async_clients << HTTPClient.new
+      end
     end
 
     def alter(options = {})
@@ -13,7 +22,8 @@ class Dgraph
       # req.continue_timeout = options[:timeout]
       req.body = options[:schema]
 
-      res = @client.request(req)
+      res = any_client.request(req)
+
       body = JSON.parse(res.body, symbolize_names: true)
       body.dig(:data, :code).equal? 'Success'
     end
@@ -24,7 +34,7 @@ class Dgraph
       # req.continue_timeout = options[:timeout]
       req.body = options[:query]
 
-      res = @client.request(req)
+      res = any_client.request(req)
 
       if options[:raw]
         JSON.parse(res.body, symbolize_names: true)
@@ -40,7 +50,8 @@ class Dgraph
       req['X-Dgraph-CommitNow'] = true
       req.body = options[:query]
 
-      res = @client.request(req)
+      res = any_client.request(req)
+
       body = JSON.parse(res.body, symbolize_names: true)
 
       if options[:show_uids]
@@ -50,19 +61,33 @@ class Dgraph
       end
     end
 
-    def drop_all
-      req = Net::HTTP::Post.new('/alter')
-      req['accept'] = 'application/json'
-      req.body = '{"drop_all": true}'
+    def mutate_async(options = {})
+      conn = any_async_client.post_async(
+        "http://#{@host}:#{@port}/mutate",
+        header: {
+          'accept' => 'application/json',
+          'X-Dgraph-CommitNow' => true,
+        },
+        body: options[:query]
+      )
+      conn
+    end
 
-      res = @client.request(req)
-      body = JSON.parse(res.body, symbolize_names: true)
-      body.dig(:data, :code).equal? 'Success'
+    def drop_all
+      alter(schema: '{"drop_all": true}')
     end
 
     def drop_attr(options = {})
       attr = options[:attr]
       alter(schema: "{\"drop_attr\": \"#{attr}\"}")
+    end
+
+    def any_client
+      @clients.sample
+    end
+
+    def any_async_client
+      @async_clients.sample
     end
   end
 end

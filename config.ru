@@ -1,4 +1,7 @@
 require './app'
-require 'acorn_cache'
-# use Rack::AcornCache
+
+configure do
+   set :server, :thin
+ end
+
 run Sinatra::Application

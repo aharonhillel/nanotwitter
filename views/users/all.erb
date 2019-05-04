@@ -5,7 +5,7 @@
       Name: <%= u[:Username]%>
       Email: <%= u[:Email] %>
       Username: <%= u[:Username] %>
-      <form action='/follows/<%= u[:Username] %>' method='post'>
+      <form action='/follows/follow/<%= u[:Username] %>' method='post'>
         <button type='submit' class='btn btn-primary'>Follow</button>
       </form>
     </li>

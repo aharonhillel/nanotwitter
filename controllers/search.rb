@@ -1,5 +1,5 @@
-post '/search' do
-  text = params[:text].to_s
+get '/search' do
+  text = params[:search].to_s
 
   type = "Tweet"
   if text.include? '#'
@@ -7,7 +7,7 @@ post '/search' do
   end
 
   query = "{
-    search(func: alloftext(Text, \"#{text}\"), first: 20) @filter(eq(Type, \"#{type}\")) {
+    search(func: alloftext(Text, \"#{text}\"), first: 10) @filter(eq(Type, \"#{type}\")) {
       Type
       Text
     }
@@ -22,7 +22,7 @@ post '/search' do
     }"
   end
 
-  res = from_dgraph_or_redis(query, ex: 120)
+  res = from_dgraph_or_redis("#{text}:search", query, ex: 120)
 
   if res.nil?
     status_code 404

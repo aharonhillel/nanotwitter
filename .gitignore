@@ -30,11 +30,10 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
-
+*.pem
 .env
 
 # Ignore AWS configs
-nanotwitter-deploy-prod-pipeline.json.ufo/current
 .ufo/data
 .ufo/log
 .ufo/output
@@ -43,5 +42,5 @@ nanotwitter-deploy-prod-pipeline.json.ufo/current
 *.gz
 *.rdf
 
+.bundle
 .DS_Store
-.byebug_history
