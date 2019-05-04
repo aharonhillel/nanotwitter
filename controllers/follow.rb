@@ -1,9 +1,7 @@
 
 post '/follows/follow/:followed' do
   cur = username_to_uid(current_user)
-  #byebug
   following = username_to_uid(params[:followed])
-  #byebug
   query = "{
     following(func: uid(#{cur})){
       Follow @filter(uid(#{following})){
@@ -11,17 +9,21 @@ post '/follows/follow/:followed' do
       }
     }
   }"
-
   res = $dg.query(query: query).dig(:following).first
   if res.nil?
     follow = "{set{
     <#{cur}> <Follow> <#{following}> .}}"
 
     $dg.mutate(query: follow)
-    "#{current_user} followed #{params[:followed]}"
+    follow_res = {
+        follower: current_user,
+        followed: params[:followed]
+    }
+
+    follow_res.to_json
     #erb :'follows/followings'
   else
-    "Already followed"
+    "Already followed".to_json
   end
 end
 

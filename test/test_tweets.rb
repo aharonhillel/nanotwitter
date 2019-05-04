@@ -9,16 +9,25 @@ def app
  Sinatra::Application
 end
 
+describe 'POST on /tweet/create' do
+  before do
+    query = "{set{
+        _:user <Username> \"testT1\" .
+        _:user <Email> \"testT1@gmail.com\" .
+        _:user <Password> \"12345678\" .
+        _:user <Type> \"User\" .
+      }}"
+    $dg.mutate(query: query)
 
-describe 'POST on /tweet/new' do
-  it 'New tweet' do
+  end
+  it 'Post new tweet' do
     header = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
-    username = create_user
+    username = "testT1"
     c = Faker::Lorem.characters(100)
     browser = Rack::Test::Session.new(Rack::MockSession.new(Sinatra::Application))
     post '/tweet/create',{
          text: c,
-         header: header}, 'rack.session' => { :username =>username }, format: 'json'
+         header: header}, 'rack.session' => { :username => username}, format: 'json'
     last_response.ok?
     json = JSON.parse(last_response.body)
     assert_equal c, json['text']

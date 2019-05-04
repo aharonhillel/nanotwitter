@@ -19,6 +19,7 @@ describe 'User like or unlike tweets' do
         _:user <Password> \"12345678\" .
         _:user <Type> \"User\" .
       }}"
+    byebug
     $dg.mutate(query: query1)
 
     query2 = "{
