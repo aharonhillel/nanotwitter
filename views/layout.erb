@@ -85,22 +85,6 @@
 </html>
 
 <script type="text/javascript">
-    // $(function(){
-    //     let $profileDOM = $(".nav-item.profile");
-    //     let $homeDOM = $(".nav-item.home");
-    //     $("#home-link").click(() => {
-    //         $homeDOM.removeClass("active");
-    //         $profileDOM.removeClass("active");
-    //         $homeDOM.addClass("active");
-    //     });
-    //     $("#profile-link").click(() => {
-    //         $profileDOM.removeClass("active");
-    //         $homeDOM.removeClass("active");
-    //         $profileDOM.addClass("active");
-    //     });
-    // });
-
-
     $('#exampleModal').on('shown.bs.modal', function () {
         $('#text').trigger('focus');
         $(".tweet-form").submit(() => {
@@ -113,7 +97,7 @@
         })
     })
 
-    //Number of characters in the tweet
+    // Number of characters in the tweet
     var text_max = 280;
     $('#count_message').html(text_max + ' remaining');
 
@@ -123,6 +107,4 @@
 
         $('#count_message').html(text_remaining + ' remaining');
     });
-
-
 </script>

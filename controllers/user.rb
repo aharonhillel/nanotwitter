@@ -219,6 +219,7 @@ def trending_tweets
   end
 end
 
+# Show all users in database
 get '/users' do
   query = "{
     users(func: eq(Type, \"User\")) {
@@ -237,6 +238,5 @@ get '/users' do
     status 200
     @users = users
     erb :'users/all'
-    #erb :'profile/profile.html', layout: :layout_profile
   end
 end

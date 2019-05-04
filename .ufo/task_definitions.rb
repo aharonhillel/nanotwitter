@@ -45,16 +45,3 @@ task_definition "nanotwitter-builder" do
     command: ["bin/deploy"] # IMPORTANT: change or create a bin/worker file
   )
 end
-
-# task_definition "nanotwitter-clock" do
-#   source "fargate" # will use ufo/templates/fargate.json.erb
-#   variables(
-#     family: task_definition_name,
-#     name: "clock",
-#     # Comment out awslogs_* if you do not want logs to be sent to CloudWatch.
-#     awslogs_group: ["ecs/nanotwitter-clock", Ufo.env_extra].compact.join('-'),
-#     awslogs_stream_prefix: "nanotwitter",
-#     awslogs_region: helper.current_region,
-#     # command: ["bin/clock"] # IMPORTANT: change or create a bin/clock file
-#   )
-# end
