@@ -26,4 +26,3 @@ production:
   cluster: production
   aws_profiles:
     - default
-    - aws1-cli

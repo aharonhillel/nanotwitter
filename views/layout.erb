@@ -67,7 +67,7 @@
         </div>
 
         <div class="col well">
-          <form class="tweet-form">
+          <form method="POST" action="/tweet/create">
             <textarea class="form-control my-2" id="text" name="text" placeholder="Type in your message" rows="5"></textarea>
             <h6 class="pull-right" id="count_message"></h6>
             <button class="btn btn-info my-2"  type="submit" value="Tweet">Tweet!</button>
@@ -85,22 +85,6 @@
 </html>
 
 <script type="text/javascript">
-    // $(function(){
-    //     let $profileDOM = $(".nav-item.profile");
-    //     let $homeDOM = $(".nav-item.home");
-    //     $("#home-link").click(() => {
-    //         $homeDOM.removeClass("active");
-    //         $profileDOM.removeClass("active");
-    //         $homeDOM.addClass("active");
-    //     });
-    //     $("#profile-link").click(() => {
-    //         $profileDOM.removeClass("active");
-    //         $homeDOM.removeClass("active");
-    //         $profileDOM.addClass("active");
-    //     });
-    // });
-
-
     $('#exampleModal').on('shown.bs.modal', function () {
         $('#text').trigger('focus');
         $(".tweet-form").submit(() => {
@@ -113,7 +97,7 @@
         })
     })
 
-    //Number of characters in the tweet
+    // Number of characters in the tweet
     var text_max = 280;
     $('#count_message').html(text_max + ' remaining');
 
@@ -123,6 +107,4 @@
 
         $('#count_message').html(text_remaining + ' remaining');
     });
-
-
 </script>
