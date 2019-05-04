@@ -1,4 +1,4 @@
-# Nanotwitter [![Maintainability](https://api.codeclimate.com/v1/badges/a8b178e8fa9a752068f7/maintainability)](https://codeclimate.com/github/aharonhillel/nanotwitter/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/a8b178e8fa9a752068f7/test_coverage)](https://codeclimate.com/github/aharonhillel/nanotwitter/test_coverage)
+# Nanotwitter [![Maintainability](https://api.codeclimate.com/v1/badges/a8b178e8fa9a752068f7/maintainability)](https://codeclimate.com/github/aharonhillel/nanotwitter/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/a8b178e8fa9a752068f7/test_coverage)
 
 A baby twitter.
 
