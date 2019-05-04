@@ -102,3 +102,9 @@ cp db/seed.rdf.gz ~/dgraph
 
 docker exec -it dgraph dgraph live -r seed.rdf.gz --zero localhost:5080 -c 1
 ```
+
+### Run Worker
+
+```
+ruby fanout-worker.rb #in new terminal window
+```
