@@ -18,10 +18,14 @@ post '/follows/follow/:followed' do
     <#{cur}> <Follow> <#{following}> .}}"
 
     $dg.mutate(query: follow)
-    "#{current_user} followed #{params[:followed]}"
-    #erb :'follows/followings'
+    follow_res = {
+        follower: current_user,
+        followed: params[:followed]
+    }
+
+    follow_res.to_json
   else
-    "Already followed"
+    "Already followed".to_json
   end
 end
 
