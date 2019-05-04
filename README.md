@@ -108,3 +108,10 @@ docker exec -it dgraph dgraph live -r seed.rdf.gz --zero localhost:5080 -c 1
 ```
 ruby fanout-worker.rb #in new terminal window
 ```
+
+
+### Login as User
+
+```
+path: '/test/login/user/Username
+```
