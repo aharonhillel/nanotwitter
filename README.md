@@ -14,7 +14,7 @@ http://nanotwitter.com
 
 ### 1.0 (5/3/19)
 
-- Implemented worker for tweeting and regenerating timelines
+- Implemented auto-scaling worker (EC2)for tweeting and regenerating timelines. Based on RabbitMQ service deployed on EC2. 
 - Fixed bug on UI where tweet AJAX does not post
 - Fixed CI/CD pipeline for Codeship
 
