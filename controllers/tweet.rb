@@ -73,7 +73,6 @@ end
 
 # Create tweet through UI
 post '/tweet/create' do
-  puts "Create new tweet"
   create_tweet(params[:text], current_user)
   redirect "/users/#{current_user}"
 end
